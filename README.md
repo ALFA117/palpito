@@ -78,6 +78,35 @@ Next.js (App Router, RSC)
 
 **Network:** Somnia testnet (chain 50312). **Collateral:** tUSDC, 6 decimals, public faucet.
 
+---
+
+![The feed: say a hunch in words, and see what everyone else is calling](docs/img/feed.png)
+
+*The whole product in one screen. The composer prices from the pool's live book;
+the strip below shows every open window with its countdown and traded volume; the
+feed is real fills by real wallets, each carrying its verdict and a link to the
+oracle.*
+
+![A wallet's record, with calibration bands](docs/img/record.png)
+
+*Calibration is the part a hit rate hides. This wallet is at 32% overall and
+well calibrated at 19%, 38% and 50% — then says 87% and is right 15% of the time.
+That band is the useful thing to know about them.*
+
+![The leaderboard, computed from the chain](docs/img/leaderboard.png)
+
+*Ranked over 24 hours by default: all-time on a venue this young is a static list
+of whichever bots have run longest. Every number here is recomputed from the
+public indexer, so anyone can check it.*
+
+![The oracle's own resolution page for a settled market](docs/img/oracle-receipt.png)
+
+*What "See why" opens. The question, the median across price sources, the block it
+landed in — published by the oracle, not by us. This is what turns a leaderboard
+into evidence.*
+
+---
+
 ## Deliverables
 
 | | |

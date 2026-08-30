@@ -101,7 +101,10 @@ estar abierta).
 36. `[x]` Guion del video de 2-3 minutos, con planos y tiempos.
 37. `[x]` Deck de presentación.
 38. `[x]` Informe de feedback del SDK como documento aparte.
-39. `[!]` Capturas en el README. Necesita 3 pantallazos tuyos: muro, calibración, recibo del oráculo.
+39. `[x]` Capturas en el README: muro, calibración, ranking y recibo del oráculo,
+    tomadas con Chrome headless contra el despliegue en vivo (`docs/img/`).
+    Falta una móvil: headless no aplica bien el viewport de teléfono y sale
+    cortada, aunque en navegador real encaja a 375 px.
 40. `[ ]` Datos de respaldo para que la demo no dependa de que haya ventanas vivas.
 
 ## E. Profundidad técnica (los jueces escribieron el SDK)
