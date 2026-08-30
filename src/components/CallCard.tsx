@@ -6,6 +6,7 @@ import { oracleGraphUrl, explorerTxUrl } from "@/lib/somnia";
 import { asPercent, handleFor, money, shortAddress, timeAgo, windowLabel } from "@/lib/format";
 import { useLocale } from "./LocaleProvider";
 import { Countdown, useNow } from "./Clock";
+import { JoinButtons } from "./JoinButtons";
 
 function DirectionPill({ direction }: { direction: Call["direction"] }) {
   const { t } = useLocale();
@@ -105,7 +106,14 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
         )}
       </div>
 
-      <footer className="mt-3 flex items-center gap-3 text-[11px]">
+      {/* Only a live window can be joined; a settled call is a receipt, not an offer. */}
+      {live && (
+        <div className="mt-3 border-t border-border pt-3">
+          <JoinButtons call={call} />
+        </div>
+      )}
+
+      <footer className="mt-3 flex flex-wrap items-center gap-3 text-[11px]">
         {m.oracleQuestionId && (outcome === "won" || outcome === "lost" || outcome === "void") && (
           <a
             href={oracleGraphUrl(m.oracleQuestionId)}

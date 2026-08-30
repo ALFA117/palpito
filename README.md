@@ -23,13 +23,14 @@ Palpito is that layer.
 - **A record nobody can edit.** Hit rate, settled calls and P&L for any wallet that has ever traded this venue, recomputed from the public indexer on every request. There is no database behind the reputation layer, on purpose.
 - **A leaderboard of who is actually right**, over wallets with enough settled calls to mean something.
 - **Making a call**, end to end: connect an injected wallet, pull testnet collateral from the public faucet without leaving the page, and buy the UP or DOWN side of a live window.
+- **Agreeing or disagreeing in one tap.** Every live call in the feed carries *join* and *fade*; a settled one carries a receipt instead.
 - **Saying it in words.** "no creo que el bitcoin suba esta hora" fills in ETH/DOWN/1h by itself; "who wins the derby on Sunday" gets told, plainly, what this venue can and cannot do.
 
 ## Why the social layer is not decoration
 
 Event contracts settle a crossing of `Buy Up × Buy Down` by **minting a fresh pair** — two opposite-side buyers need no seller and no market maker. So on this venue, two people disagreeing *is* the liquidity event.
 
-That is a strange property for a trading venue and a completely ordinary property for a social feed. Palpito leans on it: the calls marked `◇ created liquidity` in the feed are fills that existed only because two people took opposite sides of the same window.
+That is a strange property for a trading venue and a completely ordinary property for a social feed. Palpito leans on it twice. The calls marked `◇ created liquidity` are fills that existed only because two people took opposite sides of the same window — and the **fade** button next to every live call is that mechanism offered directly: disagreeing with someone here does not consume liquidity, it *is* the liquidity event.
 
 ## Running it
 
@@ -64,6 +65,8 @@ Next.js (App Router, RSC)
 | `src/lib/indexer.ts` | Every read + the scoring rules (`outcomeOf`, `buildStanding`) |
 | `src/lib/i18n.ts` | Both dictionaries; a missing key is a type error |
 | `src/lib/parse.ts` | The deterministic sentence parser |
+| `src/lib/book.ts` | Live best-ask per side, read from the pool |
+| `src/lib/useJoin.ts` | One-tap join / fade on someone else's call |
 | `src/app/api/parse/route.ts` | The Claude fallback (optional) |
 | `src/app/page.tsx` | The feed |
 | `src/app/ranking/page.tsx` | Leaderboard |
@@ -149,11 +152,10 @@ or time on this venue:
 ## Status
 
 Working against live testnet data: feed, leaderboard, wallet records, verifiable
-receipts, wallet connect, faucet, placing a call, the sentence composer, both
-locales.
+receipts, wallet connect, faucet, placing a call, the sentence composer, one-tap
+join and fade, both locales.
 
-Not yet built: one-tap "I'm in" from a feed card, and selling out of a position
-before its window closes.
+Not yet built: selling out of a position before its window closes.
 
 ## License
 

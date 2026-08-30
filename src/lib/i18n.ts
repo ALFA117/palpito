@@ -135,6 +135,17 @@ const es = {
   cantDoThat: "Eso no se puede aquí",
   cantDoThatBody: "En DreamDEX solo hay ventanas de precio de bitcoin y ethereum: si cierran arriba o abajo de donde abrieron. No hay deportes, ni elecciones, ni precios objetivo.",
   tryExample: "Prueba con:",
+  // One-tap join
+  joined: "Te sumaste",
+  faded: "Le fuiste en contra",
+  joining: "Firmando...",
+  joinNoBook: "Nadie ofrece ese lado ahora",
+  joinFunds: "No te alcanza el saldo",
+  joinClosed: "Esa ventana ya cerró",
+  joinFailed: "No se pudo",
+  fadeWhy: "Tomar el lado contrario a alguien crea el par en el protocolo: tu desacuerdo ES la liquidez, sin market maker de por medio.",
+  connectToJoin: "Conecta tu wallet para sumarte",
+
 
 };
 
@@ -258,6 +269,16 @@ const en: Dict = {
   cantDoThat: "That is not possible here",
   cantDoThatBody: "DreamDEX only runs price windows on bitcoin and ethereum: whether they close above or below where they opened. No sports, no elections, no price targets.",
   tryExample: "Try:",
+  joined: "You're in",
+  faded: "You faded it",
+  joining: "Signing...",
+  joinNoBook: "Nobody is offering that side",
+  joinFunds: "Not enough balance",
+  joinClosed: "That window already closed",
+  joinFailed: "Could not place it",
+  fadeWhy: "Taking the opposite side mints the pair in the protocol: your disagreement IS the liquidity, with no market maker involved.",
+  connectToJoin: "Connect your wallet to join",
+
 
 };
 
