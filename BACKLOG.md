@@ -5,7 +5,7 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 
 ---
 
-**Estado:** 15 de 50 hechas. Lo desplegado vive en
+**Estado:** 14 de 50 hechas. Lo desplegado vive en
 <https://palpito-somnia.vercel.app>, el repo en
 <https://github.com/ALFA117/palpito>.
 
@@ -47,7 +47,9 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 
 26. `[x]` Sin esqueletos de carga: las páginas simplemente esperan.
 27. `[x]` La cuenta regresiva no cambia de urgencia bajo 30 s.
-28. `[x]` Las tarjetas no muestran cómo va esa predicción ahora (precio actual vs. el que pagó).
+28. `[ ]` Las tarjetas no muestran cómo va esa predicción ahora. Descartado por ahora:
+    exigiría leer el libro por cada tarjeta (40 `eth_call` por tick) y el único dato
+    gratis, `lastPrice`, es justo el que decidimos no usar por engañoso.
 29. `[ ]` En móvil no hay acceso fijo a "hacer un palpito" al bajar por el muro.
 30. `[ ]` La explicación de mint-a-pair va en `title`: invisible en táctil.
 31. `[ ]` Sin auditoría de `focus-visible`.
