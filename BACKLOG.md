@@ -5,7 +5,7 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 
 ---
 
-**Estado:** 14 de 50 hechas. Lo desplegado vive en
+**Estado:** 19 de 50 hechas. Lo desplegado vive en
 <https://palpito-somnia.vercel.app>, el repo en
 <https://github.com/ALFA117/palpito>.
 
@@ -68,8 +68,10 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 
 ## E. Profundidad técnica (los jueces escribieron el SDK)
 
-41. `[ ]` Usar los hooks de tiempo real del SDK (`useLiveBinaryOrderBook`) en vez de polling.
-42. `[ ]` Los fills entran al muro en vivo (`useLiveFills`) en vez de revalidar cada 10 s.
+41. `[!]` Usar los hooks de tiempo real del SDK. **Intentado y no funciona**: el tail
+    nunca arranca (`useIsTailing()` siempre false, sin error). Documentado en
+    FEEDBACK.md #10. Reintentar si el SDK lo arregla.
+42. `[x]` Los fills entran al muro en vivo — vía sondeo de 3 s al indexer, no vía SDK (ver 41).
 43. `[x]` Mostrar volumen por mercado (receta "Read a market's volume").
 44. `[ ]` Mini-visualización del grafo del oráculo en línea, no solo el enlace.
 45. `[ ]` Session keys / operators para una UX sin fricción de firma.

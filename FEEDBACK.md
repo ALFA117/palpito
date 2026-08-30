@@ -151,6 +151,32 @@ The gap is purely that nothing surfaces the debt.
 **Suggestion:** an indexer field for claimable value per account would let every
 frontend show it without reconstructing the join.
 
+## 10. The realtime React hooks never started for us
+
+**Cost: ~90 minutes, and it fails silently.**
+
+We wanted the feed to tail the chain rather than poll, which is the natural fit
+for a venue whose selling point is settlement speed. Under
+`SomniaMarketsProvider`, with `useLiveFills(pool, 8)` mounted per live pool:
+
+- `useIsTailing()` stayed `false` indefinitely — checked at 15s, 35s and after a
+  full reload on a production deployment.
+- No error, no console warning, no failed request.
+- A `new WebSocket("wss://api.infra.testnet.somnia.network/ws")` opened fine by
+  hand from the same page, so the transport and the origin are not the problem.
+- `@somnia-chain/reactivity` is a **peerDependency and was not installed** — npm
+  did not pull it and nothing said so. Installing it (0.2.1) did not change the
+  behaviour, but a missing peer that the realtime path imports should surely be a
+  hard error rather than nothing at all.
+
+We shipped a three-second indexer poll instead, because a feature that is
+silently inert is worse than a plainer one that works.
+
+**Suggestions:** make the missing peer dependency throw at import; give
+`useLiveStatus()` a reason field when a watch cannot start; and add a minimal
+end-to-end React example to the docs — every realtime snippet we found was a
+signature, not a working mount.
+
 ---
 
 ## What is genuinely excellent

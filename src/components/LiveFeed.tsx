@@ -1,112 +1,70 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLiveFills, useIsTailing } from "@somnia-chain/markets-sdk/react";
-import type { Call, Market } from "@/lib/indexer";
-import { ONE } from "@/lib/somnia";
+import { useQuery } from "@tanstack/react-query";
+import { recentCallsClient } from "@/lib/live";
+import type { Call } from "@/lib/indexer";
 import { CallCard } from "./CallCard";
 import { useLocale } from "./LocaleProvider";
+import { useNow } from "./Clock";
 
 /**
- * Calls arriving as they happen.
+ * Calls arriving while you watch.
  *
- * The server-rendered feed revalidates every ten seconds, which is fine for
- * history and wrong for the thing this product is about: on a five-minute window
- * ten seconds is a meaningful share of the whole decision. The SDK tails the
- * chain directly, so a call can land on screen while the person who made it is
- * still looking at their wallet.
+ * The server feed revalidates every ten seconds, which is fine for history and
+ * wrong for the thing this product is about: on a five-minute window, ten
+ * seconds is a meaningful share of the whole decision.
  *
- * `useLiveFills` watches one pool, so there is one watcher per live window. They
- * share a single socket and are ref-counted by the SDK, which is why this is a
- * component per pool rather than a loop — hooks cannot be called in one.
+ * This polls the indexer every three seconds instead of using the SDK's realtime
+ * tail. That was the first choice and it did not work: `useLiveFills` under
+ * `SomniaMarketsProvider` never started — `useIsTailing()` stayed false
+ * indefinitely with no error, no console warning, and a WebSocket to the same
+ * endpoint opening fine by hand from the same page. Installing the missing
+ * `@somnia-chain/reactivity` peer dependency did not change it either. Rather
+ * than ship a feature that is silently inert, the mechanism is one that is
+ * verified end to end; the finding is written up in FEEDBACK.md.
  */
-function PoolTail({
-  market,
-  onCall,
-}: {
-  market: Market;
-  onCall: (call: Call) => void;
-}) {
-  const fills = useLiveFills(market.poolAddress ?? undefined, 8);
-
-  useEffect(() => {
-    for (const f of fills) {
-      // Taker identity is unresolved when OrderFilled is emitted — the taker's
-      // own OrderPlaced fires later in the same transaction — so a fill can
-      // arrive with no author. Showing it then would put an anonymous card in a
-      // feed whose entire subject is who said what. Wait for the join.
-      if (!f.taker || !f.takerSide) continue;
-      if (f.takerSide !== "BUY_YES" && f.takerSide !== "BUY_NO") continue;
-
-      onCall({
-        id: f.id,
-        wallet: String(f.taker).toLowerCase(),
-        direction: f.takerSide === "BUY_YES" ? "UP" : "DOWN",
-        price: Number(f.fillPrice) / ONE,
-        size: Number(f.quantity) / ONE,
-        stake: Number(f.quoteQuantity) / ONE,
-        // Live fills carry no indexer timestamp; arrival is the truth here.
-        timestamp: Math.floor(Date.now() / 1000),
-        txHash: f.txHash ?? "",
-        mintedPair: f.kind === "MINT_A_PAIR",
-        market,
-      });
-    }
-  }, [fills, market, onCall]);
-
-  return null;
-}
-
 export function LiveFeed({
-  markets,
+  asset,
   knownIds,
 }: {
-  markets: Market[];
+  asset: string | null;
   /** Ids already rendered by the server feed, so nothing appears twice. */
   knownIds: string[];
 }) {
   const { t } = useLocale();
-  const tailing = useIsTailing();
-  const [fresh, setFresh] = useState<Call[]>([]);
 
-  const known = useMemo(() => new Set(knownIds), [knownIds]);
+  const { data, isSuccess } = useQuery<Call[]>({
+    queryKey: ["live-calls", asset],
+    refetchInterval: 3_000,
+    // Keep the previous page of calls on screen while the next fetch is in
+    // flight, so the section does not blink out between polls.
+    placeholderData: (prev) => prev,
+    queryFn: () => recentCallsClient(12, asset),
+  });
 
-  const onCall = useCallback(
-    (call: Call) => {
-      if (known.has(call.id)) return;
-      setFresh((prev) =>
-        prev.some((c) => c.id === call.id) ? prev : [call, ...prev].slice(0, 12),
-      );
-    },
-    [known],
+  const known = new Set(knownIds);
+  const now = useNow();
+
+  const fresh = (data ?? []).filter(
+    (c) =>
+      !known.has(c.id) &&
+      // Only calls on windows that are still open: a settled one belongs in the
+      // history below, not in the part of the page that means "just happened".
+      c.market.expiry > now,
   );
 
-  // A server refresh folds these into the main list, so anything it now covers is
-  // filtered at render rather than synced out of state in an effect — the same
-  // call must never sit in both places, and deriving it needs no extra render.
-  const visible = fresh.filter((c) => !known.has(c.id));
-
-  const pools = useMemo(
-    () => markets.filter((m) => m.poolAddress),
-    [markets],
-  );
+  if (!isSuccess) return null;
 
   return (
     <>
-      {pools.map((m) => (
-        <PoolTail key={m.marketId} market={m} onCall={onCall} />
-      ))}
+      <p className="mt-3 flex items-center gap-1.5 text-[11px] text-faint">
+        <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-up" />
+        {t.tailing}
+      </p>
 
-      {tailing && (
-        <p className="mt-3 flex items-center gap-1.5 text-[11px] text-faint">
-          <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-up" />
-          {t.tailing}
-        </p>
-      )}
-
-      {visible.length > 0 && (
+      {fresh.length > 0 && (
         <div className="mt-3 flex flex-col gap-3">
-          {visible.map((call) => (
+          {fresh.map((call) => (
             <div key={call.id} className="rounded-xl ring-1 ring-gold/30">
               <CallCard call={call} outcome="pending" />
             </div>

@@ -131,10 +131,7 @@ export function FeedView({
           <AssetFilter markets={markets} asset={asset} />
         </div>
 
-        <LiveFeed
-          markets={asset ? markets.filter((m) => m.asset === asset) : markets}
-          knownIds={scored.map((s) => s.call.id)}
-        />
+        <LiveFeed asset={asset} knownIds={scored.map((s) => s.call.id)} />
         {scored.length === 0 ? (
           <p className="mt-3 rounded-xl border border-border bg-surface p-5 text-[13px] text-muted">
             {t.feedEmpty}
