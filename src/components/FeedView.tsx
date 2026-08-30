@@ -7,6 +7,7 @@ import { ClockProvider, Countdown } from "./Clock";
 import { asPercent, windowLabel } from "@/lib/format";
 import { CallComposer } from "./CallComposer";
 import { Positions } from "./Positions";
+import { ClaimBanner } from "./ClaimBanner";
 
 export interface ScoredCall {
   call: Call;
@@ -71,6 +72,7 @@ export function FeedView({
   return (
     <ClockProvider now={serverNow}>
       <Hero />
+      <ClaimBanner />
       <div className="mt-4">
         <CallComposer markets={markets} />
       </div>

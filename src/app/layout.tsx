@@ -10,10 +10,21 @@ import { Web3Provider } from "@/components/Web3Provider";
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
+const DESCRIPTION =
+  "Dilo y que la cadena lo confirme. Predicciones con recibo verificable sobre contratos de evento de DreamDEX en Somnia.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://palpito-somnia.vercel.app"),
   title: "Palpito",
-  description:
-    "Dilo y que la cadena lo confirme. Predicciones con recibo verificable sobre contratos de evento de DreamDEX en Somnia.",
+  description: DESCRIPTION,
+  openGraph: {
+    title: "Palpito — Dilo. Que la cadena lo confirme.",
+    description: DESCRIPTION,
+    type: "website",
+    locale: "es_MX",
+    alternateLocale: "en_US",
+  },
+  twitter: { card: "summary_large_image", title: "Palpito", description: DESCRIPTION },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

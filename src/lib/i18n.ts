@@ -158,6 +158,16 @@ const es = {
   sellFailed: "No se pudo vender",
   sellWhy: "Puedes salirte antes de que cierre la ventana, al precio que haya en ese momento. No tienes que esperar al resultado.",
   partialFill: "Se vendió solo una parte",
+  // Claiming winnings
+  unclaimed: "Tienes ganancias sin reclamar",
+  unclaimedWhy: "Un mercado liquidado paga solo cuando alguien lo pide: el dinero no vuelve solo a tu wallet. Una firma las cobra todas.",
+  claimAll: "Reclamar todo",
+  claiming: "Reclamando...",
+  claimed: "Cobrado",
+  claimFailed: "No se pudo reclamar",
+  fromWins: "de aciertos",
+  fromVoids: "anuladas",
+
 
 
 
@@ -304,6 +314,15 @@ const en: Dict = {
   sellFailed: "Could not sell",
   sellWhy: "You can get out before the window closes, at whatever the price is then. You do not have to wait for the result.",
   partialFill: "Only part of it sold",
+  unclaimed: "You have unclaimed winnings",
+  unclaimedWhy: "A settled market pays out only when someone asks: the money does not return to your wallet on its own. One signature claims them all.",
+  claimAll: "Claim all",
+  claiming: "Claiming...",
+  claimed: "Claimed",
+  claimFailed: "Could not claim",
+  fromWins: "from wins",
+  fromVoids: "voided",
+
 
 
 

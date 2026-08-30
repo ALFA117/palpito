@@ -6,6 +6,7 @@ import { CHAIN_ID, ONE } from "./somnia";
 import { askFor, getBook } from "./book";
 import { placeCall } from "./trade";
 import { useCollateralBalance } from "./useCollateral";
+import { useAfterWrite } from "./useAfterWrite";
 import type { Direction, Market } from "./indexer";
 
 /** Same headroom the composer uses — enough to cross a quote that has moved. */
@@ -42,6 +43,8 @@ export function useJoin() {
   const { data: walletClient } = useWalletClient({ chainId: CHAIN_ID });
   const { raw: balance, refetch } = useCollateralBalance(address);
 
+  const afterWrite = useAfterWrite();
+
   const [phase, setPhase] = useState<JoinPhase>({ k: "idle" });
 
   const connected = isConnected && chainId === CHAIN_ID && Boolean(walletClient);
@@ -76,6 +79,7 @@ export function useJoin() {
 
       setPhase({ k: "done", hash: res.hash, filled: res.filled });
       void refetch();
+      afterWrite();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setPhase({

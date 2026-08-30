@@ -8,6 +8,7 @@ import { asPercent, money, windowLabel } from "@/lib/format";
 import { placeCall } from "@/lib/trade";
 import { useCollateralBalance, useFaucet } from "@/lib/useCollateral";
 import { useBook } from "@/lib/useBook";
+import { useAfterWrite } from "@/lib/useAfterWrite";
 import { useLocale } from "./LocaleProvider";
 import { Countdown } from "./Clock";
 import { HunchInput } from "./HunchInput";
@@ -72,6 +73,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
   const { data: walletClient } = useWalletClient({ chainId: CHAIN_ID });
   const { raw: balance, formatted, refetch } = useCollateralBalance(address);
   const faucet = useFaucet(() => void refetch());
+  const afterWrite = useAfterWrite();
 
   const [asset, setAsset] = useState("BTC");
   const [intervalSec, setIntervalSec] = useState<number | null>(null);
@@ -135,6 +137,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
       });
       setPhase({ k: "placed", hash: res.hash, filled: res.filled });
       void refetch();
+      afterWrite();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       const code = msg.includes("MARKET_CLOSED")

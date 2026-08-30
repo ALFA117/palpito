@@ -220,3 +220,36 @@ export async function sellPosition({
     filled: (res.fills ?? []).reduce((n, f) => n + Number(f.quantityFilled) / ONE, 0),
   };
 }
+
+/**
+ * Claim every settled win in one transaction.
+ *
+ * `redeemMany` is all-or-nothing across its entries, which is the right shape
+ * here: the alternative is one wallet prompt per market, and a wallet that
+ * called well for a week would face a dozen of them.
+ *
+ * Losing positions must be filtered out by the caller — redeeming one succeeds
+ * and pays zero rather than reverting, so it would burn gas silently.
+ */
+export async function redeemAll(
+  walletClient: WalletClient,
+  entries: { marketId: string; outcomeIdx: 0 | 1; amount: bigint }[],
+): Promise<{ hash: string }> {
+  if (entries.length === 0) throw new Error("NOTHING_TO_CLAIM");
+
+  const trader = getExchange().client.createTrader({
+    walletClient,
+    decimals: COLLATERAL_DECIMALS,
+  });
+
+  const res = await trader.redeemMany({
+    entries: entries.map((e) => ({
+      marketId: e.marketId as `0x${string}`,
+      outcomeIdx: e.outcomeIdx,
+      amount: e.amount,
+    })),
+  });
+
+  if (res.receipt?.status === "reverted") throw new Error("REVERTED");
+  return { hash: res.hash };
+}

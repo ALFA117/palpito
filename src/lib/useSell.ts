@@ -6,6 +6,7 @@ import { CHAIN_ID, ONE } from "./somnia";
 import { bidFor, getBook } from "./book";
 import { getExchange, sellPosition } from "./trade";
 import type { Position } from "./positions";
+import { useAfterWrite } from "./useAfterWrite";
 
 /** Headroom below the resting bid, so a book that moved still crosses. */
 const SLIPPAGE = 0.05;
@@ -19,6 +20,7 @@ export type SellPhase =
 export function useSell() {
   const { isConnected, chainId } = useAccount();
   const { data: walletClient } = useWalletClient({ chainId: CHAIN_ID });
+  const afterWrite = useAfterWrite();
   const [phase, setPhase] = useState<SellPhase>({ k: "idle" });
 
   const connected = isConnected && chainId === CHAIN_ID && Boolean(walletClient);
@@ -68,6 +70,7 @@ export function useSell() {
       });
 
       setPhase({ k: "done", hash: res.hash, filled: res.filled });
+      afterWrite();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setPhase({

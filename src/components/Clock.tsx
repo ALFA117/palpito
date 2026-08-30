@@ -42,10 +42,18 @@ export function useNow(): number {
  */
 export function Countdown({ expiry, className }: { expiry: number; className?: string }) {
   const now = useNow();
+  const left = expiry - now;
+
+  // Under half a minute the decision is now-or-never, and a countdown that reads
+  // the same at 40 minutes and 4 seconds is not telling anyone that.
+  const urgent = left > 0 && left <= 30;
 
   return (
-    <span className={className} suppressHydrationWarning>
-      {countdown(expiry - now)}
+    <span
+      className={`${className ?? ""}${urgent ? " text-down font-semibold" : ""}`}
+      suppressHydrationWarning
+    >
+      {countdown(left)}
     </span>
   );
 }
