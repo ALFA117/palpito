@@ -263,7 +263,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
                     {d === "UP" ? `▲ ${t.up}` : `▼ ${t.down}`}
                   </span>
                   <span className="mt-0.5 block font-mono text-[11px] text-muted">
-                    {q ? asPercent(q.price) : bookLoading ? "..." : "—"}
+                    {q ? asPercent(q.price) : bookLoading ? "…" : t.priceUnavailable}
                   </span>
                 </button>
               );

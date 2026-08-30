@@ -9,6 +9,25 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 <https://palpito-somnia.vercel.app>, el repo en
 <https://github.com/ALFA117/palpito>.
 
+## ⚠ Fallo abierto, lo primero que hay que mirar
+
+**La cotización del compositor no resuelve en build de producción.** `useBook` →
+`getBinaryOrderBook` del SDK se queda pendiente para siempre: sin error, sin
+petición fallida, sin nada en consola. En `next dev` funciona; en `next start` y en
+Vercel, no. Los precios de Sube/Baja quedan en "…".
+
+Descartado (probado uno por uno, con build de producción local):
+`LiveFeed` · el paquete `@somnia-chain/reactivity` · pasarle `wsRpcUrl` al SDK ·
+hidratación rota (el toggle de idioma y los radios SÍ responden) · CORS del indexer
+(la consulta funciona desde la propia página) · chunks JS que no cargan.
+
+Mitigado, no resuelto: la lectura ahora tiene tiempo límite de 6 s y reintenta, y el
+estado sin precio se muestra como "sin precio" en vez de puntos infinitos. **El resto
+de la app —muro, ranking, calibración, recibos, perfiles— funciona.**
+
+Siguiente paso sugerido: reemplazar `getBinaryOrderBook` del SDK por un `eth_call`
+directo con viem, que es lo único que esa llamada hace por dentro.
+
 ## A. Correctitud y riesgos reales
 
 1. `[!]` **Choque de nombre.** `palpito.vercel.app` ya es de otro producto del mismo rubro
@@ -71,7 +90,8 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 41. `[!]` Usar los hooks de tiempo real del SDK. **Intentado y no funciona**: el tail
     nunca arranca (`useIsTailing()` siempre false, sin error). Documentado en
     FEEDBACK.md #10. Reintentar si el SDK lo arregla.
-42. `[x]` Los fills entran al muro en vivo — vía sondeo de 3 s al indexer, no vía SDK (ver 41).
+42. `[!]` Muro en vivo: **retirado**. Ni con los hooks del SDK ni con sondeo propio.
+    Al investigarlo salió un fallo mayor, abajo.
 43. `[x]` Mostrar volumen por mercado (receta "Read a market's volume").
 44. `[ ]` Mini-visualización del grafo del oráculo en línea, no solo el enlace.
 45. `[ ]` Session keys / operators para una UX sin fricción de firma.

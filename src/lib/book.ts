@@ -36,10 +36,29 @@ export interface BookSnapshot {
  * each holding a subscription would be forty `eth_call`s a tick for a number
  * nobody is looking at.
  */
+/**
+ * A hung promise never retries, so it gets a deadline.
+ *
+ * We measured the SDK's first `getBinaryOrderBook` call sitting pending forever
+ * in a production build — no error, no failed request, nothing in the console —
+ * which left the composer showing a loading ellipsis where the price goes, with
+ * no path out. react-query retries a rejection but waits on a pending promise
+ * indefinitely, so the fix is to turn the second thing into the first.
+ */
+function withDeadline<T>(p: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error("BOOK_TIMEOUT")), ms),
+    ),
+  ]);
+}
+
 export async function getBook(pool: string): Promise<BookSnapshot> {
-  const book = await getExchange().client.getBinaryOrderBook(pool as `0x${string}`, {
-    depth: 1,
-  });
+  const book = await withDeadline(
+    getExchange().client.getBinaryOrderBook(pool as `0x${string}`, { depth: 1 }),
+    6_000,
+  );
   const level = (l: { price: bigint; quantity: bigint } | undefined): BestAsk | null =>
     l ? { price: Number(l.price) / ONE, size: Number(l.quantity) / ONE } : null;
 
