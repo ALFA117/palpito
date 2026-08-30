@@ -71,6 +71,27 @@ export interface Call {
 
 export type CallOutcome = "won" | "lost" | "void" | "pending";
 
+/**
+ * One confidence band: what they paid, versus how often they were right.
+ *
+ * The price a buyer pays IS their stated confidence — 0.70 for UP is "I think
+ * this is 70% likely". So a band compares a claim against an outcome, which is
+ * a stronger statement about someone than a hit rate: being right 60% of the
+ * time is one number, being right 60% of the time WHEN YOU SAID 60% is the
+ * number that identifies a forecaster rather than someone on a hot streak.
+ */
+export interface CalibrationBand {
+  /** Lower edge of the band, 0-1. */
+  from: number;
+  to: number;
+  /** Settled calls in this band. */
+  n: number;
+  /** Share of them that won, 0-1. */
+  actual: number;
+  /** Mean price paid inside the band — what they actually claimed. */
+  claimed: number;
+}
+
 export interface Standing {
   wallet: string;
   won: number;
@@ -83,6 +104,13 @@ export interface Standing {
   returned: number;
   /** returned - staked, in tUSDC, over settled calls only. */
   pnl: number;
+  /**
+   * Consecutive wins (positive) or losses (negative) counting back from the most
+   * recent settled call. Zero when nothing has settled.
+   */
+  streak: number;
+  /** Confidence bands with enough calls to mean anything. Empty for a light record. */
+  calibration: CalibrationBand[];
 }
 
 // ─── Shaping ─────────────────────────────────────────────────────────────────
@@ -303,6 +331,63 @@ export function payoutOf(call: Call): number {
   }
 }
 
+/** Band edges. Below 0.3 and above 0.8 are lumped: few people call those. */
+const BANDS: [number, number][] = [
+  [0, 0.3],
+  [0.3, 0.45],
+  [0.45, 0.55],
+  [0.55, 0.7],
+  [0.7, 1],
+];
+
+/** A band needs this many settled calls before its number means anything. */
+const MIN_BAND = 4;
+
+function calibrationOf(calls: Call[]): CalibrationBand[] {
+  const settled = calls.filter((c) => {
+    const o = outcomeOf(c);
+    return o === "won" || o === "lost";
+  });
+
+  const bands: CalibrationBand[] = [];
+  for (const [from, to] of BANDS) {
+    const inBand = settled.filter((c) => c.price >= from && c.price < to);
+    if (inBand.length < MIN_BAND) continue;
+    const wins = inBand.filter((c) => outcomeOf(c) === "won").length;
+    bands.push({
+      from,
+      to,
+      n: inBand.length,
+      actual: wins / inBand.length,
+      claimed: inBand.reduce((n, c) => n + c.price, 0) / inBand.length,
+    });
+  }
+  return bands;
+}
+
+/**
+ * Wins or losses in a row, counting back from the newest settled call.
+ *
+ * Voids break nothing — the caller was never wrong — so they are skipped rather
+ * than ending a streak.
+ */
+function streakOf(calls: Call[]): number {
+  const settled = calls
+    .map((c) => ({ c, o: outcomeOf(c) }))
+    .filter((x) => x.o === "won" || x.o === "lost")
+    .sort((a, b) => b.c.timestamp - a.c.timestamp);
+
+  if (settled.length === 0) return 0;
+
+  const winning = settled[0].o === "won";
+  let n = 0;
+  for (const x of settled) {
+    if ((x.o === "won") !== winning) break;
+    n += 1;
+  }
+  return winning ? n : -n;
+}
+
 export function buildStanding(wallet: string, calls: Call[]): Standing {
   const s: Standing = {
     wallet: wallet.toLowerCase(),
@@ -314,6 +399,8 @@ export function buildStanding(wallet: string, calls: Call[]): Standing {
     staked: 0,
     returned: 0,
     pnl: 0,
+    streak: 0,
+    calibration: [],
   };
   for (const c of calls) {
     const o = outcomeOf(c);
@@ -325,6 +412,8 @@ export function buildStanding(wallet: string, calls: Call[]): Standing {
   const settled = s.won + s.lost;
   s.hitRate = settled > 0 ? s.won / settled : null;
   s.pnl = s.returned - s.staked;
+  s.streak = streakOf(calls);
+  s.calibration = calibrationOf(calls);
   return s;
 }
 
@@ -377,7 +466,13 @@ export async function leaderboard(minSettled = 5, limit = 10): Promise<Standing[
     const wallet = String(f.taker).toLowerCase();
     const s =
       byWallet.get(wallet) ??
-      { wallet, won: 0, lost: 0, void: 0, pending: 0, hitRate: null, staked: 0, returned: 0, pnl: 0 };
+      {
+        wallet, won: 0, lost: 0, void: 0, pending: 0,
+        hitRate: null, staked: 0, returned: 0, pnl: 0,
+        // The board's slim query carries neither price nor timestamp, so these
+        // two stay empty here; the profile page computes them from full calls.
+        streak: 0, calibration: [],
+      };
 
     const m = f.market;
     const size = Number(f.quantity) / ONE;

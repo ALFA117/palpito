@@ -4,6 +4,7 @@ import type { Standing } from "@/lib/indexer";
 import { useLocale } from "./LocaleProvider";
 import { CallCard } from "./CallCard";
 import { ClockProvider } from "./Clock";
+import { Calibration } from "./Calibration";
 import type { ScoredCall } from "./FeedView";
 import { explorerAddressUrl } from "@/lib/somnia";
 import { handleFor, shortAddress, signedMoney } from "@/lib/format";
@@ -61,8 +62,33 @@ export function ProfileView({
           />
         </div>
 
+        {standing.streak !== 0 && (
+          <p className="mt-3 text-[12px]">
+            <span
+              className={`font-mono text-[15px] font-semibold ${
+                standing.streak > 0 ? "text-up" : "text-down"
+              }`}
+            >
+              {Math.abs(standing.streak)}
+            </span>{" "}
+            <span className="text-muted">
+              {standing.streak > 0 ? t.winStreak : t.lossStreak}
+            </span>
+          </p>
+        )}
+
         <p className="mt-3 text-[11px] leading-relaxed text-faint">{t.receiptBody}</p>
       </header>
+
+      <section className="mt-6">
+        <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">
+          {t.calibration}
+        </h2>
+        <p className="mt-1 max-w-prose text-[11px] leading-relaxed text-faint">
+          {t.calibrationWhy}
+        </p>
+        <Calibration bands={standing.calibration} />
+      </section>
 
       <section className="mt-6">
         <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">{t.calls}</h2>

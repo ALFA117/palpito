@@ -167,6 +167,18 @@ const es = {
   claimFailed: "No se pudo reclamar",
   fromWins: "de aciertos",
   fromVoids: "anuladas",
+  // Calibration
+  calibration: "Calibración",
+  calibrationWhy: "Acertar el 60% de las veces es un número. Acertar el 60% de las veces cuando dijiste que estabas 60% seguro es el número que distingue a alguien que sabe de alguien con suerte.",
+  said: "dijo",
+  wasRight: "acertó",
+  calibrated: "calibrado",
+  overconfident: "sobreconfiado",
+  modest: "modesto",
+  notEnoughHistory: "Historial insuficiente para medir calibración.",
+  winStreak: "seguidos ganados",
+  lossStreak: "seguidos fallados",
+
 
 
 
@@ -322,6 +334,17 @@ const en: Dict = {
   claimFailed: "Could not claim",
   fromWins: "from wins",
   fromVoids: "voided",
+  calibration: "Calibration",
+  calibrationWhy: "Being right 60% of the time is one number. Being right 60% of the time when you said you were 60% sure is the number that tells someone who knows from someone who got lucky.",
+  said: "said",
+  wasRight: "was right",
+  calibrated: "calibrated",
+  overconfident: "overconfident",
+  modest: "modest",
+  notEnoughHistory: "Not enough history to measure calibration.",
+  winStreak: "wins in a row",
+  lossStreak: "misses in a row",
+
 
 
 
