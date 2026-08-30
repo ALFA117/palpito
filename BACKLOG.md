@@ -9,24 +9,29 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 <https://palpito-somnia.vercel.app>, el repo en
 <https://github.com/ALFA117/palpito>.
 
-## ⚠ Fallo abierto, lo primero que hay que mirar
+## ✅ Resuelto: la página no hidrataba en producción
 
-**La cotización del compositor no resuelve en build de producción.** `useBook` →
-`getBinaryOrderBook` del SDK se queda pendiente para siempre: sin error, sin
-petición fallida, sin nada en consola. En `next dev` funciona; en `next start` y en
-Vercel, no. Los precios de Sube/Baja quedan en "…".
+Era **`src/app/loading.tsx`**. Con ese archivo, Next envuelve la ruta en un
+Suspense que en build de producción dejaba el subárbol de la página como HTML
+inerte: el compositor nunca hidrataba, así que su consulta del libro jamás
+arrancaba y los precios se quedaban en puntos suspensivos para siempre. El
+`Chrome` (cabecera, idioma) sí hidrataba, que es lo que despistó — parecía un
+problema de datos y era de renderizado.
 
-Descartado (probado uno por uno, con build de producción local):
-`LiveFeed` · el paquete `@somnia-chain/reactivity` · pasarle `wsRpcUrl` al SDK ·
-hidratación rota (el toggle de idioma y los radios SÍ responden) · CORS del indexer
-(la consulta funciona desde la propia página) · chunks JS que no cargan.
+Se encontró instrumentando: un `console.log` en cada render del compositor no
+aparecía **ni una vez** en el navegador. Eso lo cerró en un paso.
 
-Mitigado, no resuelto: la lectura ahora tiene tiempo límite de 6 s y reintenta, y el
-estado sin precio se muestra como "sin precio" en vez de puntos infinitos. **El resto
-de la app —muro, ranking, calibración, recibos, perfiles— funciona.**
+Dos cosas más salieron de esa investigación:
 
-Siguiente paso sugerido: reemplazar `getBinaryOrderBook` del SDK por un `eth_call`
-directo con viem, que es lo único que esa llamada hace por dentro.
+- **El SDK enruta toda lectura de cadena por WebSocket** y lanza
+  `NotConfiguredError` sin `wsRpcUrl` (una URL HTTP en la config del chain no
+  basta). Ese camino funciona desde Node y no completa desde el navegador.
+- Por eso la lectura del libro ya **no pasa por el SDK**: es un `eth_call`
+  directo con viem contra `getBookLevels`. Verificado idéntico al SDK en tres
+  pools vivos, ~200 ms.
+
+Pendiente menor: recuperar el esqueleto de carga de otra forma (la #26 vuelve a
+estar abierta).
 
 ## A. Correctitud y riesgos reales
 
@@ -64,7 +69,8 @@ directo con viem, que es lo único que esa llamada hace por dentro.
 
 ## C. Experiencia y diseño
 
-26. `[x]` Sin esqueletos de carga: las páginas simplemente esperan.
+26. `[ ]` Sin esqueletos de carga. El `loading.tsx` que los daba rompía la hidratación
+    en producción (ver arriba); hay que rehacerlo de otra manera.
 27. `[x]` La cuenta regresiva no cambia de urgencia bajo 30 s.
 28. `[ ]` Las tarjetas no muestran cómo va esa predicción ahora. Descartado por ahora:
     exigiría leer el libro por cada tarjeta (40 `eth_call` por tick) y el único dato

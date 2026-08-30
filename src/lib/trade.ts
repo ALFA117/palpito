@@ -3,7 +3,7 @@
 import { SomniaMarkets, type SomniaMarkets as Exchange } from "@somnia-chain/markets-sdk";
 import type { WalletClient } from "viem";
 import { somniaTestnet } from "./chain";
-import { ADDRESSES, COLLATERAL_DECIMALS, INDEXER_URL, ONE } from "./somnia";
+import { ADDRESSES, COLLATERAL_DECIMALS, INDEXER_URL, ONE, WS_RPC_URL } from "./somnia";
 import type { Direction } from "./indexer";
 
 /**
@@ -50,17 +50,18 @@ let exchange: Exchange | null = null;
 /**
  * One exchange per browser session.
  *
- * No `wsRpcUrl`. Passing one made every read hang: the book, the market status
- * and the outcome balances all stayed pending forever in a production build,
- * with no error and no failed request, while a raw WebSocket to the same
- * endpoint opened fine by hand from the same page. Everything this app reads is
- * an `eth_call`, which the HTTP transport on the chain config serves directly.
+ * `wsRpcUrl` is not optional: the SDK routes ALL chain access over a WebSocket
+ * and throws `NotConfiguredError` without one — an HTTP rpcUrl on the chain is
+ * not enough. That is also why the order book is no longer read through here
+ * (see lib/book.ts): the same WebSocket path that works from Node hangs
+ * indefinitely in a browser, silently.
  */
 export function getExchange(): Exchange {
   if (!exchange) {
     exchange = new SomniaMarkets({
       indexerUrl: INDEXER_URL,
       chain: somniaTestnet,
+      wsRpcUrl: WS_RPC_URL,
       addresses: { ...ADDRESSES },
     });
   }

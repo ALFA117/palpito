@@ -19,9 +19,7 @@ export function useBook(poolAddress: string | null | undefined) {
     // seconds sizes the order against a book that has already moved.
     refetchInterval: 6_000,
     staleTime: 3_000,
-    // The read has a deadline (see getBook), so a stall becomes a rejection and
-    // this is what picks it back up.
-    retry: 4,
+    retry: 3,
     retryDelay: 1_000,
     queryFn: () => getBook(poolAddress as string),
   });

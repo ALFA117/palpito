@@ -1,7 +1,8 @@
 "use client";
 
-import { ONE } from "./somnia";
-import { getExchange } from "./trade";
+import { createPublicClient, http, parseAbi, type Address } from "viem";
+import { somniaTestnet } from "./chain";
+import { ONE, RPC_URL } from "./somnia";
 import type { Direction } from "./indexer";
 
 export interface BestAsk {
@@ -21,52 +22,71 @@ export interface BookSnapshot {
 }
 
 /**
- * The best price each side can actually be bought at, read from the pool.
+ * The pool's aggregated resting book, best level first.
  *
- * The market row's `lastPrice` is the price of the last trade, which is not an
- * offer: a window can last-trade at 0.42 while the live ask sits at 0.04.
- * Quoting from it would show the wrong number and, worse, size the position
- * against a price nobody is offering. The book is one `eth_call`, so ask it.
- *
- * `noAsks` are derived from `yesBids` (price = 1 - yesPrice) by the SDK, which
- * is what makes a DOWN buy crossable against someone else's resting UP bid.
- *
- * Plain function rather than a hook: the composer polls it through react-query,
- * but a feed card only needs it at the moment someone taps join — forty cards
- * each holding a subscription would be forty `eth_call`s a tick for a number
- * nobody is looking at.
+ * `isBid` picks the side: bids come back highest-price first, asks lowest-price
+ * first. BinaryPool and SpotPool share this base contract.
  */
-/**
- * A hung promise never retries, so it gets a deadline.
- *
- * We measured the SDK's first `getBinaryOrderBook` call sitting pending forever
- * in a production build — no error, no failed request, nothing in the console —
- * which left the composer showing a loading ellipsis where the price goes, with
- * no path out. react-query retries a rejection but waits on a pending promise
- * indefinitely, so the fix is to turn the second thing into the first.
- */
-function withDeadline<T>(p: Promise<T>, ms: number): Promise<T> {
-  return Promise.race([
-    p,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error("BOOK_TIMEOUT")), ms),
-    ),
-  ]);
-}
+const bookAbi = parseAbi([
+  "function getBookLevels(bool isBid, uint64 numLevels) view returns ((uint256 price, uint256 quantity)[])",
+]);
 
+/**
+ * Our own transport, not the SDK's.
+ *
+ * The SDK's `getBinaryOrderBook` hung forever in production builds — no error,
+ * no failed request, nothing in the console, while `next dev` was fine.
+ * Underneath, that call is two `eth_call`s and some arithmetic, so this does
+ * exactly that and nothing else: one fewer opaque dependency on the path that
+ * decides what price a person is shown before they sign.
+ */
+const rpc = createPublicClient({ chain: somniaTestnet, transport: http(RPC_URL) });
+
+type Level = { price: bigint; quantity: bigint };
+
+const toBest = (l: Level | undefined): BestAsk | null =>
+  l ? { price: Number(l.price) / ONE, size: Number(l.quantity) / ONE } : null;
+
+/** A NO price is always one minus the YES price, on the same quantity. */
+const invert = (l: Level | undefined): Level | undefined =>
+  l ? { price: BigInt(ONE) - l.price, quantity: l.quantity } : undefined;
+
+/**
+ * The best price each side can be bought and sold at right now.
+ *
+ * The book is quoted entirely in YES terms and the NO sides are derived — which
+ * is exactly what makes a DOWN buy crossable against someone else's resting UP
+ * bid, the mint-a-pair path. So the best NO ask comes from the best YES bid, and
+ * the best NO bid from the best YES ask.
+ *
+ * Read from the pool rather than the market row's `lastPrice`: that field is the
+ * last trade, not an offer, and we measured a window last-trading at 0.42 with a
+ * live ask resting at 0.044.
+ */
 export async function getBook(pool: string): Promise<BookSnapshot> {
-  const book = await withDeadline(
-    getExchange().client.getBinaryOrderBook(pool as `0x${string}`, { depth: 1 }),
-    6_000,
-  );
-  const level = (l: { price: bigint; quantity: bigint } | undefined): BestAsk | null =>
-    l ? { price: Number(l.price) / ONE, size: Number(l.quantity) / ONE } : null;
+  const [yesBids, yesAsks] = await Promise.all([
+    rpc.readContract({
+      address: pool as Address,
+      abi: bookAbi,
+      functionName: "getBookLevels",
+      args: [true, 1n],
+    }),
+    rpc.readContract({
+      address: pool as Address,
+      abi: bookAbi,
+      functionName: "getBookLevels",
+      args: [false, 1n],
+    }),
+  ]);
+
+  const bestYesBid = yesBids[0] as Level | undefined;
+  const bestYesAsk = yesAsks[0] as Level | undefined;
 
   return {
-    up: level(book.yesAsks[0]),
-    down: level(book.noAsks[0]),
-    upBid: level(book.yesBids[0]),
-    downBid: level(book.noBids[0]),
+    up: toBest(bestYesAsk),
+    down: toBest(invert(bestYesBid)),
+    upBid: toBest(bestYesBid),
+    downBid: toBest(invert(bestYesAsk)),
   };
 }
 

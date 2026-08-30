@@ -151,7 +151,36 @@ The gap is purely that nothing surfaces the debt.
 **Suggestion:** an indexer field for claimable value per account would let every
 frontend show it without reconstructing the join.
 
-## 10. The realtime React hooks never started for us
+## 10. Chain reads are WebSocket-only, and that path does not work in a browser
+
+**Cost: several hours, because the failure is silence.**
+
+`getBinaryOrderBook`, `getMarketOnchain` and `getOutcomeBalance` all go through
+the SDK's chain client, and that client requires `wsRpcUrl`:
+
+```
+NotConfiguredError: this operation needs chain access — needs wsRpcUrl in
+createClient (or a chain whose rpcUrls carry a webSocket endpoint)
+```
+
+An HTTP `rpcUrls.default` on the viem chain is not accepted. That is a strong
+constraint to place on every read, and it is not mentioned in the recipes.
+
+Worse, with `wsRpcUrl` set, those same reads **hang indefinitely in a browser** —
+no error, no rejection, no failed request in the network panel — while working
+fine from Node against the same endpoint, and while a raw
+`new WebSocket(wsRpcUrl)` opens successfully from the same page.
+
+We replaced the book read with a direct viem `eth_call` on
+`getBookLevels(bool,uint64)` and derived the NO sides ourselves
+(`price = 1 − yesPrice`). It returns byte-identical results to
+`getBinaryOrderBook` on every live pool we compared, in ~200ms.
+
+**Suggestions:** support an HTTP transport for reads — they are `eth_call`s and
+nothing more; and if the WebSocket path is required, make a failed or stalled
+connection reject rather than hang.
+
+## 11. The realtime React hooks never started for us
 
 **Cost: ~90 minutes, and it fails silently.**
 
