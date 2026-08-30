@@ -5,6 +5,7 @@ import "./globals.css";
 import { DEFAULT_LOCALE, isLocale, localeFromHeader } from "@/lib/i18n";
 import { LocaleProvider } from "@/components/LocaleProvider";
 import { Chrome } from "@/components/Chrome";
+import { Web3Provider } from "@/components/Web3Provider";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
@@ -28,9 +29,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
-        <LocaleProvider locale={locale}>
-          <Chrome>{children}</Chrome>
-        </LocaleProvider>
+        <Web3Provider>
+          <LocaleProvider locale={locale}>
+            <Chrome>{children}</Chrome>
+          </LocaleProvider>
+        </Web3Provider>
       </body>
     </html>
   );

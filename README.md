@@ -22,6 +22,7 @@ Palpito is that layer.
 - **A verifiable receipt.** Once a market settles, every call links straight to its own resolution on the Prophecy oracle explorer — the price sources, the median, the block. Not our word for it.
 - **A record nobody can edit.** Hit rate, settled calls and P&L for any wallet that has ever traded this venue, recomputed from the public indexer on every request. There is no database behind the reputation layer, on purpose.
 - **A leaderboard of who is actually right**, over wallets with enough settled calls to mean something.
+- **Making a call**, end to end: connect an injected wallet, pull testnet collateral from the public faucet without leaving the page, and buy the UP or DOWN side of a live window.
 
 ## Why the social layer is not decoration
 
@@ -73,13 +74,43 @@ Things that cost real time, found while building this. Offered as the optional S
 
 5. **The HTTP API's spot-only scope is easy to miss.** `GET /v0/markets` returns three spot pairs and no event contracts, with no error signalling that event contracts live elsewhere. A pointer in the response, or a documented note at the endpoint itself, would save a first-time integrator an hour.
 
-6. **The oracle explorer deep link is excellent and underadvertised.** `oracleQuestionId` → `prd.oracle.somnia.host/questions/{id}?view=graph` is the single most convincing thing an interface can show a non-crypto user. It deserves more than one line in `market-structure.md`.
+6. **`lastPrice` is easy to mistake for a quote.** It is the last trade, and on a
+   thin window it can sit an order of magnitude away from the live ask — we saw a
+   market last-trade at 0.42 with a 0.044 ask resting. Anything user-facing has to
+   read the book. A note on the field, or a `bestBid`/`bestAsk` pair on the market
+   row, would stop a whole class of mispriced integrations.
+
+7. **The oracle explorer deep link is excellent and underadvertised.** `oracleQuestionId` → `prd.oracle.somnia.host/questions/{id}?view=graph` is the single most convincing thing an interface can show a non-crypto user. It deserves more than one line in `market-structure.md`.
+
+## The write path
+
+Calls are placed as **immediate-or-cancel** orders. A resting limit would leave an
+unfilled remainder on the book with escrow locked and no cancel UI here to
+retrieve it — a quiet way to take money out of someone's wallet and leave it
+somewhere they cannot see. An IOC either fills or does nothing, and the app says
+which.
+
+Three things it does before signing, each of them a documented way to lose money
+or time on this venue:
+
+- **Reads the price from the pool, not from the market row.** `lastPrice` is the
+  last trade, not an offer: a window can last-trade at 0.42 while the live ask
+  sits at 0.04. Quoting from it shows the wrong number and sizes the position
+  against a price nobody is offering.
+- **Gates on the on-chain status.** `Trading` is the only status that accepts
+  orders, and the SDK skips simulation — so an order on a market that just locked
+  reverts *after* the wallet has asked the user to sign and after they paid gas.
+- **Checks the receipt.** A reverted write resolves rather than throwing, so a
+  failed order looks like a successful one unless `receipt.status` is read by hand.
 
 ## Status
 
-Working against live testnet data: feed, leaderboard, wallet records, verifiable receipts, both locales.
+Working against live testnet data: feed, leaderboard, wallet records, verifiable
+receipts, wallet connect, faucet, placing a call, both locales.
 
-Not yet built: wallet connect and the write path (placing a call from the UI), the natural-language composer that maps a sentence onto a live window, and one-tap "I'm in".
+Not yet built: the natural-language composer that maps a sentence onto a live
+window, one-tap "I'm in" from a feed card, and selling out of a position before
+its window closes.
 
 ## License
 

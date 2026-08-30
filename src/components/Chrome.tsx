@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useLocale } from "./LocaleProvider";
 import { LOCALES } from "@/lib/i18n";
+import { ConnectButton } from "./ConnectButton";
 
 function Wordmark() {
   return (
@@ -71,8 +72,9 @@ export function Chrome({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-2">
             <LangToggle />
+            <ConnectButton />
           </div>
         </div>
       </header>

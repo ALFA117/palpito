@@ -48,6 +48,8 @@ export interface Market {
   tradeCount: number;
   volume: number;
   venueId: string;
+  /** The pool hosting this market's book. Recycled across windows — read it per market, never cache it. */
+  poolAddress: string | null;
 }
 
 export interface Call {
@@ -88,7 +90,7 @@ export interface Standing {
 const MARKET_FIELDS = `
   marketId asset intervalSec expiry tradingStart clobStatus
   finalized voided winningOutcome oracleQuestionId
-  lastPrice tradeCount cumulativeQuoteVolume venueId
+  lastPrice tradeCount cumulativeQuoteVolume venueId poolAddress strike
 `;
 
 const FILL_FIELDS = `
@@ -113,6 +115,7 @@ function toMarket(m: any): Market {
     tradeCount: Number(m.tradeCount ?? 0),
     volume: Number(m.cumulativeQuoteVolume ?? 0) / ONE,
     venueId: m.venueId,
+    poolAddress: m.poolAddress ?? null,
   };
 }
 
@@ -205,6 +208,11 @@ export async function liveMarkets(): Promise<Market[]> {
            marketType: { _eq: "BINARY" }
            venueId: { _eq: $venueId }
            intervalSec: { _in: $windows }
+           # Strike 0 means "closes at or above its opening price", which is what
+           # the app's copy says. The venue also lists strike-based questions
+           # ("will BTC be above $79,012"), and showing those under this wording
+           # would describe the wrong bet.
+           strike: { _eq: "0" }
            expiry: { _gt: $now }
            tradingStart: { _lte: $now }
            finalized: { _eq: false }
@@ -231,6 +239,7 @@ export async function recentCalls(limit = 40): Promise<Call[]> {
              marketType: { _eq: "BINARY" }
              venueId: { _eq: $venueId }
              intervalSec: { _in: $windows }
+             strike: { _eq: "0" }
            }
            takerSide: { _in: ["BUY_YES", "BUY_NO"] }
          }
@@ -319,6 +328,19 @@ export function buildStanding(wallet: string, calls: Call[]): Standing {
   return s;
 }
 
+/**
+ * Fields the standings actually need.
+ *
+ * The full fill+market shape at 2000 rows is over 2MB, which silently exceeds
+ * Next's data-cache ceiling — the response is then never cached and every
+ * visitor pays for the whole scan. Scoring only needs the side, the size, and
+ * the market's verdict.
+ */
+const STANDING_FIELDS = `
+  taker takerSide quantity quoteQuantity
+  market { winningOutcome voided finalized }
+`;
+
 /** Top callers by hit rate, over wallets with enough settled calls to mean something. */
 export async function leaderboard(minSettled = 5, limit = 10): Promise<Standing[]> {
   const venueId = await resolveVenueId();
@@ -330,27 +352,63 @@ export async function leaderboard(minSettled = 5, limit = 10): Promise<Standing[
              marketType: { _eq: "BINARY" }
              venueId: { _eq: $venueId }
              finalized: { _eq: true }
+             strike: { _eq: "0" }
            }
            takerSide: { _in: ["BUY_YES", "BUY_NO"] }
          }
          order_by: { timestamp: desc }
          limit: 2000
-       ) { ${FILL_FIELDS} market { ${MARKET_FIELDS} } }
+       ) { ${STANDING_FIELDS} }
      }`,
     { venueId },
     60,
   );
-  const calls = data.Fill.map(toCall).filter((c): c is Call => c !== null);
 
-  const byWallet = new Map<string, Call[]>();
-  for (const c of calls) {
-    const list = byWallet.get(c.wallet) ?? [];
-    list.push(c);
-    byWallet.set(c.wallet, list);
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const rows = data.Fill as any[];
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  const byWallet = new Map<string, Standing>();
+
+  for (const f of rows) {
+    const side = String(f.takerSide ?? "");
+    if (side !== "BUY_YES" && side !== "BUY_NO") continue;
+
+    const wallet = String(f.taker).toLowerCase();
+    const s =
+      byWallet.get(wallet) ??
+      { wallet, won: 0, lost: 0, void: 0, pending: 0, hitRate: null, staked: 0, returned: 0, pnl: 0 };
+
+    const m = f.market;
+    const size = Number(f.quantity) / ONE;
+    const stake = Number(f.quoteQuantity) / ONE;
+
+    if (m.voided) {
+      s.void += 1;
+      s.staked += stake;
+      s.returned += size * 0.5;
+    } else if (m.finalized && m.winningOutcome !== null) {
+      const upWon = Number(m.winningOutcome) === OUTCOME_YES;
+      const won = (side === "BUY_YES") === upWon;
+      if (won) {
+        s.won += 1;
+        s.returned += size;
+      } else {
+        s.lost += 1;
+      }
+      s.staked += stake;
+    } else {
+      s.pending += 1;
+    }
+
+    byWallet.set(wallet, s);
   }
 
-  return [...byWallet.entries()]
-    .map(([w, cs]) => buildStanding(w, cs))
+  return [...byWallet.values()]
+    .map((s) => {
+      const settled = s.won + s.lost;
+      return { ...s, hitRate: settled > 0 ? s.won / settled : null, pnl: s.returned - s.staked };
+    })
     .filter((s) => s.won + s.lost >= minSettled)
     .sort((a, b) => (b.hitRate ?? 0) - (a.hitRate ?? 0) || b.pnl - a.pnl)
     .slice(0, limit);

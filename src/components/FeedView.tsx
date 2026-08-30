@@ -5,6 +5,7 @@ import { useLocale } from "./LocaleProvider";
 import { CallCard } from "./CallCard";
 import { ClockProvider, Countdown } from "./Clock";
 import { asPercent, windowLabel } from "@/lib/format";
+import { CallComposer } from "./CallComposer";
 
 export interface ScoredCall {
   call: Call;
@@ -69,6 +70,9 @@ export function FeedView({
   return (
     <ClockProvider now={serverNow}>
       <Hero />
+      <div className="mt-4">
+        <CallComposer markets={markets} />
+      </div>
       <LiveWindows markets={markets} />
 
       <section className="mt-6">
