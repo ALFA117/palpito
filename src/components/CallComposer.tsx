@@ -10,6 +10,8 @@ import { useCollateralBalance, useFaucet } from "@/lib/useCollateral";
 import { useBook } from "@/lib/useBook";
 import { useLocale } from "./LocaleProvider";
 import { Countdown } from "./Clock";
+import { HunchInput } from "./HunchInput";
+import type { Hunch } from "@/lib/parse";
 
 /**
  * How far past the quoted price an order may fill.
@@ -81,6 +83,11 @@ export function CallComposer({ markets }: { markets: Market[] }) {
     () => [...new Set(markets.map((m) => m.asset))].sort(),
     [markets],
   );
+  /** Every window live on the venue, for reading a sentence before an asset is picked. */
+  const allWindows = useMemo(
+    () => [...new Set(markets.map((m) => m.intervalSec))].sort((a, b) => a - b),
+    [markets],
+  );
   const windows = useMemo(
     () =>
       [...new Set(markets.filter((m) => m.asset === asset).map((m) => m.intervalSec))].sort(
@@ -105,6 +112,15 @@ export function CallComposer({ markets }: { markets: Market[] }) {
   const wrongChain = isConnected && chainId !== CHAIN_ID;
   const ready =
     isConnected && !wrongChain && walletClient && market && canAfford && hasLiquidity && price;
+
+  /** Apply whatever a sentence yielded, leaving anything it did not name alone. */
+  function applyHunch(h: Hunch) {
+    if (h.asset) setAsset(h.asset);
+    if (h.direction) setDirection(h.direction);
+    if (h.windowSec !== null) setIntervalSec(h.windowSec);
+    if (h.stake !== null) setStake(h.stake);
+    setPhase({ k: "idle" });
+  }
 
   async function submit() {
     if (!walletClient || !market || !price) return;
@@ -174,6 +190,10 @@ export function CallComposer({ markets }: { markets: Market[] }) {
       <h2 className="text-[16px] font-semibold tracking-tight">{t.composerTitle}</h2>
 
       <div className="mt-4 space-y-3.5">
+        <HunchInput windows={allWindows} onResolved={applyHunch} />
+
+        <div className="h-px bg-border" />
+
         <div>
           <label className="mb-1.5 block text-[11px] uppercase tracking-wide text-faint">
             {t.asset}
@@ -253,7 +273,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
           </label>
           <Segmented
             label={t.amount}
-            options={STAKES}
+            options={STAKES.includes(stake) ? STAKES : [...STAKES, stake].sort((a, b) => a - b)}
             value={stake}
             onChange={setStake}
             render={(s) => `${s} tUSDC`}

@@ -23,6 +23,7 @@ Palpito is that layer.
 - **A record nobody can edit.** Hit rate, settled calls and P&L for any wallet that has ever traded this venue, recomputed from the public indexer on every request. There is no database behind the reputation layer, on purpose.
 - **A leaderboard of who is actually right**, over wallets with enough settled calls to mean something.
 - **Making a call**, end to end: connect an injected wallet, pull testnet collateral from the public faucet without leaving the page, and buy the UP or DOWN side of a live window.
+- **Saying it in words.** "no creo que el bitcoin suba esta hora" fills in ETH/DOWN/1h by itself; "who wins the derby on Sunday" gets told, plainly, what this venue can and cannot do.
 
 ## Why the social layer is not decoration
 
@@ -62,6 +63,8 @@ Next.js (App Router, RSC)
 | `src/lib/somnia.ts` | Chain, addresses, venue, window catalog |
 | `src/lib/indexer.ts` | Every read + the scoring rules (`outcomeOf`, `buildStanding`) |
 | `src/lib/i18n.ts` | Both dictionaries; a missing key is a type error |
+| `src/lib/parse.ts` | The deterministic sentence parser |
+| `src/app/api/parse/route.ts` | The Claude fallback (optional) |
 | `src/app/page.tsx` | The feed |
 | `src/app/ranking/page.tsx` | Leaderboard |
 | `src/app/u/[wallet]/page.tsx` | Any wallet's record |
@@ -90,6 +93,38 @@ Things that cost real time, found while building this. Offered as the optional S
 
 7. **The oracle explorer deep link is excellent and underadvertised.** `oracleQuestionId` → `prd.oracle.somnia.host/questions/{id}?view=graph` is the single most convincing thing an interface can show a non-crypto user. It deserves more than one line in `market-structure.md`.
 
+## Reading a sentence
+
+The composer resolves in two stages, and the order is the point.
+
+A **deterministic parser** goes first. The domain is genuinely small — two assets,
+two directions, five windows — so the phrasings people actually type resolve from
+patterns, instantly and offline. That keeps the app working from a fresh clone
+with no API key, and keeps the common path off the network entirely.
+
+**Claude** handles what the parser could not read. The real work there is not
+exotic phrasing, it is *declining well*: "will América win on Sunday" is a
+perfectly reasonable thing to type into a prediction app, and the honest answer
+is that DreamDEX event contracts are BTC/ETH price windows and nothing else. A
+regex cannot say that — it can only fail to match. Set `ANTHROPIC_API_KEY` to
+enable it; without one the composer falls back to a fixed explanation plus
+worked examples, which is worse but not broken.
+
+Two things that cost real time in the parser, both worth knowing if you extend it:
+
+- **`gana` and `pierde` had to come out of the direction words.** They are the
+  dominant verbs in Spanish sports talk, so "ganará el América el domingo" parsed
+  as a bullish call — on exactly the request that must be declined cleanly. Nobody
+  says "el bitcoin gana" when they mean it closes up, so the loss is nil.
+- **Curly apostrophes are normalised before matching.** Phones autocorrect `'` to
+  `’`, so `/don'?t think/` misses "I don’t think btc rises" and reads it as
+  bullish — the exact opposite of what was typed. Inverting someone's call is the
+  worst failure this parser has.
+
+A requested duration snaps to the nearest real window, preferring the longer one
+when it falls between two: a window that closes before the moment the person was
+talking about answers a different question than the one they asked.
+
 ## The write path
 
 Calls are placed as **immediate-or-cancel** orders. A resting limit would leave an
@@ -114,11 +149,11 @@ or time on this venue:
 ## Status
 
 Working against live testnet data: feed, leaderboard, wallet records, verifiable
-receipts, wallet connect, faucet, placing a call, both locales.
+receipts, wallet connect, faucet, placing a call, the sentence composer, both
+locales.
 
-Not yet built: the natural-language composer that maps a sentence onto a live
-window, one-tap "I'm in" from a feed card, and selling out of a position before
-its window closes.
+Not yet built: one-tap "I'm in" from a feed card, and selling out of a position
+before its window closes.
 
 ## License
 

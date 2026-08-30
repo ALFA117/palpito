@@ -122,6 +122,20 @@ const es = {
   tryAgain: "Reintentar",
   noLiveWindows: "Ahora mismo no hay ventanas abiertas.",
   noBookSide: "Nadie está ofreciendo ese lado ahora mismo. Prueba el otro lado u otra ventana.",
+  // Natural-language composer
+  sayIt: "Dilo con tus palabras",
+  sayItPlaceholder: "Ej: creo que el bitcoin cierra arriba en la próxima media hora",
+  readIt: "Convertir",
+  reading: "Leyendo...",
+  readItHint: "Escríbelo normal. Nosotros buscamos la ventana abierta que le corresponde.",
+  understoodAs: "Lo entendimos así",
+  edit: "Ajustar a mano",
+  missingAsset: "¿De cuál hablas, bitcoin o ethereum?",
+  missingDirection: "¿Y crees que sube o que baja?",
+  cantDoThat: "Eso no se puede aquí",
+  cantDoThatBody: "En DreamDEX solo hay ventanas de precio de bitcoin y ethereum: si cierran arriba o abajo de donde abrieron. No hay deportes, ni elecciones, ni precios objetivo.",
+  tryExample: "Prueba con:",
+
 };
 
 /**
@@ -232,6 +246,19 @@ const en: Dict = {
   tryAgain: "Try again",
   noLiveWindows: "No windows are open right now.",
   noBookSide: "Nobody is offering that side right now. Try the other side, or another window.",
+  sayIt: "Say it in your own words",
+  sayItPlaceholder: "e.g. I think bitcoin closes up over the next half hour",
+  readIt: "Convert",
+  reading: "Reading...",
+  readItHint: "Write it normally. We find the open window it belongs to.",
+  understoodAs: "Here is how we read it",
+  edit: "Adjust by hand",
+  missingAsset: "Which one — bitcoin or ethereum?",
+  missingDirection: "And do you think it goes up, or down?",
+  cantDoThat: "That is not possible here",
+  cantDoThatBody: "DreamDEX only runs price windows on bitcoin and ethereum: whether they close above or below where they opened. No sports, no elections, no price targets.",
+  tryExample: "Try:",
+
 };
 
 export const DICTS: Record<Locale, Dict> = { es, en };
