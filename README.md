@@ -23,6 +23,7 @@ Palpito is that layer.
 - **A record nobody can edit.** Hit rate, settled calls and P&L for any wallet that has ever traded this venue, recomputed from the public indexer on every request. There is no database behind the reputation layer, on purpose.
 - **A leaderboard of who is actually right**, over wallets with enough settled calls to mean something.
 - **Making a call**, end to end: connect an injected wallet, pull testnet collateral from the public faucet without leaving the page, and buy the UP or DOWN side of a live window.
+- **Calibration, not just accuracy.** The price you pay is your stated confidence, so a profile shows what you claimed against what happened. One wallet on this venue sits at a 35% hit rate and is well calibrated everywhere — except when it says 83%, where it is right 26% of the time.
 - **Getting out early.** Open positions surface under the composer with a live exit price; sell before the window closes instead of waiting for the result.
 - **Agreeing or disagreeing in one tap.** Every live call in the feed carries *join* and *fade*; a settled one carries a receipt instead.
 - **Saying it in words.** "no creo que el bitcoin suba esta hora" fills in ETH/DOWN/1h by itself; "who wins the derby on Sunday" gets told, plainly, what this venue can and cannot do.
@@ -82,6 +83,7 @@ Next.js (App Router, RSC)
 | | |
 |---|---|
 | Live prototype | <https://palpito-somnia.vercel.app> (Somnia testnet) |
+| Repository | <https://github.com/ALFA117/palpito> |
 | Demo script | [DEMO_SCRIPT.md](DEMO_SCRIPT.md) — shot list and timings |
 | SDK feedback report | [FEEDBACK.md](FEEDBACK.md) — nine findings, with repros |
 | Backlog | [BACKLOG.md](BACKLOG.md) — what we would do next, ranked |

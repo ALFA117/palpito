@@ -5,6 +5,10 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 
 ---
 
+**Estado:** 15 de 50 hechas. Lo desplegado vive en
+<https://palpito-somnia.vercel.app>, el repo en
+<https://github.com/ALFA117/palpito>.
+
 ## A. Correctitud y riesgos reales
 
 1. `[!]` **Choque de nombre.** `palpito.vercel.app` ya es de otro producto del mismo rubro
@@ -33,10 +37,10 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 18. `[ ]` Sin tarjeta compartible de un palpito resuelto (la prueba, como imagen).
 19. `[ ]` Las posiciones abiertas solo salen en el muro, no en tu perfil.
 20. `[ ]` Sin aviso cuando tu ventana se resuelve.
-21. `[ ]` Sin filtros en el muro (por activo o ventana).
-22. `[ ]` Ranking solo histórico total; falta "últimas 24h" y "esta semana".
-23. `[ ]` Sin métrica de calibración en el perfil (prometida en el pivote: ¿cuando dices "seguro" aciertas el 80%?).
-24. `[ ]` Racha sin implementar (la clave i18n existe pero no se usa).
+21. `[x]` Sin filtros en el muro (por activo o ventana).
+22. `[x]` Ranking solo histórico total; falta "últimas 24h" y "esta semana".
+23. `[x]` Sin métrica de calibración en el perfil (prometida en el pivote: ¿cuando dices "seguro" aciertas el 80%?).
+24. `[x]` Racha sin implementar (la clave i18n existe pero no se usa).
 25. `[ ]` Sin guía cuando el venue no tiene ventanas abiertas.
 
 ## C. Experiencia y diseño
@@ -57,14 +61,14 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 36. `[x]` Guion del video de 2-3 minutos, con planos y tiempos.
 37. `[x]` Deck de presentación.
 38. `[x]` Informe de feedback del SDK como documento aparte.
-39. `[ ]` Capturas en el README.
+39. `[!]` Capturas en el README. Necesita 3 pantallazos tuyos: muro, calibración, recibo del oráculo.
 40. `[ ]` Datos de respaldo para que la demo no dependa de que haya ventanas vivas.
 
 ## E. Profundidad técnica (los jueces escribieron el SDK)
 
 41. `[ ]` Usar los hooks de tiempo real del SDK (`useLiveBinaryOrderBook`) en vez de polling.
 42. `[ ]` Los fills entran al muro en vivo (`useLiveFills`) en vez de revalidar cada 10 s.
-43. `[ ]` Mostrar volumen por mercado (receta "Read a market's volume").
+43. `[x]` Mostrar volumen por mercado (receta "Read a market's volume").
 44. `[ ]` Mini-visualización del grafo del oráculo en línea, no solo el enlace.
 45. `[ ]` Session keys / operators para una UX sin fricción de firma.
 46. `[ ]` Atribución de builder fee (`approveBuilder`): la historia de monetización.
