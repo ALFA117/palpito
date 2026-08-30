@@ -176,9 +176,17 @@ We replaced the book read with a direct viem `eth_call` on
 (`price = 1 − yesPrice`). It returns byte-identical results to
 `getBinaryOrderBook` on every live pool we compared, in ~200ms.
 
-**Suggestions:** support an HTTP transport for reads — they are `eth_call`s and
-nothing more; and if the WebSocket path is required, make a failed or stalled
-connection reject rather than hang.
+We have since moved **every** call off the SDK — reads and writes both — onto
+plain viem over HTTP. The app no longer depends on `@somnia-chain/markets-sdk` at
+all. Before doing that we checked the encodings against it: `getBookLevels`,
+`markets(bytes32)` and the ERC-6909 `balanceOf` return identical values on live
+markets, and `placeBinaryOrder` calldata is **byte-identical to
+`buildPlaceOrder`** on all four sides.
+
+**Suggestions:** support an HTTP transport — these are `eth_call`s and
+`eth_sendTransaction`, nothing more; and if the WebSocket path is required, make
+a failed or stalled connection reject rather than hang. As it stands the SDK is
+unusable from a browser, which rules it out for every consumer frontend.
 
 ## 11. The realtime React hooks never started for us
 

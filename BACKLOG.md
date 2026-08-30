@@ -36,12 +36,12 @@ balances de posiciones (ERC-6909 `balanceOf`). Verificadas idénticas al SDK
 contra datos reales, y ahora `getMarketState` **lanza** donde el SDK devolvía un
 objeto hueco.
 
-Queda una dependencia: **las escrituras** (`placeOrder`, `redeemMany`) siguen
-pasando por el transporte del SDK, así que arrastran el mismo riesgo. Si al
-probar con MetaMask se cuelgan, la salida es `trader.buildPlaceOrder`, que
-devuelve la llamada sin enviarla — pasándole `outcomeToken`/`yesId`/`noId`
-explícitos (ya los leemos en `getMarketState`) no necesita consultar el pool, y
-queda un `to`/`data`/`value` que se manda con el wallet client directamente.
+**Las escrituras también migraron.** `placeBinaryOrder` y `redeemMany` se
+codifican y envían con viem y el wallet client, incluidas las autorizaciones
+(allowance ERC-20 para comprar, operator ERC-6909 para vender y para reclamar).
+El calldata se comparó contra `buildPlaceOrder` del SDK: **idéntico byte a byte
+en los cuatro lados**. `@somnia-chain/markets-sdk` ya no es dependencia del
+proyecto.
 
 Pendiente menor: recuperar el esqueleto de carga de otra forma (la #26 vuelve a
 estar abierta).
