@@ -38,6 +38,14 @@ npm install && npm run dev
 
 That is the whole setup. Every read path is public — the Somnia markets indexer needs no key, and the app ships with the deployed contract addresses. Open http://localhost:3000.
 
+**To make a call**, you need two testnet balances:
+
+1. **STT for gas** — from the Somnia faucet at <https://testnet.somnia.network/>.
+2. **tUSDC to stake** — the button in the app calls the collateral token's public
+   `faucet(uint256)` and mints you 10,000. No form, no queue, no asking anyone.
+
+Step 1 has to come first: minting tUSDC is itself a transaction.
+
 ## Architecture
 
 ```

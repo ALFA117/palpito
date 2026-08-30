@@ -298,7 +298,20 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               {faucet.isPending ? t.faucetPending : t.faucet}
             </button>
             <span className="text-[12px] text-muted">
-              {t.needFunds} <span className="text-faint">{t.faucetHelp}</span>
+              {t.needFunds} <span className="text-faint">{t.faucetHelp}</span>{" "}
+              {/* The faucet call itself costs gas, so an empty STT balance looks
+                  like a broken faucet button unless we name it here. */}
+              <span className="text-faint">
+                {t.needGas}{" "}
+                <a
+                  href="https://testnet.somnia.network/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gold hover:underline"
+                >
+                  {t.getGas} →
+                </a>
+              </span>
             </span>
           </div>
         ) : (

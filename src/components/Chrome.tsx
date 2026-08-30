@@ -12,7 +12,7 @@ function Wordmark() {
       <span className="relative flex h-2.5 w-2.5">
         <span className="pulse-dot absolute inline-flex h-full w-full rounded-full bg-gold" />
       </span>
-      <span className="text-[17px] font-semibold tracking-tight">Palpito</span>
+      <span className="hidden text-[17px] font-semibold tracking-tight sm:inline">Palpito</span>
     </Link>
   );
 }
@@ -53,7 +53,7 @@ export function Chrome({ children }: { children: React.ReactNode }) {
   return (
     <>
       <header className="sticky top-0 z-20 border-b border-border bg-bg/85 backdrop-blur-md">
-        <div className="mx-auto flex h-14 w-full max-w-2xl items-center gap-4 px-4">
+        <div className="mx-auto flex h-14 w-full max-w-2xl items-center gap-2 px-3 sm:gap-4 sm:px-4">
           <Wordmark />
           <nav className="flex items-center gap-1 text-[13px]">
             {tabs.map((tab) => {
@@ -72,7 +72,7 @@ export function Chrome({ children }: { children: React.ReactNode }) {
               );
             })}
           </nav>
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2">
             <LangToggle />
             <ConnectButton />
           </div>

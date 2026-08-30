@@ -8,7 +8,7 @@ import { useLocale } from "./LocaleProvider";
 import { useCollateralBalance } from "@/lib/useCollateral";
 
 const pill =
-  "rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors disabled:opacity-60";
+  "whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors disabled:opacity-60";
 
 export function ConnectButton() {
   const { t } = useLocale();
@@ -74,8 +74,8 @@ export function ConnectButton() {
         className="flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] transition-colors hover:border-gold/40"
       >
         <span className="font-mono text-text">{formatted ?? "—"}</span>
-        <span className="text-faint">tUSDC</span>
-        <span className="font-mono text-faint">{shortAddress(address!)}</span>
+        <span className="hidden text-faint sm:inline">tUSDC</span>
+        <span className="hidden font-mono text-faint md:inline">{shortAddress(address!)}</span>
       </Link>
       <button
         type="button"
