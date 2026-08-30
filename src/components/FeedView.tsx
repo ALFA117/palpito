@@ -9,6 +9,7 @@ import { asPercent, money, windowLabel } from "@/lib/format";
 import { CallComposer } from "./CallComposer";
 import { Positions } from "./Positions";
 import { ClaimBanner } from "./ClaimBanner";
+import { LiveFeed } from "./LiveFeed";
 
 export interface ScoredCall {
   call: Call;
@@ -129,6 +130,11 @@ export function FeedView({
           </h2>
           <AssetFilter markets={markets} asset={asset} />
         </div>
+
+        <LiveFeed
+          markets={asset ? markets.filter((m) => m.asset === asset) : markets}
+          knownIds={scored.map((s) => s.call.id)}
+        />
         {scored.length === 0 ? (
           <p className="mt-3 rounded-xl border border-border bg-surface p-5 text-[13px] text-muted">
             {t.feedEmpty}

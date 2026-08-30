@@ -182,6 +182,7 @@ const es = {
   rangeAll: "Histórico",
   boardEmptyRange: "Nadie tiene suficientes palpitos resueltos en este periodo.",
   filterAll: "Todo",
+  tailing: "Escuchando la cadena en directo",
   winStreak: "seguidos ganados",
   lossStreak: "seguidos fallados",
 
@@ -354,6 +355,7 @@ const en: Dict = {
   rangeAll: "All time",
   boardEmptyRange: "Nobody has enough settled calls in this period.",
   filterAll: "All",
+  tailing: "Tailing the chain live",
   winStreak: "wins in a row",
   lossStreak: "misses in a row",
 
