@@ -176,6 +176,11 @@ const es = {
   overconfident: "sobreconfiado",
   modest: "modesto",
   notEnoughHistory: "Historial insuficiente para medir calibración.",
+  range24h: "24 horas",
+  range7d: "7 días",
+  rangeAll: "Histórico",
+  boardEmptyRange: "Nadie tiene suficientes palpitos resueltos en este periodo.",
+  filterAll: "Todo",
   winStreak: "seguidos ganados",
   lossStreak: "seguidos fallados",
 
@@ -342,6 +347,11 @@ const en: Dict = {
   overconfident: "overconfident",
   modest: "modest",
   notEnoughHistory: "Not enough history to measure calibration.",
+  range24h: "24 hours",
+  range7d: "7 days",
+  rangeAll: "All time",
+  boardEmptyRange: "Nobody has enough settled calls in this period.",
+  filterAll: "All",
   winStreak: "wins in a row",
   lossStreak: "misses in a row",
 

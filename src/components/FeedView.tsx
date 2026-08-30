@@ -4,7 +4,8 @@ import type { Call, CallOutcome, Market } from "@/lib/indexer";
 import { useLocale } from "./LocaleProvider";
 import { CallCard } from "./CallCard";
 import { ClockProvider, Countdown } from "./Clock";
-import { asPercent, windowLabel } from "@/lib/format";
+import Link from "next/link";
+import { asPercent, money, windowLabel } from "@/lib/format";
 import { CallComposer } from "./CallComposer";
 import { Positions } from "./Positions";
 import { ClaimBanner } from "./ClaimBanner";
@@ -26,7 +27,7 @@ function Hero() {
 
 /** The windows a call can be made on right now, cheapest possible explanation of "live". */
 function LiveWindows({ markets }: { markets: Market[] }) {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   if (markets.length === 0) return null;
 
   return (
@@ -51,6 +52,13 @@ function LiveWindows({ markets }: { markets: Market[] }) {
               </span>
               <Countdown expiry={m.expiry} className="font-mono text-faint" />
             </div>
+            {/* DreamDEX's own FAQ notes volume "is not shown in the app yet, but
+                it is on-chain". It rides on the market row we already read. */}
+            {m.volume > 0 && (
+              <div className="mt-0.5 font-mono text-[10px] text-faint">
+                {money(m.volume, locale)} tUSDC
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -58,14 +66,49 @@ function LiveWindows({ markets }: { markets: Market[] }) {
   );
 }
 
+function AssetFilter({ markets, asset }: { markets: Market[]; asset: string | null }) {
+  const { t } = useLocale();
+  const assets = [...new Set(markets.map((m) => m.asset))].sort();
+  if (assets.length < 2) return null;
+
+  const options: { key: string; label: string; href: string }[] = [
+    { key: "all", label: t.filterAll, href: "/" },
+    ...assets.map((a) => ({ key: a, label: a, href: `/?a=${a}` })),
+  ];
+
+  return (
+    <nav className="flex gap-1.5">
+      {options.map((o) => {
+        const active = o.key === (asset ?? "all");
+        return (
+          <Link
+            key={o.key}
+            href={o.href}
+            aria-current={active ? "page" : undefined}
+            className={`rounded-md border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+              active
+                ? "border-gold/50 bg-surface-2 text-text"
+                : "border-border bg-surface text-muted hover:text-text"
+            }`}
+          >
+            {o.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
 export function FeedView({
   scored,
   markets,
   serverNow,
+  asset,
 }: {
   scored: ScoredCall[];
   markets: Market[];
   serverNow: number;
+  asset: string | null;
 }) {
   const { t } = useLocale();
 
@@ -80,9 +123,12 @@ export function FeedView({
       <LiveWindows markets={markets} />
 
       <section className="mt-6">
-        <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">
-          {t.feedTitle}
-        </h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">
+            {t.feedTitle}
+          </h2>
+          <AssetFilter markets={markets} asset={asset} />
+        </div>
         {scored.length === 0 ? (
           <p className="mt-3 rounded-xl border border-border bg-surface p-5 text-[13px] text-muted">
             {t.feedEmpty}

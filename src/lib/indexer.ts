@@ -426,15 +426,40 @@ export function buildStanding(wallet: string, calls: Call[]): Standing {
  * the market's verdict.
  */
 const STANDING_FIELDS = `
-  taker takerSide quantity quoteQuantity
+  taker takerSide quantity quoteQuantity timestamp
   market { winningOutcome voided finalized }
 `;
 
-/** Top callers by hit rate, over wallets with enough settled calls to mean something. */
-export async function leaderboard(minSettled = 5, limit = 10): Promise<Standing[]> {
+/** How far back a leaderboard looks. */
+export type BoardRange = "24h" | "7d" | "all";
+
+export const BOARD_RANGES: BoardRange[] = ["24h", "7d", "all"];
+
+const RANGE_SECONDS: Record<BoardRange, number | null> = {
+  "24h": 86_400,
+  "7d": 604_800,
+  all: null,
+};
+
+/**
+ * Top callers by hit rate, over wallets with enough settled calls to mean something.
+ *
+ * The range matters more than it looks. An all-time board on a venue this young
+ * is a list of the handful of bots that have been running longest — true, and
+ * completely static. A 24-hour board is the one that changes while you watch it,
+ * which is the only version a feed has any use for.
+ */
+export async function leaderboard(
+  range: BoardRange = "all",
+  minSettled = 5,
+  limit = 10,
+): Promise<Standing[]> {
   const venueId = await resolveVenueId();
+  const window = RANGE_SECONDS[range];
+  const since = window === null ? 0 : Math.floor(Date.now() / 1000) - window;
+
   const data = await gql<{ Fill: unknown[] }>(
-    `query Board($venueId: String!) {
+    `query Board($venueId: String!, $since: numeric!) {
        Fill(
          where: {
            market: {
@@ -444,12 +469,13 @@ export async function leaderboard(minSettled = 5, limit = 10): Promise<Standing[
              strike: { _eq: "0" }
            }
            takerSide: { _in: ["BUY_YES", "BUY_NO"] }
+           timestamp: { _gte: $since }
          }
          order_by: { timestamp: desc }
          limit: 2000
        ) { ${STANDING_FIELDS} }
      }`,
-    { venueId },
+    { venueId, since },
     60,
   );
 
