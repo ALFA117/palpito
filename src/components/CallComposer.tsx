@@ -71,7 +71,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
   const { t, locale } = useLocale();
   const { address, isConnected, chainId } = useAccount();
   const { data: walletClient } = useWalletClient({ chainId: CHAIN_ID });
-  const { raw: balance, formatted, refetch } = useCollateralBalance(address);
+  const { raw: balance, formatted, refetch } = useCollateralBalance(address, locale);
   const faucet = useFaucet(() => void refetch());
   const afterWrite = useAfterWrite();
 
@@ -151,8 +151,9 @@ export function CallComposer({ markets }: { markets: Market[] }) {
 
   if (markets.length === 0) {
     return (
-      <section className="rounded-xl border border-border bg-surface p-5 text-[13px] text-muted">
-        {t.noLiveWindows}
+      <section className="rounded-xl border border-border bg-surface p-5">
+        <p className="text-[14px] font-semibold text-text">{t.noLiveWindows}</p>
+        <p className="mt-1.5 text-[12px] leading-relaxed text-muted">{t.noLiveWindowsWhy}</p>
       </section>
     );
   }

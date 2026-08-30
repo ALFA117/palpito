@@ -11,12 +11,12 @@ const pill =
   "whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors disabled:opacity-60";
 
 export function ConnectButton() {
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const { address, isConnected, chainId } = useAccount();
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain, isPending: switching } = useSwitchChain();
-  const { formatted } = useCollateralBalance(address);
+  const { formatted } = useCollateralBalance(address, locale);
 
   const injectedConnector = connectors[0];
 

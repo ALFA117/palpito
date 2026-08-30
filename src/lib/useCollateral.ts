@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { erc20Abi, parseAbi, type Address } from "viem";
 import { useReadContract, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { ADDRESSES, CHAIN_ID, COLLATERAL_DECIMALS, ONE } from "./somnia";
+import { money } from "./format";
+import type { Locale } from "./i18n";
 
 const testUsdcAbi = parseAbi(["function faucet(uint256 amount)"]);
 
@@ -11,7 +13,7 @@ const testUsdcAbi = parseAbi(["function faucet(uint256 amount)"]);
 const FAUCET_AMOUNT = BigInt(10_000 * ONE);
 
 /** The signer's tUSDC balance, in raw units and formatted for display. */
-export function useCollateralBalance(address: Address | undefined) {
+export function useCollateralBalance(address: Address | undefined, locale: Locale = "es") {
   const query = useReadContract({
     address: ADDRESSES.collateral as Address,
     abi: erc20Abi,
@@ -27,13 +29,10 @@ export function useCollateralBalance(address: Address | undefined) {
   });
 
   const raw = query.data;
-  const formatted =
-    raw === undefined
-      ? null
-      : (Number(raw) / ONE).toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
+  // Through the same formatter as every other amount on screen: the balance pill
+  // sat next to stakes and payouts while using the browser's locale instead of
+  // the app's, so a European visitor saw 1.234,56 beside 1,234.56.
+  const formatted = raw === undefined ? null : money(Number(raw) / ONE, locale);
 
   return { raw, formatted, decimals: COLLATERAL_DECIMALS, refetch: query.refetch };
 }

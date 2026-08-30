@@ -5,6 +5,8 @@ import { useLocale } from "./LocaleProvider";
 import { CallCard } from "./CallCard";
 import { ClockProvider } from "./Clock";
 import { Calibration } from "./Calibration";
+import { Positions } from "./Positions";
+import { useAccount } from "wagmi";
 import type { ScoredCall } from "./FeedView";
 import { explorerAddressUrl } from "@/lib/somnia";
 import { handleFor, shortAddress, signedMoney } from "@/lib/format";
@@ -34,7 +36,11 @@ export function ProfileView({
   serverNow: number;
 }) {
   const { t, locale } = useLocale();
+  const { address } = useAccount();
   const settled = standing.won + standing.lost;
+  // Positions are a control surface, not a public fact: only shown when you are
+  // looking at your own record.
+  const isMe = address?.toLowerCase() === standing.wallet.toLowerCase();
 
   return (
     <ClockProvider now={serverNow}>
@@ -79,6 +85,8 @@ export function ProfileView({
 
         <p className="mt-3 text-[11px] leading-relaxed text-faint">{t.receiptBody}</p>
       </header>
+
+      {isMe && <Positions />}
 
       <section className="mt-6">
         <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">

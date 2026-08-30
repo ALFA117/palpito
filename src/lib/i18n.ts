@@ -121,6 +121,7 @@ const es = {
   errGeneric: "No se pudo hacer el palpito.",
   tryAgain: "Reintentar",
   noLiveWindows: "Ahora mismo no hay ventanas abiertas.",
+  noLiveWindowsWhy: "Las ventanas se renuevan solas: cuando una cierra, la siguiente ya está abierta. Si esto persiste, la testnet está caída — el muro de abajo sigue mostrando lo que ya pasó.",
   noBookSide: "Nadie está ofreciendo ese lado ahora mismo. Prueba el otro lado u otra ventana.",
   // Natural-language composer
   sayIt: "Dilo con tus palabras",
@@ -297,6 +298,7 @@ const en: Dict = {
   errGeneric: "The call could not be placed.",
   tryAgain: "Try again",
   noLiveWindows: "No windows are open right now.",
+  noLiveWindowsWhy: "Windows roll on their own: as one closes, the next is already open. If this persists, the testnet is down — the feed below still shows what already happened.",
   noBookSide: "Nobody is offering that side right now. Try the other side, or another window.",
   sayIt: "Say it in your own words",
   sayItPlaceholder: "e.g. I think bitcoin closes up over the next half hour",

@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Call, CallOutcome } from "@/lib/indexer";
 import { oracleGraphUrl, explorerTxUrl } from "@/lib/somnia";
 import { asPercent, handleFor, money, shortAddress, timeAgo, windowLabel } from "@/lib/format";
+import { useState } from "react";
 import { useLocale } from "./LocaleProvider";
 import { Countdown, useNow } from "./Clock";
 import { JoinButtons } from "./JoinButtons";
@@ -40,6 +41,7 @@ function Verdict({ outcome }: { outcome: CallOutcome }) {
 export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }) {
   const { t, locale } = useLocale();
   const now = useNow();
+  const [showWhy, setShowWhy] = useState(false);
   const m = call.market;
   // Liveness comes from the window's own clock. `clobStatus` still reads
   // "Trading" on markets that closed weeks ago, so trusting it would put a
@@ -97,14 +99,24 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
             rather than a callout — repeated ten times down the page, an
             explanation block stops being information and becomes wallpaper. */}
         {call.mintedPair && (
-          <span
-            title={t.madeLiquidityWhy}
-            className="inline-flex cursor-help items-center gap-1 rounded border border-gold/25 px-1.5 py-0.5 text-[10px] font-medium text-gold/90"
+          <button
+            type="button"
+            aria-expanded={showWhy}
+            onClick={() => setShowWhy((v) => !v)}
+            className="inline-flex items-center gap-1 rounded border border-gold/25 px-1.5 py-0.5 text-[10px] font-medium text-gold/90 transition-colors hover:bg-gold/10"
           >
             ◇ {t.madeLiquidity}
-          </span>
+          </button>
         )}
       </div>
+
+      {/* A `title` is invisible on a phone, and this explanation is the single
+          most interesting thing about the venue — so it opens on tap instead. */}
+      {call.mintedPair && showWhy && (
+        <p className="mt-2 rounded-lg border border-gold/25 bg-surface-2 px-3 py-2 text-[11px] leading-relaxed text-muted">
+          {t.madeLiquidityWhy}
+        </p>
+      )}
 
       {/* Only a live window can be joined; a settled call is a receipt, not an offer. */}
       {live && (
