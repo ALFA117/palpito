@@ -77,9 +77,19 @@ Next.js (App Router, RSC)
 
 **Network:** Somnia testnet (chain 50312). **Collateral:** tUSDC, 6 decimals, public faucet.
 
+## Deliverables
+
+| | |
+|---|---|
+| Live prototype | <https://palpito-somnia.vercel.app> (Somnia testnet) |
+| Demo script | [DEMO_SCRIPT.md](DEMO_SCRIPT.md) — shot list and timings |
+| SDK feedback report | [FEEDBACK.md](FEEDBACK.md) — nine findings, with repros |
+| Backlog | [BACKLOG.md](BACKLOG.md) — what we would do next, ranked |
+
 ## Notes for the DreamDEX team
 
-Things that cost real time, found while building this. Offered as the optional SDK/doc feedback report.
+Nine findings, each with a repro and a suggestion, in [FEEDBACK.md](FEEDBACK.md).
+The short version:
 
 1. **`clobStatus` in the indexer is not usable as a liveness filter.** It still reads `Trading` on markets whose window closed over a month ago. Filtering on it returns a wall of expired rows and sorts the genuinely live markets off the end of the page. Liveness has to be derived from the clock instead — `expiry > now AND tradingStart <= now AND NOT finalized AND NOT voided`. The gotchas page warns that the indexed status *lags*, which reads as "by seconds"; in practice it does not converge at all.
 
