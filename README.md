@@ -23,6 +23,7 @@ Palpito is that layer.
 - **A record nobody can edit.** Hit rate, settled calls and P&L for any wallet that has ever traded this venue, recomputed from the public indexer on every request. There is no database behind the reputation layer, on purpose.
 - **A leaderboard of who is actually right**, over wallets with enough settled calls to mean something.
 - **Making a call**, end to end: connect an injected wallet, pull testnet collateral from the public faucet without leaving the page, and buy the UP or DOWN side of a live window.
+- **Getting out early.** Open positions surface under the composer with a live exit price; sell before the window closes instead of waiting for the result.
 - **Agreeing or disagreeing in one tap.** Every live call in the feed carries *join* and *fade*; a settled one carries a receipt instead.
 - **Saying it in words.** "no creo que el bitcoin suba esta hora" fills in ETH/DOWN/1h by itself; "who wins the derby on Sunday" gets told, plainly, what this venue can and cannot do.
 
@@ -67,6 +68,8 @@ Next.js (App Router, RSC)
 | `src/lib/parse.ts` | The deterministic sentence parser |
 | `src/lib/book.ts` | Live best-ask per side, read from the pool |
 | `src/lib/useJoin.ts` | One-tap join / fade on someone else's call |
+| `src/lib/positions.ts` | Open positions, from the indexer |
+| `src/lib/useSell.ts` | Exiting a position before its window closes |
 | `src/app/api/parse/route.ts` | The Claude fallback (optional) |
 | `src/app/page.tsx` | The feed |
 | `src/app/ranking/page.tsx` | Leaderboard |
@@ -94,7 +97,23 @@ Things that cost real time, found while building this. Offered as the optional S
    read the book. A note on the field, or a `bestBid`/`bestAsk` pair on the market
    row, would stop a whole class of mispriced integrations.
 
-7. **The oracle explorer deep link is excellent and underadvertised.** `oracleQuestionId` → `prd.oracle.somnia.host/questions/{id}?view=graph` is the single most convincing thing an interface can show a non-crypto user. It deserves more than one line in `market-structure.md`.
+7. **`getOutcomeBalance` in the recipes page does not compile.** The published
+   snippet calls it positionally —
+   `client.getOutcomeBalance(onchain.outcomeToken, me, onchain.yesId)` — but in
+   markets-sdk 0.28.1 it takes a single params object,
+   `{ outcomeToken, account, id }`. Following the docs passes a string where the
+   object is expected, so both fields read `undefined` and the failure surfaces
+   from deep inside viem as `Address "undefined" is invalid` on a `balanceOf`
+   the caller never wrote. The error names neither the function nor the argument.
+
+8. **`getMarketOnchain` returns a hollow object for a market that just rolled.**
+   No throw, no null — `pool` and `outcomeToken` come back `undefined`, and the
+   program continues until some later call trips over them with the same opaque
+   viem error as above. On a venue whose whole design is that markets "die on
+   schedule and respawn", this is a race every integrator will hit. Returning
+   null, or throwing, would make it self-describing.
+
+9. **The oracle explorer deep link is excellent and underadvertised.** `oracleQuestionId` → `prd.oracle.somnia.host/questions/{id}?view=graph` is the single most convincing thing an interface can show a non-crypto user. It deserves more than one line in `market-structure.md`.
 
 ## Reading a sentence
 
@@ -149,13 +168,20 @@ or time on this venue:
 - **Checks the receipt.** A reverted write resolves rather than throwing, so a
   failed order looks like a successful one unless `receipt.status` is read by hand.
 
+Selling is the same path with one asymmetry: a sell escrows the outcome tokens
+themselves, so you can only sell what you hold. The size comes from the
+**on-chain** balance rather than the indexed one — asking for a single contract
+more than is held reverts, and per the point above, that revert would look like
+a success.
+
 ## Status
 
 Working against live testnet data: feed, leaderboard, wallet records, verifiable
 receipts, wallet connect, faucet, placing a call, the sentence composer, one-tap
-join and fade, both locales.
+join and fade, selling out early, both locales.
 
-Not yet built: selling out of a position before its window closes.
+Not yet built: nothing in the core loop. Remaining work is the demo video and
+the deck.
 
 ## License
 

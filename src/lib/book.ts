@@ -12,8 +12,12 @@ export interface BestAsk {
 }
 
 export interface BookSnapshot {
+  /** What buying each side costs. */
   up: BestAsk | null;
   down: BestAsk | null;
+  /** What selling each side pays. */
+  upBid: BestAsk | null;
+  downBid: BestAsk | null;
 }
 
 /**
@@ -39,8 +43,18 @@ export async function getBook(pool: string): Promise<BookSnapshot> {
   const level = (l: { price: bigint; quantity: bigint } | undefined): BestAsk | null =>
     l ? { price: Number(l.price) / ONE, size: Number(l.quantity) / ONE } : null;
 
-  return { up: level(book.yesAsks[0]), down: level(book.noAsks[0]) };
+  return {
+    up: level(book.yesAsks[0]),
+    down: level(book.noAsks[0]),
+    upBid: level(book.yesBids[0]),
+    downBid: level(book.noBids[0]),
+  };
 }
 
+/** What it costs to buy into `direction` right now. */
 export const askFor = (book: BookSnapshot, direction: Direction) =>
   direction === "UP" ? book.up : book.down;
+
+/** What selling out of `direction` pays right now. */
+export const bidFor = (book: BookSnapshot, direction: Direction) =>
+  direction === "UP" ? book.upBid : book.downBid;

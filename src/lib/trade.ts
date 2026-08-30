@@ -23,6 +23,28 @@ const ORDER_TYPE_IOC = 2;
 /** MarketStatus enum: 0 Listed · 1 Trading · 2 Locked · 3 Settling · 4 Resolved · 5 Voided. */
 const MARKET_STATUS_TRADING = 1;
 
+type Onchain = Awaited<ReturnType<Exchange["client"]["getMarketOnchain"]>>;
+
+/**
+ * Refuse to trade a market that is not open, and refuse a snapshot that came
+ * back hollow.
+ *
+ * Trading (1) is the only status that accepts orders — and the SDK skips
+ * simulation, so an order on a market that just locked reverts after the wallet
+ * has asked the user to sign and after they paid gas.
+ *
+ * The emptiness check is not paranoia: a market that rolled between the indexer
+ * read and this call comes back with `pool` and `outcomeToken` undefined and no
+ * error raised, and the failure then surfaces several calls later as
+ * `Address "undefined" is invalid` from deep inside viem. Catching it here makes
+ * it the one thing it actually is — the window closed.
+ */
+function assertTradable(onchain: Onchain): void {
+  if (onchain.status !== MARKET_STATUS_TRADING || !onchain.pool || !onchain.outcomeToken) {
+    throw new Error("MARKET_CLOSED");
+  }
+}
+
 let exchange: Exchange | null = null;
 
 /**
@@ -53,6 +75,17 @@ export function toTickPrice(probability: number): bigint {
   const max = BigInt(ONE) - TICK;
   return snapped < min ? min : snapped > max ? max : snapped;
 }
+
+/**
+ * A side's probability expressed in the book's YES terms.
+ *
+ * The book is quoted in UP terms throughout, so a DOWN order at probability p
+ * is a YES-terms price of 1 - p. This holds for sells as well as buys: accepting
+ * less for DOWN means accepting a HIGHER yes price, which the complement gives
+ * for free.
+ */
+const inYesTerms = (direction: Direction, probability: number) =>
+  toTickPrice(direction === "UP" ? probability : 1 - probability);
 
 /** Snap a contract count to the lot grid, as raw units. */
 export function toLotSize(contracts: number): bigint {
@@ -101,9 +134,7 @@ export async function placeCall({
   // simulation, so the revert lands after the wallet has already asked the user
   // to sign and after they have paid the gas.
   const onchain = await ex.client.getMarketOnchain(marketId as `0x${string}`);
-  if (onchain.status !== MARKET_STATUS_TRADING) {
-    throw new Error("MARKET_CLOSED");
-  }
+  assertTradable(onchain);
 
   const trader = ex.client.createTrader({
     walletClient,
@@ -113,15 +144,10 @@ export async function placeCall({
   const quantity = toLotSize(contracts);
   if (quantity <= 0n) throw new Error("SIZE_TOO_SMALL");
 
-  // The book is quoted in UP terms throughout: a DOWN buy at probability p is
-  // priced at 1 - p on the same book.
-  const price =
-    direction === "UP" ? toTickPrice(limitProbability) : toTickPrice(1 - limitProbability);
-
   const res = await trader.placeOrder({
     pool: onchain.pool,
     side: direction === "UP" ? "BUY_YES" : "BUY_NO",
-    price,
+    price: inYesTerms(direction, limitProbability),
     quantity,
     orderType: ORDER_TYPE_IOC,
     autoApprove: true,
@@ -139,4 +165,58 @@ export async function placeCall({
   );
 
   return { hash: res.hash, filled };
+}
+
+export interface SellPositionArgs {
+  walletClient: WalletClient;
+  marketId: string;
+  /** Which side is held. */
+  direction: Direction;
+  /** Contracts to sell. */
+  contracts: number;
+  /** Lowest probability the seller will accept, 0-1. */
+  minProbability: number;
+}
+
+/**
+ * Sell out of a position before its window closes.
+ *
+ * The mirror of `placeCall`, with one asymmetry that matters: a sell escrows the
+ * outcome tokens themselves rather than collateral, so you can only sell what
+ * you actually hold. The caller is responsible for not asking for more than the
+ * on-chain balance — an over-sized sell reverts, and a reverted write resolves
+ * rather than throwing, so it would look like it worked.
+ */
+export async function sellPosition({
+  walletClient,
+  marketId,
+  direction,
+  contracts,
+  minProbability,
+}: SellPositionArgs): Promise<PlaceCallResult> {
+  const ex = getExchange();
+
+  const onchain = await ex.client.getMarketOnchain(marketId as `0x${string}`);
+  assertTradable(onchain);
+
+  const quantity = toLotSize(contracts);
+  if (quantity <= 0n) throw new Error("SIZE_TOO_SMALL");
+
+  const trader = ex.client.createTrader({ walletClient, decimals: COLLATERAL_DECIMALS });
+
+  const res = await trader.placeOrder({
+    pool: onchain.pool,
+    side: direction === "UP" ? "SELL_YES" : "SELL_NO",
+    price: inYesTerms(direction, minProbability),
+    quantity,
+    orderType: ORDER_TYPE_IOC,
+    autoApprove: true,
+  });
+
+  if (res.receipt?.status === "reverted") throw new Error("REVERTED");
+
+  return {
+    hash: res.hash,
+    filled: (res.fills ?? []).reduce((n, f) => n + Number(f.quantityFilled) / ONE, 0),
+  };
 }

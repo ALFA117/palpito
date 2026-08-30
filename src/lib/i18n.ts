@@ -145,6 +145,20 @@ const es = {
   joinFailed: "No se pudo",
   fadeWhy: "Tomar el lado contrario a alguien crea el par en el protocolo: tu desacuerdo ES la liquidez, sin market maker de por medio.",
   connectToJoin: "Conecta tu wallet para sumarte",
+  // Positions / exit
+  yourPositions: "Tus posiciones abiertas",
+  contracts: "contratos",
+  sell: "Vender",
+  selling: "Vendiendo...",
+  sold: "Vendido",
+  sellApprox: "te dan aprox.",
+  sellNoBid: "Nadie está comprando ese lado ahora",
+  sellClosed: "Esa ventana ya cerró",
+  sellEmpty: "Ya no tienes esa posición",
+  sellFailed: "No se pudo vender",
+  sellWhy: "Puedes salirte antes de que cierre la ventana, al precio que haya en ese momento. No tienes que esperar al resultado.",
+  partialFill: "Se vendió solo una parte",
+
 
 
 };
@@ -278,6 +292,19 @@ const en: Dict = {
   joinFailed: "Could not place it",
   fadeWhy: "Taking the opposite side mints the pair in the protocol: your disagreement IS the liquidity, with no market maker involved.",
   connectToJoin: "Connect your wallet to join",
+  yourPositions: "Your open positions",
+  contracts: "contracts",
+  sell: "Sell",
+  selling: "Selling...",
+  sold: "Sold",
+  sellApprox: "you get about",
+  sellNoBid: "Nobody is buying that side right now",
+  sellClosed: "That window already closed",
+  sellEmpty: "You no longer hold that position",
+  sellFailed: "Could not sell",
+  sellWhy: "You can get out before the window closes, at whatever the price is then. You do not have to wait for the result.",
+  partialFill: "Only part of it sold",
+
 
 
 };
