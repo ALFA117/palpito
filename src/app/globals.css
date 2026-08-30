@@ -1,26 +1,65 @@
 @import "tailwindcss";
 
+/*
+ * Palpito is dark-only on purpose: it is a live feed people watch a countdown
+ * on, most often on a phone, and a single committed surface keeps the UP/DOWN
+ * pair reading the same in every room.
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #0b0a0c;
+  --surface: #141317;
+  --surface-2: #1c1a20;
+  --border: #292630;
+  --text: #f4f2f5;
+  --muted: #9c96a6;
+  --faint: #6b6676;
+
+  --up: #3ddc97;
+  --up-dim: #14472f;
+  --down: #ff5c7a;
+  --down-dim: #4d1a27;
+  --gold: #ffc53d;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-up: var(--up);
+  --color-up-dim: var(--up-dim);
+  --color-down: var(--down);
+  --color-down-dim: var(--down-dim);
+  --color-gold: var(--gold);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* The heartbeat the product is named after. Marks anything settling live. */
+@keyframes palpito-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.82); }
+}
+
+.pulse-dot {
+  animation: palpito-pulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot { animation: none; }
+}
+
+::selection {
+  background: var(--gold);
+  color: #191014;
 }
