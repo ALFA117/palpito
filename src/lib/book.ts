@@ -1,8 +1,8 @@
 "use client";
 
-import { createPublicClient, http, parseAbi, type Address } from "viem";
-import { somniaTestnet } from "./chain";
-import { ONE, RPC_URL } from "./somnia";
+import { parseAbi, type Address } from "viem";
+import { ONE } from "./somnia";
+import { rpc } from "./rpc";
 import type { Direction } from "./indexer";
 
 export interface BestAsk {
@@ -30,17 +30,6 @@ export interface BookSnapshot {
 const bookAbi = parseAbi([
   "function getBookLevels(bool isBid, uint64 numLevels) view returns ((uint256 price, uint256 quantity)[])",
 ]);
-
-/**
- * Our own transport, not the SDK's.
- *
- * The SDK's `getBinaryOrderBook` hung forever in production builds — no error,
- * no failed request, nothing in the console, while `next dev` was fine.
- * Underneath, that call is two `eth_call`s and some arithmetic, so this does
- * exactly that and nothing else: one fewer opaque dependency on the path that
- * decides what price a person is shown before they sign.
- */
-const rpc = createPublicClient({ chain: somniaTestnet, transport: http(RPC_URL) });
 
 type Level = { price: bigint; quantity: bigint };
 

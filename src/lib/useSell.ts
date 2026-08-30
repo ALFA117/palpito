@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useAccount, useWalletClient } from "wagmi";
 import { CHAIN_ID, ONE } from "./somnia";
 import { bidFor, getBook } from "./book";
-import { getExchange, sellPosition } from "./trade";
+import { sellPosition } from "./trade";
+import { getMarketState, getOutcomeBalance, MARKET_STATUS_TRADING } from "./market";
 import type { Position } from "./positions";
 import { useAfterWrite } from "./useAfterWrite";
 
@@ -30,11 +31,8 @@ export function useSell() {
 
     setPhase({ k: "selling" });
     try {
-      const ex = getExchange();
-      const onchain = await ex.client.getMarketOnchain(
-        position.market.marketId as `0x${string}`,
-      );
-      if (onchain.status !== 1 || !onchain.outcomeToken || !onchain.pool) {
+      const state = await getMarketState(position.market.marketId);
+      if (state.status !== MARKET_STATUS_TRADING) {
         setPhase({ k: "error", code: "closed" });
         return;
       }
@@ -44,18 +42,18 @@ export function useSell() {
       // outcome tokens themselves — asking for one contract more than is held
       // reverts, and a reverted write resolves rather than throwing, so it would
       // look like it worked.
-      const held = await ex.client.getOutcomeBalance({
-        outcomeToken: onchain.outcomeToken,
-        account: walletClient.account.address,
-        id: position.direction === "UP" ? onchain.yesId : onchain.noId,
-      });
+      const held = await getOutcomeBalance(
+        state.outcomeToken,
+        walletClient.account.address,
+        position.direction === "UP" ? state.yesId : state.noId,
+      );
       const contracts = Number(held) / ONE;
       if (contracts <= 0) {
         setPhase({ k: "error", code: "empty" });
         return;
       }
 
-      const bid = bidFor(await getBook(onchain.pool), position.direction);
+      const bid = bidFor(await getBook(state.pool), position.direction);
       if (!bid || bid.size <= 0) {
         setPhase({ k: "error", code: "nobid" });
         return;

@@ -5,6 +5,7 @@ import type { WalletClient } from "viem";
 import { somniaTestnet } from "./chain";
 import { ADDRESSES, COLLATERAL_DECIMALS, INDEXER_URL, ONE, WS_RPC_URL } from "./somnia";
 import type { Direction } from "./indexer";
+import { getMarketState, MARKET_STATUS_TRADING, type MarketState } from "./market";
 
 /**
  * The venue's price grid, in raw collateral units.
@@ -20,41 +21,37 @@ export const LOT = 1n;
 /** Immediate-or-cancel. See ORDER_TYPE in the SDK: 0 rest, 1 FOK, 2 IOC, 3 post-only. */
 const ORDER_TYPE_IOC = 2;
 
-/** MarketStatus enum: 0 Listed · 1 Trading · 2 Locked · 3 Settling · 4 Resolved · 5 Voided. */
-const MARKET_STATUS_TRADING = 1;
-
-type Onchain = Awaited<ReturnType<Exchange["client"]["getMarketOnchain"]>>;
-
 /**
- * Refuse to trade a market that is not open, and refuse a snapshot that came
- * back hollow.
+ * Refuse to trade a market that is not open.
  *
- * Trading (1) is the only status that accepts orders — and the SDK skips
- * simulation, so an order on a market that just locked reverts after the wallet
- * has asked the user to sign and after they paid gas.
+ * Trading is the only status that accepts orders, and the SDK skips simulation
+ * on writes — so an order on a market that just locked reverts after the wallet
+ * has already asked the user to sign, and after they paid the gas.
  *
- * The emptiness check is not paranoia: a market that rolled between the indexer
- * read and this call comes back with `pool` and `outcomeToken` undefined and no
- * error raised, and the failure then surfaces several calls later as
- * `Address "undefined" is invalid` from deep inside viem. Catching it here makes
- * it the one thing it actually is — the window closed.
+ * `getMarketState` throws on an unknown or rolled-away market rather than
+ * returning a hollow record, so there is nothing else to check here.
  */
-function assertTradable(onchain: Onchain): void {
-  if (onchain.status !== MARKET_STATUS_TRADING || !onchain.pool || !onchain.outcomeToken) {
-    throw new Error("MARKET_CLOSED");
-  }
+function assertTradable(state: MarketState): void {
+  if (state.status !== MARKET_STATUS_TRADING) throw new Error("MARKET_CLOSED");
 }
 
 let exchange: Exchange | null = null;
 
 /**
- * One exchange per browser session.
+ * One exchange per browser session — now used ONLY for writes.
  *
- * `wsRpcUrl` is not optional: the SDK routes ALL chain access over a WebSocket
- * and throws `NotConfiguredError` without one — an HTTP rpcUrl on the chain is
- * not enough. That is also why the order book is no longer read through here
- * (see lib/book.ts): the same WebSocket path that works from Node hangs
- * indefinitely in a browser, silently.
+ * Every read moved to plain viem over HTTP (lib/rpc.ts, lib/book.ts,
+ * lib/market.ts), because the SDK routes all chain access over a WebSocket: it
+ * throws `NotConfiguredError` without `wsRpcUrl`, an HTTP rpcUrl on the chain is
+ * not accepted, and that path hangs indefinitely in a browser while working fine
+ * from Node.
+ *
+ * The writes still go through it, so they still carry that risk. The way out, if
+ * they turn out to hang too: `trader.buildPlaceOrder` returns the unsigned call
+ * rather than sending it, and passing `outcomeToken`/`yesId`/`noId`/`collateral`
+ * explicitly (we already read them in `getMarketState`) keeps it from resolving
+ * anything off the pool — leaving a `to`/`data`/`value` to send with the wallet
+ * client directly.
  */
 export function getExchange(): Exchange {
   if (!exchange) {
@@ -132,12 +129,9 @@ export async function placeCall({
   const ex = getExchange();
 
   // Gate on the CHAIN, not the indexer: indexed status lags, and on this
-  // deployment it does not converge at all. Trading (1) is the only status that
-  // accepts orders — a market that just locked reverts, and the SDK skips
-  // simulation, so the revert lands after the wallet has already asked the user
-  // to sign and after they have paid the gas.
-  const onchain = await ex.client.getMarketOnchain(marketId as `0x${string}`);
-  assertTradable(onchain);
+  // deployment it does not converge at all.
+  const state = await getMarketState(marketId);
+  assertTradable(state);
 
   const trader = ex.client.createTrader({
     walletClient,
@@ -148,7 +142,7 @@ export async function placeCall({
   if (quantity <= 0n) throw new Error("SIZE_TOO_SMALL");
 
   const res = await trader.placeOrder({
-    pool: onchain.pool,
+    pool: state.pool,
     side: direction === "UP" ? "BUY_YES" : "BUY_NO",
     price: inYesTerms(direction, limitProbability),
     quantity,
@@ -199,8 +193,8 @@ export async function sellPosition({
 }: SellPositionArgs): Promise<PlaceCallResult> {
   const ex = getExchange();
 
-  const onchain = await ex.client.getMarketOnchain(marketId as `0x${string}`);
-  assertTradable(onchain);
+  const state = await getMarketState(marketId);
+  assertTradable(state);
 
   const quantity = toLotSize(contracts);
   if (quantity <= 0n) throw new Error("SIZE_TOO_SMALL");
@@ -208,7 +202,7 @@ export async function sellPosition({
   const trader = ex.client.createTrader({ walletClient, decimals: COLLATERAL_DECIMALS });
 
   const res = await trader.placeOrder({
-    pool: onchain.pool,
+    pool: state.pool,
     side: direction === "UP" ? "SELL_YES" : "SELL_NO",
     price: inYesTerms(direction, minProbability),
     quantity,

@@ -30,6 +30,19 @@ Dos cosas más salieron de esa investigación:
   directo con viem contra `getBookLevels`. Verificado idéntico al SDK en tres
   pools vivos, ~200 ms.
 
+**Todas las lecturas ya salen del SDK** y usan viem sobre HTTP: el libro
+(`getBookLevels`), el estado del mercado (`markets` del módulo + `status`) y los
+balances de posiciones (ERC-6909 `balanceOf`). Verificadas idénticas al SDK
+contra datos reales, y ahora `getMarketState` **lanza** donde el SDK devolvía un
+objeto hueco.
+
+Queda una dependencia: **las escrituras** (`placeOrder`, `redeemMany`) siguen
+pasando por el transporte del SDK, así que arrastran el mismo riesgo. Si al
+probar con MetaMask se cuelgan, la salida es `trader.buildPlaceOrder`, que
+devuelve la llamada sin enviarla — pasándole `outcomeToken`/`yesId`/`noId`
+explícitos (ya los leemos en `getMarketState`) no necesita consultar el pool, y
+queda un `to`/`data`/`value` que se manda con el wallet client directamente.
+
 Pendiente menor: recuperar el esqueleto de carga de otra forma (la #26 vuelve a
 estar abierta).
 
