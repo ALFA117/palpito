@@ -50,6 +50,14 @@ export interface Market {
   venueId: string;
   /** The pool hosting this market's book. Recycled across windows — read it per market, never cache it. */
   poolAddress: string | null;
+  /**
+   * Every price this window has traded at, oldest first, 0-1.
+   *
+   * Real fills, not a synthesised curve — a freshly rolled window genuinely has
+   * none, and the interface says so rather than drawing a flat line that looks
+   * like data.
+   */
+  spark: number[];
 }
 
 export interface Call {
@@ -144,6 +152,9 @@ function toMarket(m: any): Market {
     volume: Number(m.cumulativeQuoteVolume ?? 0) / ONE,
     venueId: m.venueId,
     poolAddress: m.poolAddress ?? null,
+    spark: Array.isArray(m.fills)
+      ? m.fills.map((f: { fillPrice: string }) => Number(f.fillPrice) / ONE)
+      : [],
   };
 }
 
@@ -248,7 +259,10 @@ export async function liveMarkets(): Promise<Market[]> {
          }
          order_by: { expiry: asc }
          limit: 40
-       ) { ${MARKET_FIELDS} }
+       ) {
+         ${MARKET_FIELDS}
+         fills(order_by: { timestamp: asc }, limit: 40) { fillPrice }
+       }
      }`,
     { venueId, windows: WINDOWS, now },
     10,

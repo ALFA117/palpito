@@ -41,6 +41,9 @@ function toPosition(row: any): Position {
       volume: Number(m.cumulativeQuoteVolume ?? 0) / ONE,
       venueId: m.venueId,
       poolAddress: m.poolAddress ?? null,
+      // These shapes never render a sparkline; the series rides only on the
+      // live-window query, where it is actually drawn.
+      spark: [],
     },
   };
 }

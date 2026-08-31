@@ -57,7 +57,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       lang={locale}
       className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-bg text-text">
+      {/* `room` paints the grid and the ambient wash behind everything. */}
+      <body className="room min-h-full flex flex-col bg-bg text-text">
         <Web3Provider>
           <LocaleProvider locale={locale}>
             <Chrome>{children}</Chrome>

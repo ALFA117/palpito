@@ -25,10 +25,10 @@
   /* Semantic, and never decorative: these two only ever mean direction. */
   --up: #35e39b;
   --up-dim: #0d3b2a;
-  --up-glow: #35e39b26;
+  --up-glow: #35e39b33;
   --down: #ff5d7d;
   --down-dim: #46101f;
-  --down-glow: #ff5d7d26;
+  --down-glow: #ff5d7d33;
 
   /* The brand. Used for the pulse, the verified receipt, and one CTA. */
   --gold: #ffc73d;
@@ -144,18 +144,72 @@ body {
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .pulse-dot,
-  .urgent {
-    animation: none;
-  }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+
+/*
+ * The room the terminal sits in.
+ *
+ * A hairline grid plus two slow ambient washes, one per direction. Fixed and
+ * behind everything, so scrolling moves the content across the light rather
+ * than dragging the light along with it — which is what makes a static
+ * background read as a backdrop instead of wallpaper.
+ */
+.room::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.4;
+  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 35%, transparent 85%);
 }
+
+.room::after {
+  content: "";
+  position: fixed;
+  inset: -30% -10% auto -10%;
+  height: 70vh;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 46% at 22% 30%, var(--up-glow), transparent 70%),
+    radial-gradient(34% 42% at 78% 22%, var(--down-glow), transparent 70%);
+  filter: blur(28px);
+  animation: drift 24s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  from { transform: translate3d(-2%, 0, 0) scale(1); }
+  to   { transform: translate3d(2%, 3%, 0) scale(1.06); }
+}
+
+/* The price tape. Half the row is a duplicate, so -50% loops seamlessly. */
+@keyframes ticker-scroll {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(-50%, 0, 0); }
+}
+
+.ticker-run {
+  animation: ticker-scroll 42s linear infinite;
+}
+
+/* A number that changed should say so for a moment, then get out of the way. */
+@keyframes tick-flash-up {
+  from { color: var(--up); }
+  to { color: inherit; }
+}
+@keyframes tick-flash-down {
+  from { color: var(--down); }
+  to { color: inherit; }
+}
+.flash-up { animation: tick-flash-up 0.8s ease-out; }
+.flash-down { animation: tick-flash-down 0.8s ease-out; }
+
+/* Direction, as light rather than as another border. */
+.glow-up { box-shadow: 0 0 0 1px var(--up-glow), 0 0 24px -8px var(--up); }
+.glow-down { box-shadow: 0 0 0 1px var(--down-glow), 0 0 24px -8px var(--down); }
 
 ::selection {
   background: var(--gold);
@@ -166,4 +220,21 @@ body {
   outline: 2px solid var(--gold);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot,
+  .urgent,
+  .ticker-run,
+  .room::after,
+  .flash-up,
+  .flash-down {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

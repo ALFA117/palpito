@@ -10,6 +10,8 @@ import { asPercent, money, windowLabel } from "@/lib/format";
 import { CallComposer } from "./CallComposer";
 import { Positions } from "./Positions";
 import { ClaimBanner } from "./ClaimBanner";
+import { Sparkline } from "./Sparkline";
+import { Ticker } from "./Ticker";
 
 export interface ScoredCall {
   call: Call;
@@ -43,6 +45,8 @@ function LiveWindows({ markets }: { markets: Market[] }) {
   const { t, locale } = useLocale();
   if (markets.length === 0) return null;
 
+  const maxVolume = Math.max(...markets.map((m) => m.volume), 0);
+
   return (
     <section className="mt-10">
       <h2 className="t-label flex items-center gap-2">
@@ -51,33 +55,57 @@ function LiveWindows({ markets }: { markets: Market[] }) {
       </h2>
 
       {/* Bleeds to the screen edge so the row reads as scrollable rather than clipped. */}
-      <div className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-2">
-        {markets.slice(0, 10).map((m) => (
-          <div
-            key={m.marketId}
-            className="shrink-0 rounded-xl border border-border bg-surface px-3.5 py-3"
-          >
-            <div className="flex items-baseline gap-2">
-              <span className="t-title text-[14px]">{m.asset}</span>
-              <span className="font-mono text-[10px] text-faint">
-                {windowLabel(m.intervalSec)}
-              </span>
-            </div>
-            <div className="mt-2 flex items-baseline gap-3">
-              <span className="t-figure text-[16px] text-up">
-                {m.lastPrice === null ? "—" : asPercent(m.lastPrice)}
-              </span>
-              <Countdown expiry={m.expiry} className="t-figure text-[12px] text-faint" />
-            </div>
-            {/* DreamDEX's own FAQ notes volume "is not shown in the app yet, but
-                it is on-chain". It rides on the market row we already read. */}
-            {m.volume > 0 && (
-              <div className="mt-1 font-mono text-[10px] text-faint">
-                {money(m.volume, locale)} tUSDC
+      <div className="-mx-4 mt-3 flex gap-2.5 overflow-x-auto px-4 pb-2">
+        {markets.slice(0, 10).map((m) => {
+          const rising = m.spark.length > 1 && m.spark[m.spark.length - 1] >= m.spark[0];
+          const traded = m.spark.length > 1;
+          // Volume relative to the busiest window on screen: an absolute bar
+          // would be full on one market and invisible on every other.
+          const share = maxVolume > 0 ? Math.min(1, m.volume / maxVolume) : 0;
+
+          return (
+            <div
+              key={m.marketId}
+              className={`w-[176px] shrink-0 rounded-xl border bg-surface px-3.5 py-3 ${
+                traded ? (rising ? "border-up/25 glow-up" : "border-down/25 glow-down") : "border-border"
+              }`}
+            >
+              <div className="flex items-baseline gap-2">
+                <span className="t-title text-[14px]">{m.asset}</span>
+                <span className="font-mono text-[10px] text-faint">
+                  {windowLabel(m.intervalSec)}
+                </span>
+                <Countdown expiry={m.expiry} className="t-figure ml-auto text-[11px] text-faint" />
               </div>
-            )}
-          </div>
-        ))}
+
+              <div className="mt-1.5 flex items-end justify-between gap-2">
+                <span
+                  className={`t-figure text-[24px] ${
+                    m.lastPrice === null ? "text-faint" : rising ? "text-up" : "text-down"
+                  }`}
+                >
+                  {m.lastPrice === null ? "—" : asPercent(m.lastPrice)}
+                </span>
+                <Sparkline points={m.spark} className="h-7 w-[84px] text-faint" />
+              </div>
+
+              {/* DreamDEX's own FAQ notes volume "is not shown in the app yet,
+                  but it is on-chain". It rides on the market row we already read. */}
+              <div className="mt-2.5">
+                <div className="h-[3px] w-full overflow-hidden rounded-full bg-surface-3">
+                  <div
+                    className={`h-full rounded-full ${rising ? "bg-up/60" : "bg-down/60"}`}
+                    style={{ width: `${Math.max(share * 100, m.volume > 0 ? 6 : 0)}%` }}
+                  />
+                </div>
+                <div className="mt-1 flex items-baseline justify-between font-mono text-[9px] text-faint">
+                  <span>{m.volume > 0 ? `${money(m.volume, locale)} t` : "—"}</span>
+                  <span>{m.tradeCount > 0 ? `${m.tradeCount}\u00d7` : ""}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -152,6 +180,11 @@ export function FeedView({
   return (
     <ClockProvider now={serverNow}>
       <Hero />
+
+      <div className="mt-7">
+        <Ticker markets={markets} />
+      </div>
+
       <ClaimBanner />
 
       <div className="mt-8">
