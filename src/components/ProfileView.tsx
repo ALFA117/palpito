@@ -10,18 +10,27 @@ import { useAccount } from "wagmi";
 import type { ScoredCall } from "./FeedView";
 import { explorerAddressUrl } from "@/lib/somnia";
 import { handleFor, shortAddress, signedMoney } from "@/lib/format";
+import { Empty } from "./Empty";
 
 function Stat({ label, value, tone }: { label: string; value: string; tone?: "up" | "down" }) {
   return (
-    <div className="flex-1 rounded-2xl border border-border bg-surface-2 px-4 py-3.5">
+    <div
+      className={`lift flex-1 rounded-2xl border px-4 py-4 ${
+        tone === "up"
+          ? "tint-up bg-surface-2 border-up/30 glow-up"
+          : tone === "down"
+            ? "tint-down bg-surface-2 border-down/30 glow-down"
+            : "border-border bg-surface-2"
+      }`}
+    >
       <div
-        className={`t-figure text-[26px] ${
+        className={`t-figure text-[22px] sm:text-[30px] ${
           tone === "up" ? "text-up" : tone === "down" ? "text-down" : "text-text"
         }`}
       >
         {value}
       </div>
-      <div className="t-label mt-1">{label}</div>
+      <div className="t-label mt-1.5">{label}</div>
     </div>
   );
 }
@@ -59,12 +68,18 @@ export function ProfileView({
           <Stat
             label={t.hitRate}
             value={standing.hitRate === null ? "—" : `${Math.round(standing.hitRate * 100)}%`}
+            // Half is the coin flip; above it is skill, below it is not.
+            tone={
+              standing.hitRate === null ? undefined : standing.hitRate >= 0.5 ? "up" : "down"
+            }
           />
           <Stat label={t.settledCalls} value={String(settled)} />
           <Stat
             label={t.pnl}
             value={signedMoney(standing.pnl, locale)}
-            tone={standing.pnl >= 0 ? "up" : "down"}
+            // Exactly zero is neither, and a glowing green nought on an empty
+            // profile claims a result nobody earned.
+            tone={standing.pnl === 0 ? undefined : standing.pnl > 0 ? "up" : "down"}
           />
         </div>
 
@@ -101,9 +116,9 @@ export function ProfileView({
       <section className="mt-6">
         <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">{t.calls}</h2>
         {scored.length === 0 ? (
-          <p className="mt-3 rounded-xl border border-border bg-surface p-5 text-[13px] text-muted">
-            {t.noRecordYet}
-          </p>
+          <div className="mt-3">
+            <Empty title={t.noRecordYet} body={t.noRecordYetWhy} />
+          </div>
         ) : (
           <div className="mt-3 flex flex-col gap-3">
             {scored.map(({ call, outcome }) => (

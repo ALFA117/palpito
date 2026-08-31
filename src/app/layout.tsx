@@ -4,6 +4,8 @@ import { cookies, headers } from "next/headers";
 import "./globals.css";
 import { DEFAULT_LOCALE, isLocale, localeFromHeader } from "@/lib/i18n";
 import { LocaleProvider } from "@/components/LocaleProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { isTheme, THEME_COOKIE, type Theme } from "@/lib/theme";
 import { Chrome } from "@/components/Chrome";
 import { Web3Provider } from "@/components/Web3Provider";
 
@@ -47,6 +49,9 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   const [cookieStore, headerList] = await Promise.all([cookies(), headers()]);
+  const savedTheme = cookieStore.get(THEME_COOKIE)?.value;
+  const theme: Theme = isTheme(savedTheme) ? savedTheme : "system";
+
   const saved = cookieStore.get("palpito_locale")?.value;
   const locale = isLocale(saved)
     ? saved
@@ -55,15 +60,19 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang={locale}
+      // "system" stamps nothing on purpose, leaving prefers-color-scheme in charge.
+      data-theme={theme === "system" ? undefined : theme}
       className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
     >
       {/* `room` paints the grid and the ambient wash behind everything. */}
       <body className="room min-h-full flex flex-col bg-bg text-text">
-        <Web3Provider>
-          <LocaleProvider locale={locale}>
-            <Chrome>{children}</Chrome>
-          </LocaleProvider>
-        </Web3Provider>
+        <ThemeProvider theme={theme}>
+          <Web3Provider>
+            <LocaleProvider locale={locale}>
+              <Chrome>{children}</Chrome>
+            </LocaleProvider>
+          </Web3Provider>
+        </ThemeProvider>
       </body>
     </html>
   );

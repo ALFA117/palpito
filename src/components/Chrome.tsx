@@ -6,6 +6,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useLocale } from "./LocaleProvider";
 import { LOCALES } from "@/lib/i18n";
 import { ConnectButton } from "./ConnectButton";
+import { ThemeToggle } from "./ThemeToggle";
 
 function Wordmark() {
   return (
@@ -116,6 +117,7 @@ export function Chrome({ children }: { children: React.ReactNode }) {
           <Wordmark />
           <Tabs />
           <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2">
+            <ThemeToggle />
             <LangToggle />
             <ConnectButton />
           </div>

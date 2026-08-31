@@ -35,7 +35,7 @@ export default function GlobalError({
       <button
         type="button"
         onClick={reset}
-        className="mt-5 rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-[#191014] hover:bg-gold/90"
+        className="mt-5 rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-on-gold hover:bg-gold/90"
       >
         Reintentar · Retry
       </button>

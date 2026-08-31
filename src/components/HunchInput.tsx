@@ -125,7 +125,7 @@ export function HunchInput({
         <button
           type="submit"
           disabled={!text.trim() || state.k === "reading"}
-          className="shrink-0 rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-[#191014] transition-colors hover:bg-gold/90 disabled:opacity-50"
+          className="shrink-0 rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-on-gold transition-colors hover:bg-gold/90 disabled:opacity-50"
         >
           {state.k === "reading" ? t.reading : t.readIt}
         </button>

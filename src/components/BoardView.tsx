@@ -6,6 +6,7 @@ import type { Standing } from "@/lib/indexer";
 import { useLocale } from "./LocaleProvider";
 import { handleFor, shortAddress, signedMoney } from "@/lib/format";
 import type { Dict } from "@/lib/i18n";
+import { Empty } from "./Empty";
 
 const RANGE_LABEL: Record<BoardRange, keyof Dict> = {
   "24h": "range24h",
@@ -50,20 +51,26 @@ export function BoardView({
       </header>
 
       {standings.length === 0 ? (
-        <p className="mt-5 rounded-xl border border-border bg-surface p-5 text-[13px] text-muted">
-          {t.boardEmptyRange}
-        </p>
+        <div className="mt-5">
+          <Empty title={t.boardEmptyRange} body={t.boardEmptyRangeWhy} />
+        </div>
       ) : (
         <ol className="mt-5 flex flex-col gap-2">
           {standings.map((s, i) => (
             <li key={s.wallet}>
               <Link
                 href={`/u/${s.wallet}`}
-                className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4 transition-colors hover:border-border-bright"
+                className={`lift flex items-center gap-3 rounded-2xl border p-4 ${
+                  i === 0
+                    ? "tint-gold bg-surface border-gold/40 glow-gold"
+                    : i < 3
+                      ? "border-border-bright bg-surface"
+                      : "border-border bg-surface"
+                }`}
               >
                 <span
-                  className={`t-figure w-7 shrink-0 text-center text-[15px] ${
-                    i === 0 ? "text-gold" : "text-faint"
+                  className={`t-figure w-7 shrink-0 text-center ${
+                    i === 0 ? "text-[19px] text-gold" : i < 3 ? "text-[16px] text-muted" : "text-[15px] text-faint"
                   }`}
                 >
                   {i + 1}

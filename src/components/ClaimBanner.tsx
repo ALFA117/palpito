@@ -70,7 +70,7 @@ export function ClaimBanner() {
           type="button"
           disabled={phase.k === "claiming"}
           onClick={() => void run()}
-          className="rounded-xl bg-gold px-5 py-3 text-[14px] font-semibold text-[#17110a] transition-colors hover:bg-gold/90 disabled:opacity-40"
+          className="rounded-xl bg-gold px-5 py-3 text-[14px] font-semibold text-on-gold transition-colors hover:bg-gold/90 disabled:opacity-40"
         >
           {phase.k === "claiming" ? t.claiming : `${t.claimAll} · ${money(total, locale)}`}
         </button>

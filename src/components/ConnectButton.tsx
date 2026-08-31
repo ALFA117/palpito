@@ -35,7 +35,8 @@ export function ConnectButton() {
           title={t.noWalletHelp}
           className={`${pill} border border-border bg-surface text-muted hover:text-text`}
         >
-          {t.noWallet}
+          <span className="sm:hidden">{t.noWalletShort}</span>
+          <span className="hidden sm:inline">{t.noWallet}</span>
         </a>
       );
     }
@@ -45,7 +46,7 @@ export function ConnectButton() {
         type="button"
         disabled={isPending}
         onClick={() => connect({ connector: injectedConnector })}
-        className={`${pill} bg-gold text-[#191014] hover:bg-gold/90`}
+        className={`${pill} bg-gold text-on-gold hover:bg-gold/90`}
       >
         {isPending ? t.connecting : t.connect}
       </button>
@@ -59,7 +60,7 @@ export function ConnectButton() {
         disabled={switching}
         onClick={() => switchChain({ chainId: CHAIN_ID })}
         title={t.wrongNetwork}
-        className={`${pill} bg-down text-[#2a0d14] hover:bg-down/90`}
+        className={`${pill} bg-down text-surface hover:bg-down/90`}
       >
         {t.switchNetwork}
       </button>

@@ -64,6 +64,8 @@ const es = {
   pnl: "Resultado",
   streak: "Racha",
   noRecordYet: "Todavía sin palpitos resueltos.",
+  noRecordYetWhy: "Un palpito cuenta cuando su ventana cierra y el oráculo publica el precio.",
+  noQuote: "sin libro",
   anyWallet: "Pega cualquier dirección y mira su récord real.",
 
   // Board
@@ -74,6 +76,7 @@ const es = {
   // Feed
   feedTitle: "Lo que la gente está diciendo",
   feedEmpty: "Nadie ha dicho nada todavía en esta ventana.",
+  feedEmptyWhy: "Sé el primero: escribe tu palpito arriba y queda firmado en la cadena.",
   liveNow: "en vivo",
   loadError: "No pudimos leer la cadena. Reintenta en un momento.",
 
@@ -93,6 +96,7 @@ const es = {
   switchNetwork: "Cambiar a Somnia",
   connecting: "Conectando...",
   noWallet: "Instalar wallet",
+  noWalletShort: "Wallet",
   noWalletHelp: "Necesitas una extensión de wallet (por ejemplo MetaMask) para hacer un palpito.",
   faucet: "Pedir tUSDC",
   faucetPending: "Pidiendo...",
@@ -101,6 +105,10 @@ const es = {
   needGas: "¿Falla? Te faltan STT para el gas.",
   getGas: "Conseguir STT",
   myRecordShort: "mi récord",
+  theme: "Tema",
+  themeLight: "Claro",
+  themeDark: "Oscuro",
+  themeSystem: "Según el sistema",
 
   // Composer / write path
   composerTitle: "Haz tu palpito",
@@ -183,6 +191,7 @@ const es = {
   range7d: "7 días",
   rangeAll: "Histórico",
   boardEmptyRange: "Nadie tiene suficientes palpitos resueltos en este periodo.",
+  boardEmptyRangeWhy: "Prueba con un rango más amplio, o vuelve cuando cierren más ventanas.",
   filterAll: "Todo",
   priceUnavailable: "sin precio",
   winStreak: "seguidos ganados",
@@ -250,6 +259,8 @@ const en: Dict = {
   pnl: "Result",
   streak: "Streak",
   noRecordYet: "No settled calls yet.",
+  noRecordYetWhy: "A call counts once its window closes and the oracle posts the price.",
+  noQuote: "no book",
   anyWallet: "Paste any address and see its real record.",
 
   boardTitle: "Who is actually right",
@@ -258,6 +269,7 @@ const en: Dict = {
 
   feedTitle: "What people are calling",
   feedEmpty: "Nobody has called this window yet.",
+  feedEmptyWhy: "Go first: write your call above and it is signed onto the chain.",
   liveNow: "live",
   loadError: "We could not read the chain. Try again in a moment.",
 
@@ -274,6 +286,7 @@ const en: Dict = {
   switchNetwork: "Switch to Somnia",
   connecting: "Connecting...",
   noWallet: "Get a wallet",
+  noWalletShort: "Wallet",
   noWalletHelp: "You need a wallet extension (MetaMask, for example) to make a call.",
   faucet: "Get tUSDC",
   faucetPending: "Requesting...",
@@ -282,6 +295,10 @@ const en: Dict = {
   needGas: "Failing? You are out of STT for gas.",
   getGas: "Get STT",
   myRecordShort: "my record",
+  theme: "Theme",
+  themeLight: "Light",
+  themeDark: "Dark",
+  themeSystem: "Match system",
 
   composerTitle: "Make a call",
   pickWindow: "Pick the window",
@@ -358,6 +375,7 @@ const en: Dict = {
   range7d: "7 days",
   rangeAll: "All time",
   boardEmptyRange: "Nobody has enough settled calls in this period.",
+  boardEmptyRangeWhy: "Try a wider range, or come back once more windows have closed.",
   filterAll: "All",
   priceUnavailable: "no price",
   winStreak: "wins in a row",

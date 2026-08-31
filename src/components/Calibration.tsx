@@ -36,7 +36,13 @@ export function Calibration({ bands }: { bands: CalibrationBand[] }) {
         return (
           <li
             key={b.from}
-            className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-border bg-surface-2 px-4 py-3 text-[12px]"
+            className={`lift flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border px-4 py-3 text-[12px] ${
+              verdict === "ok"
+                ? "border-border bg-surface-2"
+                : verdict === "modest"
+                  ? "tint-up bg-surface-2 border-up/25"
+                  : "tint-down bg-surface-2 border-down/25"
+            }`}
           >
             <span className="text-faint">{t.said}</span>
             <span className="t-figure w-11 text-right text-[17px] text-text">
@@ -56,13 +62,24 @@ export function Calibration({ bands }: { bands: CalibrationBand[] }) {
 
             {/* The bar is the claim; the marker is the outcome. Distance between
                 them is the whole point, so it is shown rather than described. */}
-            <span className="relative mx-1 hidden h-1.5 min-w-24 flex-1 rounded-full bg-border sm:block">
+            {/* The bar is the claim. The marker is the outcome. The lit segment
+                between them is the error, which is the only part worth colouring. */}
+            <span className="relative mx-1 hidden h-2 min-w-28 flex-1 overflow-hidden rounded-full bg-surface-3 sm:block">
               <span
                 className="absolute inset-y-0 left-0 rounded-full bg-faint/70"
                 style={{ width: `${b.claimed * 100}%` }}
               />
               <span
-                className={`absolute top-1/2 h-2.5 w-0.5 -translate-y-1/2 ${
+                className={`absolute inset-y-0 ${
+                  verdict === "ok" ? "bg-text/30" : verdict === "modest" ? "bg-up/70" : "bg-down/70"
+                }`}
+                style={{
+                  left: `${Math.min(b.claimed, b.actual) * 100}%`,
+                  width: `${Math.abs(b.actual - b.claimed) * 100}%`,
+                }}
+              />
+              <span
+                className={`absolute top-1/2 h-3 w-[3px] -translate-y-1/2 rounded-full ${
                   verdict === "ok" ? "bg-text" : verdict === "modest" ? "bg-up" : "bg-down"
                 }`}
                 style={{ left: `${b.actual * 100}%` }}

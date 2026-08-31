@@ -13,6 +13,7 @@ import { ClaimBanner } from "./ClaimBanner";
 import { Sparkline } from "./Sparkline";
 import { Ticker } from "./Ticker";
 import { LivePercent, WindowRing } from "./LiveNumber";
+import { Empty } from "./Empty";
 
 export interface ScoredCall {
   call: Call;
@@ -88,12 +89,18 @@ function LiveWindows({ markets }: { markets: Market[] }) {
               </div>
 
               <div className="mt-1.5 flex items-end justify-between gap-2">
-                <LivePercent
-                  value={m.lastPrice}
-                  className={`t-figure text-[26px] ${
-                    m.lastPrice === null ? "text-faint" : rising ? "text-up" : "text-down"
-                  }`}
-                />
+                {/* A bare em-dash where the price goes reads as a broken cell.
+                    Nothing has traded here yet, and saying that is information. */}
+                {m.lastPrice === null ? (
+                  <span className="flex h-[30px] items-center rounded-md border border-dashed border-border-bright px-2 font-mono text-[10px] uppercase tracking-wider text-faint">
+                    {t.noQuote}
+                  </span>
+                ) : (
+                  <LivePercent
+                    value={m.lastPrice}
+                    className={`t-figure text-[26px] ${rising ? "text-up" : "text-down"}`}
+                  />
+                )}
                 <Sparkline points={m.spark} className="h-7 w-[84px] text-faint" />
               </div>
 
@@ -106,9 +113,11 @@ function LiveWindows({ markets }: { markets: Market[] }) {
                     style={{ width: `${Math.max(share * 100, m.volume > 0 ? 6 : 0)}%` }}
                   />
                 </div>
-                <div className="mt-1 flex items-baseline justify-between font-mono text-[9px] text-faint">
-                  <span>{m.volume > 0 ? `${money(m.volume, locale)} t` : "—"}</span>
-                  <span>{m.tradeCount > 0 ? `${m.tradeCount}\u00d7` : ""}</span>
+                {/* Zeroes, not dashes: this is a live venue reporting no
+                    volume, which is a fact rather than a missing value. */}
+                <div className="mt-1 flex items-baseline justify-between font-mono text-[9.5px] text-faint">
+                  <span>{money(m.volume, locale)} t</span>
+                  <span>{m.tradeCount}×</span>
                 </div>
               </div>
             </div>
@@ -209,9 +218,9 @@ export function FeedView({
         </div>
 
         {scored.length === 0 ? (
-          <p className="mt-4 rounded-2xl border border-border bg-surface p-6 text-[14px] text-muted">
-            {t.feedEmpty}
-          </p>
+          <div className="mt-4">
+            <Empty title={t.feedEmpty} body={t.feedEmptyWhy} tone="gold" />
+          </div>
         ) : (
           <motion.div
             className="mt-4 flex flex-col gap-3"

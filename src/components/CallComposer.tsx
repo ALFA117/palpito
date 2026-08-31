@@ -15,6 +15,7 @@ import { useLocale } from "./LocaleProvider";
 import { Countdown } from "./Clock";
 import { HunchInput } from "./HunchInput";
 import type { Hunch } from "@/lib/parse";
+import { Empty } from "./Empty";
 
 /**
  * How far past the quoted price an order may fill.
@@ -172,9 +173,8 @@ export function CallComposer({ markets }: { markets: Market[] }) {
 
   if (markets.length === 0) {
     return (
-      <section className="rounded-xl border border-border bg-surface p-5">
-        <p className="text-[14px] font-semibold text-text">{t.noLiveWindows}</p>
-        <p className="mt-1.5 text-[12px] leading-relaxed text-muted">{t.noLiveWindowsWhy}</p>
+      <section>
+        <Empty title={t.noLiveWindows} body={t.noLiveWindowsWhy} />
       </section>
     );
   }
@@ -352,7 +352,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               type="button"
               disabled={faucet.isPending}
               onClick={() => faucet.request()}
-              className="rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-[#191014] transition-colors hover:bg-gold/90 disabled:opacity-60"
+              className="rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-on-gold transition-colors hover:bg-gold/90 disabled:opacity-60"
             >
               {faucet.isPending ? t.faucetPending : t.faucet}
             </button>
@@ -381,7 +381,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               onClick={submit}
               whileTap={reduce || !ready ? undefined : { scale: 0.985 }}
               transition={{ type: "spring", stiffness: 400, damping: 22 }}
-              className={`w-full rounded-xl px-4 py-4 text-[15px] font-semibold text-[#17110a] transition-colors disabled:opacity-40 ${
+              className={`w-full rounded-xl px-4 py-4 text-[15px] font-semibold text-on-gold transition-colors disabled:opacity-40 ${
                 ready ? "cta-live glow-gold bg-gold hover:bg-gold/90" : "bg-gold"
               }`}
             >
