@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { motion, useReducedMotion } from "motion/react";
 import { useAccount, useWalletClient } from "wagmi";
 import type { Direction, Market } from "@/lib/indexer";
 import { CHAIN_ID, ONE, explorerTxUrl } from "@/lib/somnia";
@@ -45,30 +46,49 @@ function Segmented<T extends string | number>({
   label: string;
   render: (v: T) => React.ReactNode;
 }) {
+  const reduce = useReducedMotion();
+  const group = label.replace(/[^a-zA-Z]+/g, "-");
+
   return (
-    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1.5">
-      {options.map((opt) => (
-        <button
-          key={String(opt)}
-          type="button"
-          role="radio"
-          aria-checked={opt === value}
-          onClick={() => onChange(opt)}
-          className={`rounded-lg border px-3 py-1.5 text-[13px] font-medium transition-colors ${
-            opt === value
-              ? "border-gold/50 bg-surface-2 text-text"
-              : "border-border bg-surface text-muted hover:text-text"
-          }`}
-        >
-          {render(opt)}
-        </button>
-      ))}
+    <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1">
+      {options.map((opt) => {
+        const active = opt === value;
+        return (
+          <motion.button
+            key={String(opt)}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            onClick={() => onChange(opt)}
+            whileTap={reduce ? undefined : { scale: 0.96 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className="relative min-h-[38px] rounded-xl px-3.5 py-2 text-[13px] font-medium"
+          >
+            {active && !reduce && (
+              <motion.span
+                layoutId={`seg-${group}`}
+                className="absolute inset-0 rounded-xl bg-surface-3 ring-1 ring-border-bright"
+                transition={{ type: "spring", stiffness: 400, damping: 32 }}
+              />
+            )}
+            {active && reduce && (
+              <span className="absolute inset-0 rounded-xl bg-surface-3 ring-1 ring-border-bright" />
+            )}
+            <span
+              className={`relative z-10 ${active ? "text-text" : "text-faint hover:text-muted"}`}
+            >
+              {render(opt)}
+            </span>
+          </motion.button>
+        );
+      })}
     </div>
   );
 }
 
 export function CallComposer({ markets }: { markets: Market[] }) {
   const { t, locale } = useLocale();
+  const reduce = useReducedMotion();
   const { address, isConnected, chainId } = useAccount();
   const { data: walletClient } = useWalletClient({ chainId: CHAIN_ID });
   const { raw: balance, formatted, refetch } = useCollateralBalance(address, locale);
@@ -190,8 +210,8 @@ export function CallComposer({ markets }: { markets: Market[] }) {
   }
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-5">
-      <h2 className="text-[16px] font-semibold tracking-tight">{t.composerTitle}</h2>
+    <section className="lit-edge rounded-2xl border border-border-bright bg-surface p-5 sm:p-6">
+      <h2 className="t-title text-[19px]">{t.composerTitle}</h2>
 
       <div className="mt-4 space-y-3.5">
         <HunchInput windows={allWindows} onResolved={applyHunch} />
@@ -241,31 +261,39 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               const on = d === direction;
               const q = d === "UP" ? book?.up : book?.down;
               return (
-                <button
+                <motion.button
                   key={d}
                   type="button"
                   role="radio"
                   aria-checked={on}
                   onClick={() => setDirection(d)}
-                  className={`flex-1 rounded-lg border px-3 py-2.5 text-left transition-colors ${
+                  whileTap={reduce ? undefined : { scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 22 }}
+                  className={`flex-1 rounded-2xl border px-4 py-3.5 text-left transition-colors ${
                     on
                       ? d === "UP"
                         ? "border-up/60 bg-up-dim"
                         : "border-down/60 bg-down-dim"
-                      : "border-border bg-surface hover:border-faint"
+                      : "border-border bg-surface hover:border-border-bright"
                   }`}
                 >
                   <span
-                    className={`block text-[14px] font-semibold ${
+                    className={`flex items-center gap-1.5 text-[15px] font-semibold ${
                       d === "UP" ? "text-up" : "text-down"
                     }`}
                   >
-                    {d === "UP" ? `▲ ${t.up}` : `▼ ${t.down}`}
+                    <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true">
+                      <path
+                        d={d === "UP" ? "M5 0L10 9H0z" : "M5 10L0 1h10z"}
+                        fill="currentColor"
+                      />
+                    </svg>
+                    {d === "UP" ? t.up : t.down}
                   </span>
-                  <span className="mt-0.5 block font-mono text-[11px] text-muted">
+                  <span className="t-figure mt-1.5 block text-[24px] text-text">
                     {q ? asPercent(q.price) : bookLoading ? "…" : t.priceUnavailable}
                   </span>
-                </button>
+                </motion.button>
               );
             })}
           </div>
@@ -284,14 +312,14 @@ export function CallComposer({ markets }: { markets: Market[] }) {
           />
         </div>
 
-        <dl className="flex gap-6 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[12px]">
+        <dl className="flex items-end gap-8 rounded-2xl border border-border bg-surface-2 px-4 py-4">
           <div>
-            <dt className="text-faint">{t.youRisk}</dt>
-            <dd className="mt-0.5 font-mono text-[14px] text-text">{money(stake, locale)}</dd>
+            <dt className="t-label">{t.youRisk}</dt>
+            <dd className="t-figure mt-1.5 text-[22px] text-text">{money(stake, locale)}</dd>
           </div>
           <div>
-            <dt className="text-faint">{t.youWinIfRight}</dt>
-            <dd className="mt-0.5 font-mono text-[14px] text-up">
+            <dt className="t-label">{t.youWinIfRight}</dt>
+            <dd className="t-figure mt-1.5 text-[22px] text-up">
               {price ? money(contracts, locale) : "—"}
             </dd>
           </div>
@@ -340,14 +368,16 @@ export function CallComposer({ markets }: { markets: Market[] }) {
           </div>
         ) : (
           <>
-            <button
+            <motion.button
               type="button"
               disabled={!ready || phase.k === "placing"}
               onClick={submit}
-              className="w-full rounded-lg bg-gold px-4 py-3 text-[14px] font-semibold text-[#191014] transition-colors hover:bg-gold/90 disabled:opacity-50"
+              whileTap={reduce || !ready ? undefined : { scale: 0.985 }}
+              transition={{ type: "spring", stiffness: 400, damping: 22 }}
+              className="w-full rounded-xl bg-gold px-4 py-4 text-[15px] font-semibold text-[#17110a] transition-colors hover:bg-gold/90 disabled:opacity-40"
             >
               {phase.k === "placing" ? t.placing : t.placeCall}
-            </button>
+            </motion.button>
             {!hasLiquidity && !bookLoading && (
               <p className="mt-2 text-[12px] text-muted">{t.noBookSide}</p>
             )}

@@ -83,7 +83,7 @@ function PositionRow({ position }: { position: Position }) {
           type="button"
           disabled={busy}
           onClick={() => void run(position)}
-          className="rounded-md border border-gold/40 px-2.5 py-1 text-[11px] font-medium text-gold transition-colors hover:bg-gold/10 disabled:opacity-50"
+          className="min-h-[36px] rounded-xl border border-gold/40 bg-gold-dim/30 px-3.5 py-2 text-[12px] font-semibold text-gold transition-colors hover:bg-gold-dim disabled:opacity-40"
         >
           {busy
             ? t.selling
@@ -111,10 +111,8 @@ export function Positions() {
   if (!address || !positions || positions.length === 0) return null;
 
   return (
-    <section className="mt-4 rounded-xl border border-border bg-surface p-5">
-      <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">
-        {t.yourPositions}
-      </h2>
+    <section className="lit-edge mt-8 rounded-2xl border border-border bg-surface p-5 sm:p-6">
+      <h2 className="t-label">{t.yourPositions}</h2>
       <p className="mt-1 text-[11px] leading-relaxed text-faint">{t.sellWhy}</p>
       <ul className="mt-3 flex flex-col gap-2">
         {positions.map((p) => (

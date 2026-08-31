@@ -4,10 +4,11 @@ import type { Call } from "@/lib/indexer";
 import { explorerTxUrl } from "@/lib/somnia";
 import { money } from "@/lib/format";
 import { copyStake, useJoin } from "@/lib/useJoin";
+import { motion, useReducedMotion } from "motion/react";
 import { useLocale } from "./LocaleProvider";
 
 const chip =
-  "rounded-md border px-2 py-1 text-[11px] font-medium transition-colors disabled:opacity-50";
+  "min-h-[34px] rounded-xl border px-3 py-1.5 text-[12px] font-semibold transition-colors disabled:opacity-40";
 
 /**
  * One-tap agreement and disagreement on someone else's live call.
@@ -21,6 +22,7 @@ const chip =
  */
 export function JoinButtons({ call }: { call: Call }) {
   const { t, locale } = useLocale();
+  const reduce = useReducedMotion();
   const { phase, run, connected } = useJoin();
 
   const amount = copyStake(call.stake);
@@ -64,15 +66,17 @@ export function JoinButtons({ call }: { call: Call }) {
 
   return (
     <span className="flex flex-wrap items-center gap-2">
-      <button
+      <motion.button
         type="button"
         disabled={busy}
         onClick={() => void run({ market: call.market, direction: call.direction, stake: amount })}
-        className={`${chip} border-up/40 text-up hover:bg-up-dim`}
+        whileTap={reduce || busy ? undefined : { scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+        className={`${chip} border-up/40 bg-up-dim/30 text-up hover:bg-up-dim`}
       >
         {busy ? t.joining : `${t.joinCall} · ${money(amount, locale)}`}
-      </button>
-      <button
+      </motion.button>
+      <motion.button
         type="button"
         disabled={busy}
         title={t.fadeWhy}
@@ -83,10 +87,12 @@ export function JoinButtons({ call }: { call: Call }) {
             stake: amount,
           })
         }
-        className={`${chip} cursor-help border-down/40 text-down hover:bg-down-dim`}
+        whileTap={reduce || busy ? undefined : { scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+        className={`${chip} border-down/40 bg-down-dim/30 text-down hover:bg-down-dim`}
       >
         {t.fadeCall}
-      </button>
+      </motion.button>
       {error && <span className="text-[11px] text-muted">{error}</span>}
     </span>
   );

@@ -2,30 +2,47 @@
 
 /*
  * Palpito is dark-only on purpose: it is a live feed people watch a countdown
- * on, most often on a phone, and a single committed surface keeps the UP/DOWN
- * pair reading the same in every room.
+ * on, most often on a phone, and one committed surface keeps the UP/DOWN pair
+ * reading the same in every room.
+ *
+ * The neutrals carry a violet bias rather than being pure grey — a flat grey
+ * next to a mint and a rose reads as unfinished, and the bias is what makes the
+ * gold sit warm on top of them instead of floating.
  */
 :root {
-  --bg: #0b0a0c;
-  --surface: #141317;
-  --surface-2: #1c1a20;
-  --border: #292630;
-  --text: #f4f2f5;
-  --muted: #9c96a6;
-  --faint: #6b6676;
+  --bg: #0a0810;
+  --bg-deep: #07060c;
+  --surface: #120f1a;
+  --surface-2: #1a1626;
+  --surface-3: #221d31;
+  --border: #2b2540;
+  --border-bright: #3b3356;
 
-  --up: #3ddc97;
-  --up-dim: #14472f;
-  --down: #ff5c7a;
-  --down-dim: #4d1a27;
-  --gold: #ffc53d;
+  --text: #f6f3fb;
+  --muted: #a49bbb;
+  --faint: #6d6488;
+
+  /* Semantic, and never decorative: these two only ever mean direction. */
+  --up: #35e39b;
+  --up-dim: #0d3b2a;
+  --up-glow: #35e39b26;
+  --down: #ff5d7d;
+  --down-dim: #46101f;
+  --down-glow: #ff5d7d26;
+
+  /* The brand. Used for the pulse, the verified receipt, and one CTA. */
+  --gold: #ffc73d;
+  --gold-dim: #3d2f0a;
 }
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
   --color-border: var(--border);
+  --color-border-bright: var(--border-bright);
   --color-text: var(--text);
   --color-muted: var(--muted);
   --color-faint: var(--faint);
@@ -34,33 +51,119 @@
   --color-down: var(--down);
   --color-down-dim: var(--down-dim);
   --color-gold: var(--gold);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-gold-dim: var(--gold-dim);
+
+  --font-display: var(--font-space-grotesk);
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains);
 }
 
 body {
   overflow-x: hidden;
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* The heartbeat the product is named after. Marks anything settling live. */
+/*
+ * Type scale. The old build set everything between 11 and 15px, which is why it
+ * read as flat: nothing was allowed to be the most important thing on screen.
+ * These are the four sizes that carry meaning here — a headline, a number you
+ * are deciding on, a label, and a caption — and the jumps between them are
+ * deliberately large.
+ */
+.t-display {
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.9rem, 6vw, 3.1rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.t-title {
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  letter-spacing: -0.02em;
+}
+
+/* The number someone is actually deciding on. Tabular so it cannot jitter. */
+.t-figure {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.t-label {
+  font-family: var(--font-jetbrains), ui-monospace, monospace;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* The heartbeat the product is named after. Marks anything still running. */
 @keyframes palpito-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.45; transform: scale(0.82); }
+  50% { opacity: 0.35; transform: scale(0.7); }
 }
 
 .pulse-dot {
-  animation: palpito-pulse 1.6s ease-in-out infinite;
+  animation: palpito-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Under thirty seconds the decision is now-or-never; the countdown says so. */
+@keyframes urgent-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.urgent {
+  animation: urgent-pulse 0.9s ease-in-out infinite;
+}
+
+/*
+ * A single hairline of light along the top of a raised surface. Cheap, and it
+ * does what a drop shadow cannot on a near-black ground: it separates the card
+ * from the page without muddying either.
+ */
+.lit-edge {
+  position: relative;
+}
+.lit-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+  pointer-events: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pulse-dot { animation: none; }
+  .pulse-dot,
+  .urgent {
+    animation: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 ::selection {
   background: var(--gold);
-  color: #191014;
+  color: #17110a;
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

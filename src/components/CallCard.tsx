@@ -1,24 +1,35 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { Call, CallOutcome } from "@/lib/indexer";
 import { oracleGraphUrl, explorerTxUrl } from "@/lib/somnia";
 import { asPercent, handleFor, money, shortAddress, timeAgo, windowLabel } from "@/lib/format";
-import { useState } from "react";
 import { useLocale } from "./LocaleProvider";
 import { Countdown, useNow } from "./Clock";
 import { JoinButtons } from "./JoinButtons";
 
-function DirectionPill({ direction }: { direction: Call["direction"] }) {
+/**
+ * The direction, said once and loudly.
+ *
+ * Direction is the single most important thing on a card, so it gets weight and
+ * a filled ground rather than sitting at the same size as everything else — the
+ * flat version of this card treated the call, the stake and the timestamp as
+ * equally important, which is why nothing stood out.
+ */
+function DirectionMark({ direction }: { direction: Call["direction"] }) {
   const { t } = useLocale();
   const up = direction === "UP";
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[12px] font-semibold ${
+      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[13px] font-semibold ${
         up ? "bg-up-dim text-up" : "bg-down-dim text-down"
       }`}
     >
-      <span aria-hidden>{up ? "▲" : "▼"}</span>
+      <svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true" className="shrink-0">
+        <path d={up ? "M5 0L10 9H0z" : "M5 10L0 1h10z"} fill="currentColor" />
+      </svg>
       {up ? t.up : t.down}
     </span>
   );
@@ -27,124 +38,168 @@ function DirectionPill({ direction }: { direction: Call["direction"] }) {
 function Verdict({ outcome }: { outcome: CallOutcome }) {
   const { t } = useLocale();
   const map: Record<CallOutcome, { label: string; cls: string }> = {
-    won: { label: t.won, cls: "bg-up-dim text-up" },
-    lost: { label: t.lost, cls: "bg-down-dim text-down" },
-    void: { label: t.void, cls: "bg-surface-2 text-muted" },
-    pending: { label: t.pending, cls: "bg-surface-2 text-gold" },
+    won: { label: t.won, cls: "bg-up-dim text-up ring-1 ring-up/25" },
+    lost: { label: t.lost, cls: "bg-down-dim text-down ring-1 ring-down/25" },
+    void: { label: t.void, cls: "bg-surface-3 text-muted" },
+    pending: { label: t.pending, cls: "bg-surface-3 text-gold" },
   };
   const v = map[outcome];
   return (
-    <span className={`rounded-md px-2 py-0.5 text-[12px] font-semibold ${v.cls}`}>{v.label}</span>
+    <span className={`rounded-md px-2 py-1 text-[11px] font-semibold ${v.cls}`}>{v.label}</span>
   );
 }
 
 export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }) {
   const { t, locale } = useLocale();
   const now = useNow();
+  const reduce = useReducedMotion();
   const [showWhy, setShowWhy] = useState(false);
   const m = call.market;
+
   // Liveness comes from the window's own clock. `clobStatus` still reads
   // "Trading" on markets that closed weeks ago, so trusting it would put a
   // ticking countdown on a call that settled in July.
   const live = outcome === "pending" && m.expiry > now;
   const settling = outcome === "pending" && !live;
+  const up = call.direction === "UP";
 
   return (
-    <article className="rounded-xl border border-border bg-surface p-4">
-      <header className="flex items-center gap-2 text-[13px]">
-        <Link
-          href={`/u/${call.wallet}`}
-          className="font-semibold text-text hover:text-gold transition-colors"
-        >
-          {handleFor(call.wallet)}
-        </Link>
-        <span className="font-mono text-[11px] text-faint">{shortAddress(call.wallet)}</span>
-        <span className="ml-auto text-[11px] text-faint">{timeAgo(call.timestamp, locale, now)}</span>
-      </header>
-
-      <p className="mt-2.5 flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-[15px] leading-snug">
-        <span className="text-muted">{t.called}</span>
-        <span className="font-semibold">{m.asset}</span>
-        <DirectionPill direction={call.direction} />
-        <span className="text-muted">
-          {call.direction === "UP" ? t.upLong : t.downLong}
-        </span>
-        <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[11px] text-muted">
-          {windowLabel(m.intervalSec)}
-        </span>
-      </p>
-
-      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-muted">
-        <span>
-          {t.staked}{" "}
-          <span className="font-mono text-text">{money(call.stake, locale)}</span> tUSDC
-        </span>
-        <span>
-          {t.atOdds} <span className="font-mono text-text">{asPercent(call.price)}</span>
-        </span>
-        {live ? (
-          <span className="flex items-center gap-1.5">
-            <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-gold" />
-            {t.closesIn} <Countdown expiry={m.expiry} className="font-mono text-text" />
-          </span>
-        ) : settling ? (
-          <span className="rounded-md bg-surface-2 px-2 py-0.5 text-[12px] font-semibold text-muted">
-            {t.settling}
-          </span>
-        ) : (
-          <Verdict outcome={outcome} />
-        )}
-
-        {/* Most fills on this venue are mint-a-pair, so this is a quiet chip
-            rather than a callout — repeated ten times down the page, an
-            explanation block stops being information and becomes wallpaper. */}
-        {call.mintedPair && (
-          <button
-            type="button"
-            aria-expanded={showWhy}
-            onClick={() => setShowWhy((v) => !v)}
-            className="inline-flex items-center gap-1 rounded border border-gold/25 px-1.5 py-0.5 text-[10px] font-medium text-gold/90 transition-colors hover:bg-gold/10"
-          >
-            ◇ {t.madeLiquidity}
-          </button>
-        )}
-      </div>
-
-      {/* A `title` is invisible on a phone, and this explanation is the single
-          most interesting thing about the venue — so it opens on tap instead. */}
-      {call.mintedPair && showWhy && (
-        <p className="mt-2 rounded-lg border border-gold/25 bg-surface-2 px-3 py-2 text-[11px] leading-relaxed text-muted">
-          {t.madeLiquidityWhy}
-        </p>
-      )}
-
-      {/* Only a live window can be joined; a settled call is a receipt, not an offer. */}
+    <article
+      className={`lit-edge relative overflow-hidden rounded-2xl border bg-surface transition-colors ${
+        live ? "border-border-bright" : "border-border"
+      }`}
+    >
+      {/* A live call carries a hairline of its own direction down the left edge —
+          the one place colour is allowed to encode state at a glance. */}
       {live && (
-        <div className="mt-3 border-t border-border pt-3">
-          <JoinButtons call={call} />
-        </div>
+        <span
+          aria-hidden="true"
+          className={`absolute inset-y-0 left-0 w-[2px] ${up ? "bg-up/70" : "bg-down/70"}`}
+        />
       )}
 
-      <footer className="mt-3 flex flex-wrap items-center gap-3 text-[11px]">
-        {m.oracleQuestionId && (outcome === "won" || outcome === "lost" || outcome === "void") && (
+      <div className="p-4 sm:p-5">
+        <header className="flex items-center gap-2">
+          <Link
+            href={`/u/${call.wallet}`}
+            className="t-title text-[14px] text-text transition-colors hover:text-gold"
+          >
+            {handleFor(call.wallet)}
+          </Link>
+          <span className="font-mono text-[10px] text-faint">{shortAddress(call.wallet)}</span>
+          <span className="ml-auto font-mono text-[10px] text-faint">
+            {timeAgo(call.timestamp, locale, now)}
+          </span>
+        </header>
+
+        <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2 text-[15px] leading-snug">
+          <span className="text-muted">{t.called}</span>
+          <span className="t-title text-[17px]">{m.asset}</span>
+          <DirectionMark direction={call.direction} />
+          <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted">
+            {windowLabel(m.intervalSec)}
+          </span>
+        </p>
+
+        <p className="mt-1 text-[13px] text-faint">
+          {call.direction === "UP" ? t.upLong : t.downLong}
+        </p>
+
+        {/* Stake and odds get the figure treatment: they are the numbers someone
+            scans, and the old build rendered them at caption size. */}
+        <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-3">
+          <span>
+            <span className="t-figure block text-[19px] text-text">
+              {money(call.stake, locale)}
+            </span>
+            <span className="t-label mt-0.5 block">{t.lblStake} · tUSDC</span>
+          </span>
+          <span>
+            <span className={`t-figure block text-[19px] ${up ? "text-up" : "text-down"}`}>
+              {asPercent(call.price)}
+            </span>
+            <span className="t-label mt-0.5 block">{t.lblPrice}</span>
+          </span>
+
+          <span className="ml-auto flex items-center gap-2">
+            {live ? (
+              <span className="flex items-center gap-2">
+                <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-gold" />
+                <Countdown expiry={m.expiry} className="t-figure text-[17px] text-text" />
+              </span>
+            ) : settling ? (
+              <span className="rounded-md bg-surface-3 px-2 py-1 text-[11px] font-semibold text-muted">
+                {t.settling}
+              </span>
+            ) : (
+              <Verdict outcome={outcome} />
+            )}
+          </span>
+        </div>
+
+        {call.mintedPair && (
+          <div className="mt-3">
+            <motion.button
+              type="button"
+              aria-expanded={showWhy}
+              onClick={() => setShowWhy((v) => !v)}
+              whileTap={reduce ? undefined : { scale: 0.97 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="inline-flex items-center gap-1.5 rounded-md border border-gold/25 bg-gold-dim/40 px-2 py-1 text-[10px] font-medium text-gold transition-colors hover:bg-gold-dim"
+            >
+              <span aria-hidden="true">◇</span>
+              {t.madeLiquidity}
+            </motion.button>
+
+            <AnimatePresence initial={false}>
+              {showWhy && (
+                <motion.p
+                  initial={reduce ? undefined : { opacity: 0, height: 0 }}
+                  animate={reduce ? undefined : { opacity: 1, height: "auto" }}
+                  exit={reduce ? undefined : { opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="overflow-hidden text-[12px] leading-relaxed text-muted"
+                >
+                  <span className="mt-2 block rounded-lg border border-gold/20 bg-surface-2 px-3 py-2.5">
+                    {t.madeLiquidityWhy}
+                  </span>
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* Only a live window can be joined; a settled call is a receipt. */}
+        {live && (
+          <div className="mt-4 border-t border-border pt-4">
+            <JoinButtons call={call} />
+          </div>
+        )}
+
+        <footer className="mt-4 flex flex-wrap items-center gap-4 text-[11px]">
+          {m.oracleQuestionId && (outcome === "won" || outcome === "lost" || outcome === "void") && (
+            <a
+              href={oracleGraphUrl(m.oracleQuestionId)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group inline-flex items-center gap-1 font-medium text-gold transition-colors hover:text-gold/80"
+            >
+              {t.verify}
+              <span className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
+                →
+              </span>
+            </a>
+          )}
           <a
-            href={oracleGraphUrl(m.oracleQuestionId)}
+            href={explorerTxUrl(call.txHash)}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-gold hover:underline"
+            className="font-mono text-faint transition-colors hover:text-muted"
           >
-            {t.verify} →
+            tx {call.txHash.slice(0, 8)}
           </a>
-        )}
-        <a
-          href={explorerTxUrl(call.txHash)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="font-mono text-faint hover:text-muted"
-        >
-          tx {call.txHash.slice(0, 8)}
-        </a>
-      </footer>
+        </footer>
+      </div>
     </article>
   );
 }

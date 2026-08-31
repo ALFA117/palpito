@@ -36,10 +36,10 @@ export function Calibration({ bands }: { bands: CalibrationBand[] }) {
         return (
           <li
             key={b.from}
-            className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[12px]"
+            className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-border bg-surface-2 px-4 py-3 text-[12px]"
           >
             <span className="text-faint">{t.said}</span>
-            <span className="w-10 text-right font-mono text-[14px] text-text tabular-nums">
+            <span className="t-figure w-11 text-right text-[17px] text-text">
               {Math.round(b.claimed * 100)}%
             </span>
 
@@ -47,7 +47,7 @@ export function Calibration({ bands }: { bands: CalibrationBand[] }) {
 
             <span className="text-faint">{t.wasRight}</span>
             <span
-              className={`w-10 text-right font-mono text-[14px] tabular-nums ${
+              className={`t-figure w-11 text-right text-[17px] ${
                 verdict === "ok" ? "text-text" : tone
               }`}
             >

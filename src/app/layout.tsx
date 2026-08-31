@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import "./globals.css";
 import { DEFAULT_LOCALE, isLocale, localeFromHeader } from "@/lib/i18n";
@@ -7,8 +7,26 @@ import { LocaleProvider } from "@/components/LocaleProvider";
 import { Chrome } from "@/components/Chrome";
 import { Web3Provider } from "@/components/Web3Provider";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+// Space Grotesk for anything that speaks, Inter for anything that is read, and
+// JetBrains Mono for every number — prices, countdowns, addresses, hashes. The
+// old build ran on one family, which is most of why it read as a template.
+const display = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+});
+const body = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+const mono = JetBrains_Mono({
+  variable: "--font-jetbrains",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
+});
 
 const DESCRIPTION =
   "Dilo y que la cadena lo confirme. Predicciones con recibo verificable sobre contratos de evento de DreamDEX en Somnia.";
@@ -37,7 +55,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
         <Web3Provider>

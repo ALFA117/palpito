@@ -40,12 +40,10 @@ export function ClaimBanner() {
   const voids = claims.filter((c) => c.voided).length;
 
   return (
-    <section className="mt-4 rounded-xl border border-gold/40 bg-surface p-5">
+    <section className="lit-edge mt-8 rounded-2xl border border-gold/40 bg-surface p-5 sm:p-6">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-        <h2 className="text-[15px] font-semibold text-gold">{t.unclaimed}</h2>
-        <span className="font-mono text-[20px] font-semibold text-text">
-          {money(total, locale)}
-        </span>
+        <h2 className="t-title text-[15px] text-gold">{t.unclaimed}</h2>
+        <span className="t-figure text-[34px] text-text">{money(total, locale)}</span>
         <span className="text-[12px] text-faint">tUSDC</span>
       </div>
 
@@ -72,7 +70,7 @@ export function ClaimBanner() {
           type="button"
           disabled={phase.k === "claiming"}
           onClick={() => void run()}
-          className="rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-[#191014] transition-colors hover:bg-gold/90 disabled:opacity-60"
+          className="rounded-xl bg-gold px-5 py-3 text-[14px] font-semibold text-[#17110a] transition-colors hover:bg-gold/90 disabled:opacity-40"
         >
           {phase.k === "claiming" ? t.claiming : `${t.claimAll} · ${money(total, locale)}`}
         </button>
