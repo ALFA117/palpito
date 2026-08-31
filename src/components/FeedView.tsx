@@ -6,12 +6,13 @@ import type { Call, CallOutcome, Market } from "@/lib/indexer";
 import { useLocale } from "./LocaleProvider";
 import { CallCard } from "./CallCard";
 import { ClockProvider, Countdown } from "./Clock";
-import { asPercent, money, windowLabel } from "@/lib/format";
+import { money, windowLabel } from "@/lib/format";
 import { CallComposer } from "./CallComposer";
 import { Positions } from "./Positions";
 import { ClaimBanner } from "./ClaimBanner";
 import { Sparkline } from "./Sparkline";
 import { Ticker } from "./Ticker";
+import { LivePercent, WindowRing } from "./LiveNumber";
 
 export interface ScoredCall {
   call: Call;
@@ -26,7 +27,7 @@ function Hero() {
   const { t } = useLocale();
   return (
     <section>
-      <h1 className="t-display">{t.tagline}</h1>
+      <h1 className="t-display t-display-grad">{t.tagline}</h1>
       <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted">
         {t.whatIsThisBody}
       </p>
@@ -66,8 +67,12 @@ function LiveWindows({ markets }: { markets: Market[] }) {
           return (
             <div
               key={m.marketId}
-              className={`w-[176px] shrink-0 rounded-xl border bg-surface px-3.5 py-3 ${
-                traded ? (rising ? "border-up/25 glow-up" : "border-down/25 glow-down") : "border-border"
+              className={`lift w-[186px] shrink-0 rounded-xl border bg-surface px-3.5 py-3 ${
+                traded
+                  ? rising
+                    ? "border-up/30 tint-up breathe-up"
+                    : "border-down/30 tint-down breathe-down"
+                  : "border-border"
               }`}
             >
               <div className="flex items-baseline gap-2">
@@ -75,17 +80,20 @@ function LiveWindows({ markets }: { markets: Market[] }) {
                 <span className="font-mono text-[10px] text-faint">
                   {windowLabel(m.intervalSec)}
                 </span>
-                <Countdown expiry={m.expiry} className="t-figure ml-auto text-[11px] text-faint" />
+                <span className="ml-auto">
+                  <WindowRing start={m.tradingStart} expiry={m.expiry} size={30}>
+                    <Countdown expiry={m.expiry} className="t-figure text-[8px] text-muted" />
+                  </WindowRing>
+                </span>
               </div>
 
               <div className="mt-1.5 flex items-end justify-between gap-2">
-                <span
-                  className={`t-figure text-[24px] ${
+                <LivePercent
+                  value={m.lastPrice}
+                  className={`t-figure text-[26px] ${
                     m.lastPrice === null ? "text-faint" : rising ? "text-up" : "text-down"
                   }`}
-                >
-                  {m.lastPrice === null ? "—" : asPercent(m.lastPrice)}
-                </span>
+                />
                 <Sparkline points={m.spark} className="h-7 w-[84px] text-faint" />
               </div>
 

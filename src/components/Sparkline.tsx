@@ -59,6 +59,14 @@ export function Sparkline({
   const line = xy.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
   const area = `0,${height} ${line} ${width},${height}`;
 
+  // Rough path length, for the draw-in dash offset. Exact enough: it only has
+  // to over-cover the stroke, never to measure it.
+  const length = xy.reduce(
+    (n, [x, y], i) =>
+      i === 0 ? 0 : n + Math.hypot(x - xy[i - 1][0], y - xy[i - 1][1]),
+    0,
+  );
+
   const rising = points[points.length - 1] >= points[0];
   const stroke = rising ? "var(--up)" : "var(--down)";
   const id = `spark-${rising ? "up" : "down"}`;
@@ -76,9 +84,11 @@ export function Sparkline({
         points={line}
         fill="none"
         stroke={stroke}
-        strokeWidth="1.5"
+        strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className="spark-draw"
+        style={{ "--len": length } as React.CSSProperties}
       />
       {/* The endpoint is where the market is now — the one dot worth drawing. */}
       <circle cx={xy[xy.length - 1][0]} cy={xy[xy.length - 1][1]} r="2" fill={stroke} />

@@ -5,11 +5,12 @@ import { motion, useReducedMotion } from "motion/react";
 import { useAccount, useWalletClient } from "wagmi";
 import type { Direction, Market } from "@/lib/indexer";
 import { CHAIN_ID, ONE, explorerTxUrl } from "@/lib/somnia";
-import { asPercent, money, windowLabel } from "@/lib/format";
+import { money, windowLabel } from "@/lib/format";
 import { placeCall } from "@/lib/trade";
 import { useCollateralBalance, useFaucet } from "@/lib/useCollateral";
 import { useBook } from "@/lib/useBook";
 import { useAfterWrite } from "@/lib/useAfterWrite";
+import { LivePercent } from "./LiveNumber";
 import { useLocale } from "./LocaleProvider";
 import { Countdown } from "./Clock";
 import { HunchInput } from "./HunchInput";
@@ -269,12 +270,12 @@ export function CallComposer({ markets }: { markets: Market[] }) {
                   onClick={() => setDirection(d)}
                   whileTap={reduce ? undefined : { scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 22 }}
-                  className={`flex-1 rounded-2xl border px-4 py-3.5 text-left transition-colors ${
+                  className={`flex-1 rounded-2xl border px-4 py-4 text-left transition-colors ${
                     on
                       ? d === "UP"
-                        ? "border-up/60 bg-up-dim"
-                        : "border-down/60 bg-down-dim"
-                      : "border-border bg-surface hover:border-border-bright"
+                        ? "border-up/60 bg-up-dim tint-up breathe-up"
+                        : "border-down/60 bg-down-dim tint-down breathe-down"
+                      : "lift border-border bg-surface hover:border-border-bright"
                   }`}
                 >
                   <span
@@ -290,8 +291,14 @@ export function CallComposer({ markets }: { markets: Market[] }) {
                     </svg>
                     {d === "UP" ? t.up : t.down}
                   </span>
-                  <span className="t-figure mt-1.5 block text-[24px] text-text">
-                    {q ? asPercent(q.price) : bookLoading ? "…" : t.priceUnavailable}
+                  <span className="t-figure mt-2 block text-[30px] text-text">
+                    {q ? (
+                      <LivePercent value={q.price} />
+                    ) : bookLoading ? (
+                      "…"
+                    ) : (
+                      <span className="text-[15px] text-faint">{t.priceUnavailable}</span>
+                    )}
                   </span>
                 </motion.button>
               );
@@ -312,7 +319,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
           />
         </div>
 
-        <dl className="flex items-end gap-8 rounded-2xl border border-border bg-surface-2 px-4 py-4">
+        <dl className="tint-gold flex items-end gap-8 rounded-2xl border border-gold/20 bg-surface-2 px-4 py-4">
           <div>
             <dt className="t-label">{t.youRisk}</dt>
             <dd className="t-figure mt-1.5 text-[22px] text-text">{money(stake, locale)}</dd>
@@ -374,7 +381,9 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               onClick={submit}
               whileTap={reduce || !ready ? undefined : { scale: 0.985 }}
               transition={{ type: "spring", stiffness: 400, damping: 22 }}
-              className="w-full rounded-xl bg-gold px-4 py-4 text-[15px] font-semibold text-[#17110a] transition-colors hover:bg-gold/90 disabled:opacity-40"
+              className={`w-full rounded-xl px-4 py-4 text-[15px] font-semibold text-[#17110a] transition-colors disabled:opacity-40 ${
+                ready ? "cta-live glow-gold bg-gold hover:bg-gold/90" : "bg-gold"
+              }`}
             >
               {phase.k === "placing" ? t.placing : t.placeCall}
             </motion.button>

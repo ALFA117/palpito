@@ -65,8 +65,12 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
 
   return (
     <article
-      className={`lit-edge relative overflow-hidden rounded-2xl border bg-surface transition-colors ${
-        live ? "border-border-bright" : "border-border"
+      className={`lit-edge lift relative overflow-hidden rounded-2xl border bg-surface ${
+        live
+          ? up
+            ? "border-up/30 tint-up breathe-up"
+            : "border-down/30 tint-down breathe-down"
+          : "border-border"
       }`}
     >
       {/* A live call carries a hairline of its own direction down the left edge —
