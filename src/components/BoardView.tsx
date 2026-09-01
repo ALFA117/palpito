@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { NavLink } from "./RouteProgress";
 import { BOARD_RANGES, type BoardRange } from "@/lib/indexer";
 import type { Standing } from "@/lib/indexer";
 import { useLocale } from "./LocaleProvider";
@@ -34,7 +34,7 @@ export function BoardView({
             sharing can be shared. */}
         <nav className="mt-3 flex gap-1.5">
           {BOARD_RANGES.map((r) => (
-            <Link
+            <NavLink
               key={r}
               href={r === "24h" ? "/ranking" : `/ranking?r=${r}`}
               aria-current={r === range ? "page" : undefined}
@@ -45,7 +45,7 @@ export function BoardView({
               }`}
             >
               {t[RANGE_LABEL[r]]}
-            </Link>
+            </NavLink>
           ))}
         </nav>
       </header>
@@ -58,7 +58,7 @@ export function BoardView({
         <ol className="mt-5 flex flex-col gap-2">
           {standings.map((s, i) => (
             <li key={s.wallet}>
-              <Link
+              <NavLink
                 href={`/u/${s.wallet}`}
                 className={`lift flex items-center gap-3 rounded-2xl border p-4 ${
                   i === 0
@@ -101,7 +101,7 @@ export function BoardView({
                   </span>
                   <span className="block text-[10px] text-faint">tUSDC</span>
                 </span>
-              </Link>
+              </NavLink>
             </li>
           ))}
         </ol>

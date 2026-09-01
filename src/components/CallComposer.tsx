@@ -304,6 +304,12 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               );
             })}
           </div>
+          <p className="mt-2 flex items-start gap-1.5 text-[11.5px] leading-relaxed text-faint">
+            <span aria-hidden="true" className="text-gold">
+              ◇
+            </span>
+            {t.pairWhy}
+          </p>
         </div>
 
         <div>

@@ -59,12 +59,15 @@ estar abierta).
 6. `[ ]` El muro corta en 40 fills, sin paginación.
 7. `[ ]` Cambio de cuenta en la wallet a mitad de sesión: revisar que balance y posiciones sigan.
 8. `[ ]` Sin reintento ante fallo transitorio del indexer.
-9. `[ ]` `useCollateralBalance` formatea con locale `undefined`; inconsistente con `money()`.
+9. `[x]` `useCollateralBalance` formatea con locale `undefined`; inconsistente con `money()`.
+    Ya recibe el locale de la app y pasa por `money()`.
 10. `[ ]` Los alias de wallet (`zorroa1b`) pueden colisionar; sin desambiguación.
 11. `[ ]` El perfil carga hasta 200 palpitos sin paginar.
 12. `[ ]` El precio de salida usa solo la cima del libro; leer más niveles daría mejor estimación.
 13. `[ ]` `placeCall` no distingue el fallo por allowance insuficiente.
-14. `[ ]` Sin validación visible de longitud en el campo de texto.
+14. `[x]` Sin validación visible de longitud en el campo de texto. `maxLength=200` más un
+    contador que aparece en los últimos 40 caracteres. La ruta ya recortaba en 500 sin
+    decírselo a nadie, que es la peor versión de un límite.
 15. `[ ]` `parseHunch` mapea "hoy" y "mañana" a la misma ventana de 24h.
 
 ## B. Producto que falta
@@ -82,18 +85,26 @@ estar abierta).
 
 ## C. Experiencia y diseño
 
-26. `[ ]` Sin esqueletos de carga. El `loading.tsx` que los daba rompía la hidratación
-    en producción (ver arriba); hay que rehacerlo de otra manera.
+26. `[x]` Resuelto sin `loading.tsx`. Como todas las rutas son dinámicas, el SSR ya bloquea
+    hasta tener datos: no hay primer pintado vacío que rellenar con esqueletos. Lo que
+    faltaba era acuse de recibo al navegar, y eso lo da `useLinkStatus` (`NavLink` en
+    `RouteProgress.tsx`) con una barra fija arriba — sin límite de Suspense, que era
+    justo lo que rompía la hidratación.
 27. `[x]` La cuenta regresiva no cambia de urgencia bajo 30 s.
 28. `[ ]` Las tarjetas no muestran cómo va esa predicción ahora. Descartado por ahora:
     exigiría leer el libro por cada tarjeta (40 `eth_call` por tick) y el único dato
     gratis, `lastPrice`, es justo el que decidimos no usar por engañoso.
 29. `[ ]` En móvil no hay acceso fijo a "hacer un palpito" al bajar por el muro.
-30. `[ ]` La explicación de mint-a-pair va en `title`: invisible en táctil.
-31. `[ ]` Sin auditoría de `focus-visible`.
+30. `[x]` La explicación de mint-a-pair va en `title`: invisible en táctil. Peor: los
+    botones que la llevaban solo salen con wallet conectada, así que un jurado sin
+    extensión nunca la veía. Ahora es una línea fija bajo el par Sube/Baja del
+    compositor, más un desplegable “?” junto a “Voy en contra”.
+31. `[x]` `focus-visible` verificado con teclado en input, botón y enlace: anillo dorado
+    de 2px en todos. El `outline-none` del campo de texto no gana porque la regla global
+    va sin capa y las utilidades de Tailwind van en `@layer`.
 32. `[ ]` Sin estado de "recién llegado": no hay onboarding de 3 pasos.
 33. `[ ]` El wordmark es solo texto; falta identidad más marcada.
-34. `[ ]` Sin animación de entrada en tarjetas nuevas del muro.
+34. `[x]` Stagger de entrada en el muro, con tope a las 8 primeras tarjetas.
 35. `[ ]` Sin modo de contraste alto.
 
 ## D. Entregables del hackathon

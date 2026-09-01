@@ -408,6 +408,31 @@ body {
   scrollbar-color: var(--border-bright) transparent;
 }
 
+/*
+ * Route progress. It never reaches the end on purpose — it is removed when the
+ * navigation lands, and a bar that completes before the page arrives is a lie.
+ */
+@keyframes route-advance {
+  0%   { width: 0; }
+  35%  { width: 58%; }
+  100% { width: 92%; }
+}
+.route-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  height: 2px;
+  width: 0;
+  background: linear-gradient(90deg, var(--gold), var(--up));
+  opacity: 0;
+  pointer-events: none;
+}
+.route-bar.is-pending {
+  opacity: 1;
+  animation: route-advance 6s cubic-bezier(0.1, 0.75, 0.2, 1) forwards;
+}
+
 ::selection {
   background: var(--gold);
   color: var(--on-gold);
@@ -433,6 +458,7 @@ body {
   .cta-live::after {
     animation: none;
   }
+  .route-bar.is-pending { width: 100%; }
   .spark-draw { stroke-dasharray: none; }
   .lift:hover { transform: none; }
   *,

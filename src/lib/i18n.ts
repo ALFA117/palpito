@@ -154,6 +154,9 @@ const es = {
   joinFunds: "No te alcanza el saldo",
   joinClosed: "Esa ventana ya cerró",
   joinFailed: "No se pudo",
+  fadeWhyLabel: "Por qué ir en contra crea liquidez",
+  pairWhy:
+    "Cuando alguien toma el lado contrario al tuyo, el protocolo crea el par ahí mismo: el desacuerdo ES la liquidez, sin market maker.",
   fadeWhy: "Tomar el lado contrario a alguien crea el par en el protocolo: tu desacuerdo ES la liquidez, sin market maker de por medio.",
   connectToJoin: "Conecta tu wallet para sumarte",
   // Positions / exit
@@ -341,6 +344,9 @@ const en: Dict = {
   joinFunds: "Not enough balance",
   joinClosed: "That window already closed",
   joinFailed: "Could not place it",
+  fadeWhyLabel: "Why fading creates liquidity",
+  pairWhy:
+    "When someone takes the other side of you, the protocol mints the pair right there: the disagreement IS the liquidity, no market maker.",
   fadeWhy: "Taking the opposite side mints the pair in the protocol: your disagreement IS the liquidity, with no market maker involved.",
   connectToJoin: "Connect your wallet to join",
   yourPositions: "Your open positions",

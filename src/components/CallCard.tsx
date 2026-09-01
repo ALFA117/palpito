@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { NavLink } from "./RouteProgress";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { Call, CallOutcome } from "@/lib/indexer";
@@ -84,12 +84,12 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
 
       <div className="p-4 sm:p-5">
         <header className="flex items-center gap-2">
-          <Link
+          <NavLink
             href={`/u/${call.wallet}`}
             className="t-title text-[14px] text-text transition-colors hover:text-gold"
           >
             {handleFor(call.wallet)}
-          </Link>
+          </NavLink>
           <span className="font-mono text-[10px] text-faint">{shortAddress(call.wallet)}</span>
           <span className="ml-auto font-mono text-[10px] text-faint">
             {timeAgo(call.timestamp, locale, now)}

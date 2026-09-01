@@ -4,7 +4,8 @@ import type { Call } from "@/lib/indexer";
 import { explorerTxUrl } from "@/lib/somnia";
 import { money } from "@/lib/format";
 import { copyStake, useJoin } from "@/lib/useJoin";
-import { motion, useReducedMotion } from "motion/react";
+import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useLocale } from "./LocaleProvider";
 
 const chip =
@@ -24,6 +25,9 @@ export function JoinButtons({ call }: { call: Call }) {
   const { t, locale } = useLocale();
   const reduce = useReducedMotion();
   const { phase, run, connected } = useJoin();
+  // Why fading matters was in a `title`, which on a phone is nowhere. It is the
+  // one idea the whole pitch rests on, so it gets a real affordance.
+  const [showFadeWhy, setShowFadeWhy] = useState(false);
 
   const amount = copyStake(call.stake);
   const busy = phase.k === "placing";
@@ -65,7 +69,7 @@ export function JoinButtons({ call }: { call: Call }) {
       : null;
 
   return (
-    <span className="flex flex-wrap items-center gap-2">
+    <span className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
       <motion.button
         type="button"
         disabled={busy}
@@ -79,7 +83,6 @@ export function JoinButtons({ call }: { call: Call }) {
       <motion.button
         type="button"
         disabled={busy}
-        title={t.fadeWhy}
         onClick={() =>
           void run({
             market: call.market,
@@ -93,6 +96,32 @@ export function JoinButtons({ call }: { call: Call }) {
       >
         {t.fadeCall}
       </motion.button>
+
+      <button
+        type="button"
+        aria-expanded={showFadeWhy}
+        aria-label={t.fadeWhyLabel}
+        onClick={() => setShowFadeWhy((v) => !v)}
+        className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-border text-[11px] text-faint transition-colors hover:border-gold/40 hover:text-gold"
+      >
+        ?
+      </button>
+
+      <AnimatePresence initial={false}>
+        {showFadeWhy && (
+          <motion.span
+            initial={reduce ? undefined : { opacity: 0, height: 0 }}
+            animate={reduce ? undefined : { opacity: 1, height: "auto" }}
+            exit={reduce ? undefined : { opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="block w-full overflow-hidden"
+          >
+            <span className="mt-1 block rounded-lg border border-down/20 bg-surface-2 px-3 py-2.5 text-[12px] leading-relaxed text-muted">
+              {t.fadeWhy}
+            </span>
+          </motion.span>
+        )}
+      </AnimatePresence>
       {error && <span className="text-[11px] text-muted">{error}</span>}
     </span>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { NavLink } from "./RouteProgress";
 import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { CHAIN_ID } from "@/lib/somnia";
 import { shortAddress } from "@/lib/format";
@@ -69,7 +69,7 @@ export function ConnectButton() {
 
   return (
     <div className="flex items-center gap-1">
-      <Link
+      <NavLink
         href={`/u/${address!.toLowerCase()}`}
         title={t.myRecordShort}
         className="flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] transition-colors hover:border-gold/40"
@@ -77,7 +77,7 @@ export function ConnectButton() {
         <span className="font-mono text-text">{formatted ?? "—"}</span>
         <span className="hidden text-faint sm:inline">tUSDC</span>
         <span className="hidden font-mono text-faint md:inline">{shortAddress(address!)}</span>
-      </Link>
+      </NavLink>
       <button
         type="button"
         onClick={() => disconnect()}

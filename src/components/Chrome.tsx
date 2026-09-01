@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { NavLink } from "./RouteProgress";
 import { usePathname } from "next/navigation";
 import { motion, useReducedMotion } from "motion/react";
 import { useLocale } from "./LocaleProvider";
@@ -10,13 +10,13 @@ import { ThemeToggle } from "./ThemeToggle";
 
 function Wordmark() {
   return (
-    <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="Palpito">
+    <NavLink href="/" className="flex shrink-0 items-center gap-2" aria-label="Palpito">
       <span className="relative flex h-2 w-2">
         <span className="pulse-dot absolute inline-flex h-full w-full rounded-full bg-gold" />
         <span className="absolute inline-flex h-full w-full rounded-full bg-gold/30 blur-[3px]" />
       </span>
       <span className="t-title hidden text-[16px] sm:inline">Palpito</span>
-    </Link>
+    </NavLink>
   );
 }
 
@@ -42,7 +42,7 @@ function Tabs() {
       {tabs.map((tab) => {
         const active = pathname === tab.href;
         return (
-          <Link
+          <NavLink
             key={tab.href}
             href={tab.href}
             aria-current={active ? "page" : undefined}
@@ -63,7 +63,7 @@ function Tabs() {
             >
               {tab.label}
             </span>
-          </Link>
+          </NavLink>
         );
       })}
     </nav>

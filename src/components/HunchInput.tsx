@@ -15,6 +15,8 @@ const EXAMPLES_EN = [
   "I don't think btc rises this hour",
 ];
 
+const MAX_CHARS = 200;
+
 type State =
   | { k: "idle" }
   | { k: "reading" }
@@ -120,6 +122,7 @@ export function HunchInput({
             if (state.k === "declined") setState({ k: "idle" });
           }}
           placeholder={t.sayItPlaceholder}
+          maxLength={MAX_CHARS}
           className="min-w-0 flex-1 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[14px] text-text outline-none placeholder:text-faint focus:border-gold/50"
         />
         <button
@@ -152,7 +155,16 @@ export function HunchInput({
           </div>
         </div>
       ) : (
-        <p className="mt-1.5 text-[11px] text-faint">{t.readItHint}</p>
+        <p className="mt-1.5 flex items-baseline gap-2 text-[11px] text-faint">
+          <span>{t.readItHint}</span>
+          {/* Silent truncation is the worst version of a limit. It only shows
+              up once you are close enough to hit it. */}
+          {text.length > MAX_CHARS - 40 && (
+            <span className="ml-auto shrink-0 font-mono tabular-nums">
+              {text.length}/{MAX_CHARS}
+            </span>
+          )}
+        </p>
       )}
     </div>
   );

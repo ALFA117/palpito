@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { NavLink } from "./RouteProgress";
 import { motion, useReducedMotion } from "motion/react";
 import type { Call, CallOutcome, Market } from "@/lib/indexer";
 import { useLocale } from "./LocaleProvider";
@@ -144,7 +144,7 @@ function AssetFilter({ markets, asset }: { markets: Market[]; asset: string | nu
       {options.map((o) => {
         const active = o.key === (asset ?? "all");
         return (
-          <Link
+          <NavLink
             key={o.key}
             href={o.href}
             aria-current={active ? "page" : undefined}
@@ -163,7 +163,7 @@ function AssetFilter({ markets, asset }: { markets: Market[]; asset: string | nu
             >
               {o.label}
             </span>
-          </Link>
+          </NavLink>
         );
       })}
     </nav>
