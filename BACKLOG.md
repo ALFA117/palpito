@@ -5,16 +5,21 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 
 ---
 
-**Estado:** 36 de 50 hechas, 1 en curso (#47). Lo desplegado vive en
+**Estado:** 40 de 50 hechas, 1 en curso (#47). Lo desplegado vive en
 <https://palpito-somnia.vercel.app>, el repo en
 <https://github.com/ALFA117/palpito>.
 
-Nota sobre la pasada anterior: a mitad de camino, el propio cursor de
+Nota sobre una pasada anterior: a mitad de camino, el propio cursor de
 paginación recién agregado (#6) rompió el muro en producción — un `null`
 explícito que esta config de Hasura no ignora como se asumió, sino que
 rechaza — y quedó así por dos commits hasta encontrarlo. Ya está corregido y
-verificado contra el indexer real y un build de producción. Esta pasada
-siguió con los ítems 17, 18, 20, 32 y 40 que habían quedado sin intentar.
+verificado contra el indexer real y un build de producción.
+
+Esta pasada cerró los cinco ítems que habían quedado sin intentar (17, 18,
+20, 32, 40). Lo que queda son ocho `[!]` que necesitan una decisión tuya
+(1, 33, 44, 45, 46, 48, y los ya investigados 41/42), uno `[~]` a medio
+tratamiento honesto (47), y uno `[ ]` deliberadamente descartado (28). En
+otras palabras: no queda nada más por intentar sin tu input primero.
 
 ## ✅ Resuelto: la página no hidrataba en producción
 
@@ -197,14 +202,17 @@ estar abierta).
     tomadas con Chrome headless contra el despliegue en vivo (`docs/img/`).
     Falta una móvil: headless no aplica bien el viewport de teléfono y sale
     cortada, aunque en navegador real encaja a 375 px.
-40. `[ ]` Datos de respaldo para que la demo no dependa de que haya ventanas
-    vivas. No intentado esta pasada. Verificado en vivo mientras se trabajaba
-    en esto: el venue tiene 9 ventanas abiertas ahora mismo, así que no es
-    urgente, pero sigue siendo un riesgo real si el momento de la demo cae en
-    un hueco. La versión honesta no inventa datos falsos — una instantánea
-    real, capturada y fechada, etiquetada claramente como respaldo, es la
-    única forma que no viola la promesa central de la app ("todo se puede
-    recomputar desde un endpoint público").
+40. `[x]` Datos de respaldo para que la demo no dependa de que haya ventanas
+    vivas. `npm run snapshot` (`scripts/snapshot-demo.mjs`) escribe una
+    instantánea real y fechada de los mercados y palpitos recientes del
+    venue a `docs/demo-snapshot.json` — deliberadamente **no** es algo que
+    la app misma lea. Dejar que alguien firme una transacción real contra un
+    mercado ya vencido en el fallback sería peor que un "no hay ventanas
+    abiertas" honesto: fallaría en cadena, o peor, parecería que funcionó.
+    Así que esto es solo para narrar encima en vivo si el pitch cae justo en
+    un hueco entre ventanas — nunca se hace pasar por dato en vivo. Corrida
+    contra el venue real: 10 mercados vivos, 40 palpitos recientes,
+    capturados 2026-09-02.
 
 ## E. Profundidad técnica (los jueces escribieron el SDK)
 

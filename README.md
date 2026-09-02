@@ -50,6 +50,13 @@ That is the whole setup. Every read path is public — the Somnia markets indexe
 
 Step 1 has to come first: minting tUSDC is itself a transaction.
 
+**Before a live demo**, run `npm run snapshot` once. It writes a dated,
+real snapshot of the venue's current markets and recent calls to
+`docs/demo-snapshot.json` — not a fallback the app itself reads, but
+something to have open in a tab if the live venue lands on zero open
+windows mid-pitch. The app always talks to the real venue; this is only
+ever narrated over, never passed off as live.
+
 ## Architecture
 
 ```
