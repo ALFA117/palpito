@@ -176,9 +176,21 @@ estar abierta).
 44. `[ ]` Mini-visualización del grafo del oráculo en línea, no solo el enlace.
 45. `[ ]` Session keys / operators para una UX sin fricción de firma.
 46. `[ ]` Atribución de builder fee (`approveBuilder`): la historia de monetización.
-47. `[ ]` Distinguir en el muro los cuatro caminos de cruce, no solo mint-a-pair.
+47. `[~]` Distinguir en el muro los cuatro caminos de cruce, no solo
+    mint-a-pair. `Call.kind` ahora trae el nombre crudo del indexer y
+    `CallCard` lo muestra como etiqueta cuando no es `MINT_A_PAIR` — pero solo
+    ese valor tiene traducción y explicación propia; los otros tres se
+    muestran tal cual salen del indexer en vez de adivinarles una etiqueta.
+    Falta la lista exacta de los cuatro nombres, documentada en el SDK, para
+    darles el mismo tratamiento.
 48. `[ ]` Conciencia multi-venue en la UI.
-49. `[ ]` Banco de pruebas de verdad en vez de scripts desechables.
+49. `[x]` Banco de pruebas de verdad en vez de scripts desechables. Vitest,
+    52 pruebas sobre la lógica pura: `parseHunch` (incluida la trampa de
+    "mañana"/"hoy" recién corregida), el scoring (`outcomeOf`, `payoutOf`,
+    `buildStanding` — hit rate, pnl, racha, calibración), `toTickPrice`/
+    `toLotSize` (el grid de precio y tamaño) y `estimateProceeds` (el libro
+    caminado). `npm test`. Ningún mock del venue: todo corre contra funciones
+    puras con datos sintéticos, nada golpea la cadena ni el indexer.
 50. `[x]` Medir y mostrar la latencia de liquidación de Somnia. Cronometrado
     desde que la wallet devuelve el hash (no desde antes de la firma, para no
     contra la lentitud del usuario mirando su wallet como si fuera lentitud de
