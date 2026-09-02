@@ -172,8 +172,13 @@ estar abierta).
 31. `[x]` `focus-visible` verificado con teclado en input, botón y enlace: anillo dorado
     de 2px en todos. El `outline-none` del campo de texto no gana porque la regla global
     va sin capa y las utilidades de Tailwind van en `@layer`.
-32. `[ ]` Sin estado de "recién llegado": no hay onboarding de 3 pasos. No
-    intentado esta pasada.
+32. `[x]` Sin estado de "recién llegado": no hay onboarding de 3 pasos.
+    Tarjeta dorada arriba del muro, gated por un flag en `localStorage`
+    (no una cuenta: solo recuerda ese navegador), con los tres pasos y un
+    botón para cerrarla. No aparece en el HTML de servidor a propósito —
+    `localStorage` no existe en SSR, así que se decide después de montar, y
+    el primer render del cliente tiene que coincidir con el del servidor
+    (nada) o React tira un mismatch de hidratación.
 33. `[!]` El wordmark es solo texto; falta identidad más marcada. Necesita tu
     decisión: esto es gusto de marca, no un bug — cualquier marca que yo
     inventara sin dirección tuya sería ruido, no identidad.

@@ -14,6 +14,7 @@ import { Sparkline } from "./Sparkline";
 import { Ticker } from "./Ticker";
 import { LivePercent, WindowRing } from "./LiveNumber";
 import { Empty } from "./Empty";
+import { Onboarding } from "./Onboarding";
 import { useLoadMore } from "@/lib/useLoadMore";
 
 export interface ScoredCall {
@@ -227,6 +228,7 @@ export function FeedView({
     <ClockProvider now={serverNow}>
       <ComposerFab />
       <Hero />
+      <Onboarding />
 
       <div className="mt-7">
         <Ticker markets={markets} />
