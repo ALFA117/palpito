@@ -7,6 +7,7 @@ import { useLocale } from "./LocaleProvider";
 import { LOCALES } from "@/lib/i18n";
 import { ConnectButton } from "./ConnectButton";
 import { ThemeToggle } from "./ThemeToggle";
+import { ResolutionToast } from "./ResolutionToast";
 
 function Wordmark() {
   return (
@@ -123,6 +124,8 @@ export function Chrome({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
+
+      <ResolutionToast />
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-28 pt-6">{children}</main>
 

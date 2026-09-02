@@ -131,11 +131,16 @@ estar abierta).
     una sección "Abierto ahora" aparte, arriba, visible para cualquiera que
     vea ese perfil — no es una vista nueva de datos nuevos, es la misma data
     puesta donde se ve.
-20. `[ ]` Sin aviso cuando tu ventana se resuelve. No intentado esta pasada.
-    Un toast in-app comparando el poll anterior de `usePositions` contra el
-    actual (una posición que desaparece = se resolvió) es la versión honesta
-    y acotada — no una notificación push real, que necesitaría infraestructura
-    que no existe.
+20. `[x]` Sin aviso cuando tu ventana se resuelve. Toast in-app: compara el
+    poll anterior de `usePositions` contra el actual, pero no basta con que
+    una posición desaparezca — vender también la hace desaparecer, y
+    `useSell` ya invalida esa misma query al vender. El desambiguador real es
+    el reloj: `openPositions` solo devuelve ventanas sin vencer, así que una
+    fila que desaparece con su `expiry` ya pasado se resolvió; si el
+    `expiry` seguía en el futuro, se vendió. Enlaza a la página de mercado
+    nueva (#17). No probado con una wallet real sosteniendo una posición
+    hasta que resuelva dentro de esta sesión — verificado por lectura del
+    código y build de producción, no en vivo.
 21. `[x]` Sin filtros en el muro (por activo o ventana).
 22. `[x]` Ranking solo histórico total; falta "últimas 24h" y "esta semana".
 23. `[x]` Sin métrica de calibración en el perfil (prometida en el pivote: ¿cuando dices "seguro" aciertas el 80%?).
