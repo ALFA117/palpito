@@ -14,18 +14,38 @@ import { INDEXER_URL, DEFAULT_VENUE_ID, WINDOWS, ONE, OUTCOME_YES } from "./somn
 
 type Json = Record<string, unknown>;
 
+/** Network hiccups worth one quiet retry; anything else fails immediately. */
+function isTransient(err: unknown): boolean {
+  if (err instanceof TypeError) return true; // fetch's own network-failure shape
+  const status = err instanceof Error ? Number(err.message.match(/^indexer (\d+)/)?.[1]) : NaN;
+  return status >= 500;
+}
+
 async function gql<T>(query: string, variables: Json = {}, revalidate = 10): Promise<T> {
-  const res = await fetch(INDEXER_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, variables }),
-    next: { revalidate },
-  });
-  if (!res.ok) throw new Error(`indexer ${res.status} ${res.statusText}`);
-  const body = (await res.json()) as { data?: T; errors?: { message: string }[] };
-  if (body.errors?.length) throw new Error(`indexer: ${body.errors.map((e) => e.message).join("; ")}`);
-  if (!body.data) throw new Error("indexer returned no data");
-  return body.data;
+  const run = async () => {
+    const res = await fetch(INDEXER_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, variables }),
+      next: { revalidate },
+    });
+    if (!res.ok) throw new Error(`indexer ${res.status} ${res.statusText}`);
+    const body = (await res.json()) as { data?: T; errors?: { message: string }[] };
+    if (body.errors?.length) throw new Error(`indexer: ${body.errors.map((e) => e.message).join("; ")}`);
+    if (!body.data) throw new Error("indexer returned no data");
+    return body.data;
+  };
+
+  try {
+    return await run();
+  } catch (err) {
+    // One retry, for a third-party endpoint we do not control: a 5xx or a
+    // dropped connection is usually gone within a second, and turning that
+    // into a blank page is a worse failure than a 300ms delay.
+    if (!isTransient(err)) throw err;
+    await new Promise((r) => setTimeout(r, 300));
+    return run();
+  }
 }
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -179,8 +199,6 @@ function toCall(f: any): Call | null {
 
 // ─── Venue resolution ────────────────────────────────────────────────────────
 
-let venueCache: { id: string; at: number } | null = null;
-
 /**
  * The venue the live markets actually sit on.
  *
@@ -189,10 +207,14 @@ let venueCache: { id: string; at: number } | null = null;
  * by side in the indexer. So we verify rather than trust: if the default venue
  * has no live markets, whichever venue does wins. A stale hardcoded id renders
  * an empty app, and an empty app looks exactly like an outage.
+ *
+ * No module-level cache here on purpose: this runs in serverless, where a plain
+ * variable resets on every cold start and gives back nothing for the complexity
+ * it adds. `gql`'s own `revalidate: 60` already caches the query itself through
+ * Next's data cache, which — unlike a module variable — survives across
+ * invocations in production.
  */
 export async function resolveVenueId(): Promise<string> {
-  if (venueCache && Date.now() - venueCache.at < 5 * 60_000) return venueCache.id;
-
   // Counted over genuinely live markets, on the clock — see liveMarkets() for
   // why `clobStatus` cannot be used here either. Counting zombie rows would
   // rank venues by how much history they carry rather than by where the action
@@ -216,13 +238,9 @@ export async function resolveVenueId(): Promise<string> {
   const counts = new Map<string, number>();
   for (const row of data.Market) counts.set(row.venueId, (counts.get(row.venueId) ?? 0) + 1);
 
-  const id =
-    (counts.get(DEFAULT_VENUE_ID) ?? 0) > 0
-      ? DEFAULT_VENUE_ID
-      : ([...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? DEFAULT_VENUE_ID);
-
-  venueCache = { id, at: Date.now() };
-  return id;
+  return (counts.get(DEFAULT_VENUE_ID) ?? 0) > 0
+    ? DEFAULT_VENUE_ID
+    : ([...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? DEFAULT_VENUE_ID);
 }
 
 // ─── Queries ─────────────────────────────────────────────────────────────────

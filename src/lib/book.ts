@@ -19,6 +19,10 @@ export interface BookSnapshot {
   /** What selling each side pays. */
   upBid: BestAsk | null;
   downBid: BestAsk | null;
+  /** Resting bids past the top, best first, in YES terms — see `estimateProceeds`. */
+  yesBidDepth: BestAsk[];
+  /** Resting asks past the top, best first, in YES terms. */
+  yesAskDepth: BestAsk[];
 }
 
 /**
@@ -52,19 +56,22 @@ const invert = (l: Level | undefined): Level | undefined =>
  * last trade, not an offer, and we measured a window last-trading at 0.42 with a
  * live ask resting at 0.044.
  */
+/** Levels read past the top, for `estimateProceeds` — enough to size most positions. */
+const DEPTH = 10n;
+
 export async function getBook(pool: string): Promise<BookSnapshot> {
   const [yesBids, yesAsks] = await Promise.all([
     rpc.readContract({
       address: pool as Address,
       abi: bookAbi,
       functionName: "getBookLevels",
-      args: [true, 1n],
+      args: [true, DEPTH],
     }),
     rpc.readContract({
       address: pool as Address,
       abi: bookAbi,
       functionName: "getBookLevels",
-      args: [false, 1n],
+      args: [false, DEPTH],
     }),
   ]);
 
@@ -76,6 +83,8 @@ export async function getBook(pool: string): Promise<BookSnapshot> {
     down: toBest(invert(bestYesBid)),
     upBid: toBest(bestYesBid),
     downBid: toBest(invert(bestYesAsk)),
+    yesBidDepth: (yesBids as Level[]).map((l) => toBest(l) as BestAsk),
+    yesAskDepth: (yesAsks as Level[]).map((l) => toBest(l) as BestAsk),
   };
 }
 
@@ -86,3 +95,35 @@ export const askFor = (book: BookSnapshot, direction: Direction) =>
 /** What selling out of `direction` pays right now. */
 export const bidFor = (book: BookSnapshot, direction: Direction) =>
   direction === "UP" ? book.upBid : book.downBid;
+
+/**
+ * What selling `contracts` of `direction` actually pays, walking the book
+ * rather than pricing every contract at the top level.
+ *
+ * The top-of-book price is a ceiling, not a quote, once size exceeds what is
+ * resting there: the rest of an IOC that exhausts the best level fills down
+ * into worse prices, same as it always could — this only makes the pre-trade
+ * estimate honest about it instead of implying the whole size clears at the
+ * best price.
+ */
+export function estimateProceeds(
+  book: BookSnapshot,
+  direction: Direction,
+  contracts: number,
+): number | null {
+  // A DOWN sell pays out of the YES bid side inverted, same relationship as
+  // the top-of-book bid: the best NO bid is the complement of the best YES ask.
+  const depth = direction === "UP" ? book.yesBidDepth : book.yesAskDepth;
+  if (depth.length === 0) return null;
+
+  let remaining = contracts;
+  let proceeds = 0;
+  for (const level of depth) {
+    if (remaining <= 0) break;
+    const take = Math.min(remaining, level.size);
+    const price = direction === "UP" ? level.price : 1 - level.price;
+    proceeds += take * price;
+    remaining -= take;
+  }
+  return proceeds;
+}

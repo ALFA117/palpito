@@ -26,7 +26,7 @@ export type JoinPhase =
   | { k: "idle" }
   | { k: "placing" }
   | { k: "done"; hash: string; filled: number }
-  | { k: "error"; code: "closed" | "rejected" | "nobook" | "funds" | "generic" };
+  | { k: "error"; code: "closed" | "rejected" | "nobook" | "funds" | "approval" | "generic" };
 
 export interface JoinArgs {
   market: Market;
@@ -86,9 +86,11 @@ export function useJoin() {
         k: "error",
         code: msg.includes("MARKET_CLOSED")
           ? "closed"
-          : /user rejected|denied|UserRejected/i.test(msg)
-            ? "rejected"
-            : "generic",
+          : msg.includes("APPROVAL_FAILED")
+            ? "approval"
+            : /user rejected|denied|UserRejected/i.test(msg)
+              ? "rejected"
+              : "generic",
       });
     }
   }

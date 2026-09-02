@@ -16,7 +16,7 @@ export type SellPhase =
   | { k: "idle" }
   | { k: "selling" }
   | { k: "done"; hash: string; filled: number }
-  | { k: "error"; code: "closed" | "rejected" | "nobid" | "empty" | "generic" };
+  | { k: "error"; code: "closed" | "rejected" | "nobid" | "empty" | "approval" | "generic" };
 
 export function useSell() {
   const { isConnected, chainId } = useAccount();
@@ -75,9 +75,11 @@ export function useSell() {
         k: "error",
         code: msg.includes("MARKET_CLOSED")
           ? "closed"
-          : /user rejected|denied|UserRejected/i.test(msg)
-            ? "rejected"
-            : "generic",
+          : msg.includes("APPROVAL_FAILED")
+            ? "approval"
+            : /user rejected|denied|UserRejected/i.test(msg)
+              ? "rejected"
+              : "generic",
       });
     }
   }

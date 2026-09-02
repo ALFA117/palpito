@@ -115,7 +115,12 @@ async function ensureAllowance(
     account: owner,
     chain: null,
   });
-  await rpc.waitForTransactionReceipt({ hash });
+  const receipt = await rpc.waitForTransactionReceipt({ hash });
+  // A reverted approve was previously indistinguishable from a reverted order:
+  // both surfaced as the pool's own generic "REVERTED" once the (unapproved)
+  // order tx failed a step later. Catching it here, at the source, is what lets
+  // the caller tell someone "the approval failed" instead of "something failed".
+  if (receipt.status === "reverted") throw new Error("APPROVAL_FAILED");
 }
 
 /**
@@ -146,7 +151,8 @@ async function ensureOperator(
     account: owner,
     chain: null,
   });
-  await rpc.waitForTransactionReceipt({ hash });
+  const receipt = await rpc.waitForTransactionReceipt({ hash });
+  if (receipt.status === "reverted") throw new Error("APPROVAL_FAILED");
 }
 
 export interface PlacedOrder {

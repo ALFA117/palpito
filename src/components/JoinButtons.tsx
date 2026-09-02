@@ -65,7 +65,9 @@ export function JoinButtons({ call }: { call: Call }) {
             ? t.joinClosed
             : phase.code === "rejected"
               ? t.errRejected
-              : t.joinFailed
+              : phase.code === "approval"
+                ? t.errApproval
+                : t.joinFailed
       : null;
 
   return (

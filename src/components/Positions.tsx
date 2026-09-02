@@ -5,7 +5,7 @@ import type { Position } from "@/lib/positions";
 import { usePositions } from "@/lib/usePositions";
 import { useSell } from "@/lib/useSell";
 import { useBook } from "@/lib/useBook";
-import { bidFor } from "@/lib/book";
+import { estimateProceeds } from "@/lib/book";
 import { explorerTxUrl } from "@/lib/somnia";
 import { money, windowLabel } from "@/lib/format";
 import { useLocale } from "./LocaleProvider";
@@ -17,12 +17,12 @@ function PositionRow({ position }: { position: Position }) {
   const { data: book } = useBook(position.market.poolAddress);
 
   const up = position.direction === "UP";
-  const bid = book ? bidFor(book, position.direction) : null;
 
-  // Top of book only, so this is a floor rather than a quote — an IOC that
-  // exhausts the best level keeps filling down the book. Shown with "about"
-  // rather than dressed up as exact.
-  const proceeds = bid ? Math.min(position.size, bid.size) * bid.price : null;
+  // Walks the resting book rather than pricing the whole size at the top
+  // level — a position bigger than what's resting there fills down into worse
+  // prices on a real sell, same as it always could. Still shown with "about":
+  // the book can move between this render and the signature.
+  const proceeds = book ? estimateProceeds(book, position.direction, position.size) : null;
 
   const busy = phase.k === "selling";
 
@@ -57,7 +57,9 @@ function PositionRow({ position }: { position: Position }) {
             ? t.sellEmpty
             : phase.code === "rejected"
               ? t.errRejected
-              : t.sellFailed
+              : phase.code === "approval"
+                ? t.errApproval
+                : t.sellFailed
       : null;
 
   return (

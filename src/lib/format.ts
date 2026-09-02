@@ -25,10 +25,17 @@ const ANIMALS = [
   "jaguar", "buho", "lobo", "garza", "tapir", "quetzal", "coyote", "condor",
 ];
 
+/**
+ * Four hex characters of suffix, not three: at three, two wallets sharing an
+ * animal collide roughly once every 4096 pairs, common enough on a leaderboard
+ * to have shown up while testing. Collisions cannot be eliminated this way —
+ * only made rare enough that the address underneath, always shown alongside
+ * this handle, is the disambiguator rather than the norm.
+ */
 export function handleFor(address: string): string {
   const a = address.toLowerCase();
   const idx = parseInt(a.slice(2, 6), 16) % ANIMALS.length;
-  return `${ANIMALS[idx]}${a.slice(-3)}`;
+  return `${ANIMALS[idx]}${a.slice(-4)}`;
 }
 
 export const windowLabel = (sec: number) => WINDOW_LABEL[sec] ?? `${Math.round(sec / 60)}m`;

@@ -164,9 +164,11 @@ export function CallComposer({ markets }: { markets: Market[] }) {
       const msg = err instanceof Error ? err.message : String(err);
       const code = msg.includes("MARKET_CLOSED")
         ? "closed"
-        : /user rejected|denied|UserRejected/i.test(msg)
-          ? "rejected"
-          : "generic";
+        : msg.includes("APPROVAL_FAILED")
+          ? "approval"
+          : /user rejected|denied|UserRejected/i.test(msg)
+            ? "rejected"
+            : "generic";
       setPhase({ k: "error", code });
     }
   }
@@ -345,7 +347,9 @@ export function CallComposer({ markets }: { markets: Market[] }) {
             ? t.errMarketClosed
             : phase.code === "rejected"
               ? t.errRejected
-              : t.errGeneric}
+              : phase.code === "approval"
+                ? t.errApproval
+                : t.errGeneric}
         </p>
       )}
 

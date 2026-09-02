@@ -55,20 +55,45 @@ estar abierta).
    liquidado paga solo cuando alguien lo pide. Hoy el dinero de un usuario que acierta
    se queda ahí.
 4. `[x]` Tras hacer un palpito / sumarse / vender, ni el muro ni las posiciones se refrescan.
-5. `[ ]` `resolveVenueId` cachea en memoria de módulo: en serverless arranca frío cada vez.
+5. `[x]` `resolveVenueId` cacheaba en memoria de módulo: en serverless esa variable
+   arranca en blanco en cada cold start, así que no protegía nada que `gql`'s
+   `revalidate: 60` no cubriera ya de forma persistente. Se quitó el caché
+   redundante.
 6. `[ ]` El muro corta en 40 fills, sin paginación.
-7. `[ ]` Cambio de cuenta en la wallet a mitad de sesión: revisar que balance y posiciones sigan.
-8. `[ ]` Sin reintento ante fallo transitorio del indexer.
+7. `[x]` Cambio de cuenta en la wallet a mitad de sesión: verificado, no hacía
+   falta código nuevo. `address` sale de `useAccount()` de wagmi en cada
+   componente y entra a las query keys de react-query y a los args de
+   `useReadContract`, así que un cambio de cuenta ya dispara refetch de balance
+   y posiciones por sí solo.
+8. `[x]` Sin reintento ante fallo transitorio del indexer. `gql()` ahora reintenta
+   una vez, con 300ms de espera, ante un 5xx o un fallo de red — no ante un
+   error de GraphQL real.
 9. `[x]` `useCollateralBalance` formatea con locale `undefined`; inconsistente con `money()`.
     Ya recibe el locale de la app y pasa por `money()`.
-10. `[ ]` Los alias de wallet (`zorroa1b`) pueden colisionar; sin desambiguación.
+10. `[x]` Los alias de wallet (`zorroa1b`) pueden colisionar; sin desambiguación.
+    No se puede eliminar la colisión así — se amplió el sufijo de 3 a 4
+    caracteres hex (~16x menos frecuente) y el disambiguador real sigue siendo
+    la dirección, que ya se muestra junto al alias en todos los sitios donde
+    aparece (`CallCard`, `BoardView`, `ProfileView`).
 11. `[ ]` El perfil carga hasta 200 palpitos sin paginar.
-12. `[ ]` El precio de salida usa solo la cima del libro; leer más niveles daría mejor estimación.
-13. `[ ]` `placeCall` no distingue el fallo por allowance insuficiente.
+12. `[x]` El precio de salida usaba solo la cima del libro. `getBook` ahora lee
+    10 niveles por lado y `estimateProceeds` camina el libro para el tamaño
+    real de la posición, en vez de cotizar todo el tamaño al mejor precio.
+13. `[x]` `placeCall` no distinguía el fallo por allowance insuficiente de
+    cualquier otro. La aprobación (allowance ERC-20 u operator ERC-6909) ahora
+    revisa el receipt y lanza `APPROVAL_FAILED` si se revirtió — antes ese
+    revert era invisible y el fallo posterior de la orden, ya sin permiso,
+    salía como el mismo "no se pudo" genérico que cualquier otra cosa. Nuevo
+    código de error `approval` en los tres flujos de escritura (hacer, sumarse,
+    vender).
 14. `[x]` Sin validación visible de longitud en el campo de texto. `maxLength=200` más un
     contador que aparece en los últimos 40 caracteres. La ruta ya recortaba en 500 sin
     decírselo a nadie, que es la peor versión de un límite.
-15. `[ ]` `parseHunch` mapea "hoy" y "mañana" a la misma ventana de 24h.
+15. `[x]` `parseHunch` mapeaba "hoy" y "mañana" a la misma ventana de 24h. Se
+    quitó "mañana"/"tomorrow" del patrón: ninguna ventana del venue representa
+    honestamente "el día calendario siguiente" — todas son duraciones rodantes
+    desde ahora, tope 24h — así que fingir que "mañana" resuelve a la misma
+    ventana que "hoy" afirmaba algo que el venue no puede cumplir.
 
 ## B. Producto que falta
 
@@ -81,7 +106,10 @@ estar abierta).
 22. `[x]` Ranking solo histórico total; falta "últimas 24h" y "esta semana".
 23. `[x]` Sin métrica de calibración en el perfil (prometida en el pivote: ¿cuando dices "seguro" aciertas el 80%?).
 24. `[x]` Racha sin implementar (la clave i18n existe pero no se usa).
-25. `[ ]` Sin guía cuando el venue no tiene ventanas abiertas.
+25. `[x]` Sin guía cuando el venue no tiene ventanas abiertas. Verificado: ya
+    existía — `CallComposer` muestra un `Empty` con `noLiveWindows` /
+    `noLiveWindowsWhy` cuando `markets.length === 0`. No hacía falta código
+    nuevo.
 
 ## C. Experiencia y diseño
 

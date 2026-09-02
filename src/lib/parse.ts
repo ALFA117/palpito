@@ -80,7 +80,11 @@ const NEGATIONS = [
 const DURATION_PATTERNS: [RegExp, number][] = [
   [/\b(media\s+hora|half\s+an?\s+hour)\b/i, 1800],
   [/\b(un\s+cuarto\s+de\s+hora|quarter\s+hour)\b/i, 900],
-  [/\b(un\s+d[íi]a|24\s*h(oras?|rs?)?|today|hoy|ma[ñn]ana|tomorrow)\b/i, 86400],
+  // "mañana"/"tomorrow" is deliberately absent: every window here is a rolling
+  // duration from now, capped at 24h, so there is no window that means "the
+  // calendar day after this one" — folding it into the same 24h bucket as
+  // "hoy"/"today" said something the venue cannot actually back.
+  [/\b(un\s+d[íi]a|24\s*h(oras?|rs?)?|today|hoy)\b/i, 86400],
   [/\b(una?\s+hora|1\s*h(ora|our|r)?|next\s+hour|pr[óo]xima\s+hora|esta\s+hora|this\s+hour)\b/i, 3600],
   [/\b(\d+)\s*(minutos?|mins?|m)\b/i, -1], // -1 = read the captured number
   [/\b(\d+)\s*(horas?|hours?|hrs?|h)\b/i, -2], // -2 = captured number, in hours
