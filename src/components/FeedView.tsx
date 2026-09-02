@@ -14,6 +14,7 @@ import { Sparkline } from "./Sparkline";
 import { Ticker } from "./Ticker";
 import { LivePercent, WindowRing } from "./LiveNumber";
 import { Empty } from "./Empty";
+import { useLoadMore } from "@/lib/useLoadMore";
 
 export interface ScoredCall {
   call: Call;
@@ -171,18 +172,21 @@ function AssetFilter({ markets, asset }: { markets: Market[]; asset: string | nu
 }
 
 export function FeedView({
-  scored,
+  scored: initialScored,
+  hasMore: initialHasMore,
   markets,
   serverNow,
   asset,
 }: {
   scored: ScoredCall[];
+  hasMore: boolean;
   markets: Market[];
   serverNow: number;
   asset: string | null;
 }) {
   const { t } = useLocale();
   const reduce = useReducedMotion();
+  const { scored, hasMore, loading, loadMore } = useLoadMore(initialScored, asset, initialHasMore);
 
   const container = { hidden: {}, show: { transition: { staggerChildren: STAGGER } } };
   const item = {
@@ -237,6 +241,17 @@ export function FeedView({
               </motion.div>
             ))}
           </motion.div>
+        )}
+
+        {hasMore && (
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => void loadMore()}
+            className="mt-4 w-full rounded-xl border border-border bg-surface py-2.5 text-[12px] font-medium text-muted transition-colors hover:border-border-bright hover:text-text disabled:opacity-50"
+          >
+            {loading ? t.loadingMore : t.loadMore}
+          </button>
         )}
       </section>
     </ClockProvider>

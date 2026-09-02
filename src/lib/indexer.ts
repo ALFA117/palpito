@@ -288,11 +288,18 @@ export async function liveMarkets(): Promise<Market[]> {
   return data.Market.map(toMarket);
 }
 
-/** Recent calls across the venue — the feed. */
-export async function recentCalls(limit = 40): Promise<Call[]> {
+/**
+ * Recent calls across the venue — the feed.
+ *
+ * `before` pages backward on `timestamp`, the same column the feed is sorted
+ * by. An offset would do too, but it shifts under a feed that keeps getting
+ * new fills at the head — page 2 by offset skips or repeats rows depending on
+ * how much landed while you were reading page 1. A timestamp cursor cannot.
+ */
+export async function recentCalls(limit = 40, before?: number): Promise<Call[]> {
   const venueId = await resolveVenueId();
   const data = await gql<{ Fill: unknown[] }>(
-    `query Recent($venueId: String!, $windows: [numeric!], $limit: Int!) {
+    `query Recent($venueId: String!, $windows: [numeric!], $limit: Int!, $before: numeric) {
        Fill(
          where: {
            market: {
@@ -302,13 +309,14 @@ export async function recentCalls(limit = 40): Promise<Call[]> {
              strike: { _eq: "0" }
            }
            takerSide: { _in: ["BUY_YES", "BUY_NO"] }
+           timestamp: { _lt: $before }
          }
          order_by: { timestamp: desc }
          limit: $limit
        ) { ${FILL_FIELDS} market { ${MARKET_FIELDS} } }
      }`,
-    { venueId, windows: WINDOWS, limit },
-    10,
+    { venueId, windows: WINDOWS, limit, before: before ?? null },
+    before ? 0 : 10,
   );
   return data.Fill.map(toCall).filter((c): c is Call => c !== null);
 }

@@ -200,6 +200,8 @@ const es = {
   priceUnavailable: "sin precio",
   winStreak: "seguidos ganados",
   lossStreak: "seguidos fallados",
+  loadMore: "Ver más",
+  loadingMore: "Cargando...",
 
 
 
@@ -388,6 +390,8 @@ const en: Dict = {
   priceUnavailable: "no price",
   winStreak: "wins in a row",
   lossStreak: "misses in a row",
+  loadMore: "Load more",
+  loadingMore: "Loading...",
 
 
 

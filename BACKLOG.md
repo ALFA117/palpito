@@ -59,7 +59,10 @@ estar abierta).
    arranca en blanco en cada cold start, así que no protegía nada que `gql`'s
    `revalidate: 60` no cubriera ya de forma persistente. Se quitó el caché
    redundante.
-6. `[ ]` El muro corta en 40 fills, sin paginación.
+6. `[x]` El muro cortaba en 40 fills, sin paginación. `recentCalls` ahora acepta
+   un cursor `before` sobre `timestamp` (no un offset: un offset se corre bajo
+   un feed al que le siguen llegando fills nuevos). Un botón "Ver más" pide la
+   siguiente página a `/api/calls`.
 7. `[x]` Cambio de cuenta en la wallet a mitad de sesión: verificado, no hacía
    falta código nuevo. `address` sale de `useAccount()` de wagmi en cada
    componente y entra a las query keys de react-query y a los args de
@@ -75,7 +78,12 @@ estar abierta).
     caracteres hex (~16x menos frecuente) y el disambiguador real sigue siendo
     la dirección, que ya se muestra junto al alias en todos los sitios donde
     aparece (`CallCard`, `BoardView`, `ProfileView`).
-11. `[ ]` El perfil carga hasta 200 palpitos sin paginar.
+11. `[x]` El perfil cargaba hasta 200 palpitos y los renderizaba todos de una.
+    El fetch se queda como está — `buildStanding` necesita el historial
+    completo para un hit rate correcto, así que no había una lectura más
+    barata que hacer — pero ahora solo se muestran 40 tarjetas a la vez, con
+    "Ver más" revelando el resto de datos que ya están en la página. Sin
+    round-trip extra: a diferencia del muro, aquí no hace falta.
 12. `[x]` El precio de salida usaba solo la cima del libro. `getBook` ahora lee
     10 niveles por lado y `estimateProceeds` camina el libro para el tamaño
     real de la posición, en vez de cotizar todo el tamaño al mejor precio.

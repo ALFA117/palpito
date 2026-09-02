@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { Standing } from "@/lib/indexer";
 import { useLocale } from "./LocaleProvider";
 import { CallCard } from "./CallCard";
@@ -50,6 +51,14 @@ export function ProfileView({
   // Positions are a control surface, not a public fact: only shown when you are
   // looking at your own record.
   const isMe = address?.toLowerCase() === standing.wallet.toLowerCase();
+
+  // The full history is already in `scored` — `buildStanding` needed all of it
+  // for a correct hit rate, so there was no cheaper fetch to make. What was
+  // expensive was rendering up to 200 cards on first paint; this reveals them
+  // in pages instead, from data already on the page.
+  const PAGE = 40;
+  const [shown, setShown] = useState(PAGE);
+  const visible = scored.slice(0, shown);
 
   return (
     <ClockProvider now={serverNow}>
@@ -120,11 +129,22 @@ export function ProfileView({
             <Empty title={t.noRecordYet} body={t.noRecordYetWhy} />
           </div>
         ) : (
-          <div className="mt-3 flex flex-col gap-3">
-            {scored.map(({ call, outcome }) => (
-              <CallCard key={call.id} call={call} outcome={outcome} />
-            ))}
-          </div>
+          <>
+            <div className="mt-3 flex flex-col gap-3">
+              {visible.map(({ call, outcome }) => (
+                <CallCard key={call.id} call={call} outcome={outcome} />
+              ))}
+            </div>
+            {shown < scored.length && (
+              <button
+                type="button"
+                onClick={() => setShown((n) => n + PAGE)}
+                className="mt-4 w-full rounded-xl border border-border bg-surface py-2.5 text-[12px] font-medium text-muted transition-colors hover:border-border-bright hover:text-text"
+              >
+                {t.loadMore}
+              </button>
+            )}
+          </>
         )}
       </section>
     </ClockProvider>

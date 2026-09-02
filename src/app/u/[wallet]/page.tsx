@@ -16,7 +16,10 @@ export default async function ProfilePage({ params }: PageProps<"/u/[wallet]">) 
   let snapshot: { calls: Call[]; takenAt: number } | null = null;
   try {
     const takenAt = nowSeconds();
-    snapshot = { calls: await callsByWallet(wallet), takenAt };
+    // One fetch, high-capped, for both: the standing needs full history to
+    // score hit rate and calibration correctly, and the history below reads
+    // off the same array rather than paying for a second round trip.
+    snapshot = { calls: await callsByWallet(wallet, 500), takenAt };
   } catch (err) {
     console.error("profile load failed", err);
   }
