@@ -205,6 +205,26 @@ const es = {
   openNow: "Abierto ahora",
   openNowWhy: "Ventanas todavía en juego — cualquiera puede sumarse o ir en contra mientras sigan abiertas.",
   settledIn: "Liquidado en",
+  // Market page
+  marketVolume: "Volumen",
+  marketTrades: "operaciones",
+  marketClosedUp: "Cerró arriba de su apertura",
+  marketClosedDown: "Cerró abajo de su apertura",
+  backToFeed: "Volver al muro",
+  // Share card
+  share: "Compartir",
+  shareCopied: "Enlace copiado",
+  shareCardAlt: "Recibo de un palpito en Palpito",
+  // Resolution notice
+  windowResolved: "Tu ventana se resolvió",
+  seeResult: "Ver resultado",
+  dismiss: "Cerrar",
+  // Onboarding
+  onboardTitle: "Tres pasos",
+  onboardStep1: "Dices lo que crees que hace bitcoin o ethereum.",
+  onboardStep2: "Se convierte en una posición real en una ventana abierta ahora.",
+  onboardStep3: "Cuando cierra, el oráculo publica el resultado en cadena.",
+  onboardDone: "Entendido",
 
 
 
@@ -398,6 +418,26 @@ const en: Dict = {
   openNow: "Open now",
   openNowWhy: "Windows still in play — anyone can join or fade them while they stay open.",
   settledIn: "Settled in",
+  // Market page
+  marketVolume: "Volume",
+  marketTrades: "trades",
+  marketClosedUp: "Closed above its open",
+  marketClosedDown: "Closed below its open",
+  backToFeed: "Back to the feed",
+  // Share card
+  share: "Share",
+  shareCopied: "Link copied",
+  shareCardAlt: "Receipt of a call on Palpito",
+  // Resolution notice
+  windowResolved: "Your window resolved",
+  seeResult: "See result",
+  dismiss: "Dismiss",
+  // Onboarding
+  onboardTitle: "Three steps",
+  onboardStep1: "You say what you think bitcoin or ethereum does.",
+  onboardStep2: "It becomes a real position in a window that is open right now.",
+  onboardStep3: "When it closes, the oracle publishes the result on-chain.",
+  onboardDone: "Got it",
 
 
 

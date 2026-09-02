@@ -91,9 +91,10 @@ function LiveWindows({ markets }: { markets: Market[] }) {
           const share = maxVolume > 0 ? Math.min(1, m.volume / maxVolume) : 0;
 
           return (
-            <div
+            <NavLink
               key={m.marketId}
-              className={`lift w-[186px] shrink-0 rounded-xl border bg-surface px-3.5 py-3 ${
+              href={`/m/${m.marketId}`}
+              className={`lift block w-[186px] shrink-0 rounded-xl border bg-surface px-3.5 py-3 ${
                 traded
                   ? rising
                     ? "border-up/30 tint-up breathe-up"
@@ -145,7 +146,7 @@ function LiveWindows({ markets }: { markets: Market[] }) {
                   <span>{m.tradeCount}×</span>
                 </div>
               </div>
-            </div>
+            </NavLink>
           );
         })}
       </div>

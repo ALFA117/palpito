@@ -9,6 +9,7 @@ import { asPercent, handleFor, money, shortAddress, timeAgo, windowLabel } from 
 import { useLocale } from "./LocaleProvider";
 import { Countdown, useNow } from "./Clock";
 import { JoinButtons } from "./JoinButtons";
+import { ShareButton } from "./ShareButton";
 
 /**
  * The direction, said once and loudly.
@@ -100,9 +101,12 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
           <span className="text-muted">{t.called}</span>
           <span className="t-title text-[17px]">{m.asset}</span>
           <DirectionMark direction={call.direction} />
-          <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted">
+          <NavLink
+            href={`/m/${m.marketId}`}
+            className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted transition-colors hover:border-border-bright hover:text-text"
+          >
             {windowLabel(m.intervalSec)}
-          </span>
+          </NavLink>
         </p>
 
         <p className="mt-1 text-[13px] text-faint">
@@ -211,6 +215,12 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
           >
             tx {call.txHash.slice(0, 8)}
           </a>
+          {/* A share card is a receipt of a verdict — only worth pointing at once there is one. */}
+          {outcome !== "pending" && (
+            <span className="ml-auto">
+              <ShareButton callId={call.id} />
+            </span>
+          )}
         </footer>
       </div>
     </article>

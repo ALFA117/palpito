@@ -336,6 +336,54 @@ export async function recentCalls(limit = 40, before?: number): Promise<Call[]> 
   return data.Fill.map(toCall).filter((c): c is Call => c !== null);
 }
 
+/** One market by id — the target of a deep link. Null when it does not exist. */
+export async function marketById(marketId: string): Promise<Market | null> {
+  const data = await gql<{ Market: unknown[] }>(
+    `query OneMarket($marketId: String!) {
+       Market(where: { marketId: { _eq: $marketId } }, limit: 1) {
+         ${MARKET_FIELDS}
+         fills(order_by: { timestamp: asc }, limit: 40) { fillPrice }
+       }
+     }`,
+    { marketId },
+    10,
+  );
+  const row = data.Market[0];
+  return row ? toMarket(row) : null;
+}
+
+/** Every call made on one market — the deep-linked page's own thread. */
+export async function callsByMarket(marketId: string, limit = 40): Promise<Call[]> {
+  const data = await gql<{ Fill: unknown[] }>(
+    `query MarketCalls($marketId: String!, $limit: Int!) {
+       Fill(
+         where: {
+           market: { marketId: { _eq: $marketId } }
+           takerSide: { _in: ["BUY_YES", "BUY_NO"] }
+         }
+         order_by: { timestamp: desc }
+         limit: $limit
+       ) { ${FILL_FIELDS} market { ${MARKET_FIELDS} } }
+     }`,
+    { marketId, limit },
+    10,
+  );
+  return data.Fill.map(toCall).filter((c): c is Call => c !== null);
+}
+
+/** One call by its fill id — the receipt a share card is built from. */
+export async function callById(id: string): Promise<Call | null> {
+  const data = await gql<{ Fill: unknown[] }>(
+    `query OneFill($id: String!) {
+       Fill(where: { id: { _eq: $id } }, limit: 1) { ${FILL_FIELDS} market { ${MARKET_FIELDS} } }
+     }`,
+    { id },
+    30,
+  );
+  const row = data.Fill[0];
+  return row ? toCall(row) : null;
+}
+
 /** Every call a wallet has ever made on this venue. */
 export async function callsByWallet(wallet: string, limit = 200): Promise<Call[]> {
   const venueId = await resolveVenueId();

@@ -5,19 +5,16 @@ Ordenadas por lo que mueve la aguja en los criterios de evaluación del hackatho
 
 ---
 
-**Estado:** 34 de 50 hechas, 1 en curso (#47). Lo desplegado vive en
+**Estado:** 36 de 50 hechas, 1 en curso (#47). Lo desplegado vive en
 <https://palpito-somnia.vercel.app>, el repo en
 <https://github.com/ALFA117/palpito>.
 
-Nota sobre esta pasada: a mitad de camino, el propio cursor de paginación
-recién agregado (#6) rompió el muro en producción — un `null` explícito que
-esta config de Hasura no ignora como se asumió, sino que rechaza — y quedó
-así por dos commits hasta encontrarlo. Ya está corregido y verificado contra
-el indexer real y un build de producción, pero es la razón por la que esta
-pasada se detuvo en 34/50 en vez de seguir empujando: más superficie tocada
-bajo presión de tiempo es más riesgo de otro bug así. Los ítems 17, 18, 20,
-32 y 40 quedan abiertos sin intentar — no evaluados como demasiado grandes,
-simplemente no llegó el tiempo — y valen la pena para la próxima pasada.
+Nota sobre la pasada anterior: a mitad de camino, el propio cursor de
+paginación recién agregado (#6) rompió el muro en producción — un `null`
+explícito que esta config de Hasura no ignora como se asumió, sino que
+rechaza — y quedó así por dos commits hasta encontrarlo. Ya está corregido y
+verificado contra el indexer real y un build de producción. Esta pasada
+siguió con los ítems 17, 18, 20, 32 y 40 que habían quedado sin intentar.
 
 ## ✅ Resuelto: la página no hidrataba en producción
 
@@ -116,12 +113,18 @@ estar abierta).
 ## B. Producto que falta
 
 16. `[x]` Sin metadatos sociales: al compartir el link no aparece nada.
-17. `[ ]` Sin página por mercado (enlace profundo a una ventana). No intentado
-    esta pasada — no evaluado como demasiado grande, quedó sin tiempo.
-18. `[ ]` Sin tarjeta compartible de un palpito resuelto (la prueba, como
-    imagen). No intentado esta pasada, mismo motivo. `next/og`'s `ImageResponse`
-    es el camino obvio; falta una consulta del indexer por id de fill si no
-    existe ya una.
+17. `[x]` Sin página por mercado (enlace profundo a una ventana). Nueva ruta
+    `/m/[marketId]`, con sus propias `marketById`/`callsByMarket` en el
+    indexer — verificadas contra Hasura en vivo antes de darlas por buenas,
+    después del susto de la #6. Enlazada desde el badge de ventana de cada
+    `CallCard` y desde las tarjetas del ticker "en vivo" del muro.
+18. `[x]` Sin tarjeta compartible de un palpito resuelto (la prueba, como
+    imagen). `next/og`'s `ImageResponse` en `/api/og/[callId]`, más
+    `callById` nuevo en el indexer y una página `/c/[callId]` cuyo
+    `generateMetadata` apunta el `og:image` ahí — así el link, no la imagen,
+    es lo que se comparte. Botón "Compartir" en `CallCard`, solo cuando la
+    ventana ya se resolvió. Verificado con un `next start` real contra un
+    fill resuelto de verdad: la imagen renderiza y el metadata resuelve.
 19. `[x]` Las posiciones abiertas solo salían en el muro, no en tu perfil.
     Seguían apareciendo mezcladas cronológicamente en la lista de "palpitos"
     de cualquier perfil, pero enterradas si el historial era largo. Ahora hay
