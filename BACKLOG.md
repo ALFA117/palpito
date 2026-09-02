@@ -108,7 +108,12 @@ estar abierta).
 16. `[x]` Sin metadatos sociales: al compartir el link no aparece nada.
 17. `[ ]` Sin página por mercado (enlace profundo a una ventana).
 18. `[ ]` Sin tarjeta compartible de un palpito resuelto (la prueba, como imagen).
-19. `[ ]` Las posiciones abiertas solo salen en el muro, no en tu perfil.
+19. `[x]` Las posiciones abiertas solo salían en el muro, no en tu perfil.
+    Seguían apareciendo mezcladas cronológicamente en la lista de "palpitos"
+    de cualquier perfil, pero enterradas si el historial era largo. Ahora hay
+    una sección "Abierto ahora" aparte, arriba, visible para cualquiera que
+    vea ese perfil — no es una vista nueva de datos nuevos, es la misma data
+    puesta donde se ve.
 20. `[ ]` Sin aviso cuando tu ventana se resuelve.
 21. `[x]` Sin filtros en el muro (por activo o ventana).
 22. `[x]` Ranking solo histórico total; falta "últimas 24h" y "esta semana".
@@ -130,7 +135,10 @@ estar abierta).
 28. `[ ]` Las tarjetas no muestran cómo va esa predicción ahora. Descartado por ahora:
     exigiría leer el libro por cada tarjeta (40 `eth_call` por tick) y el único dato
     gratis, `lastPrice`, es justo el que decidimos no usar por engañoso.
-29. `[ ]` En móvil no hay acceso fijo a "hacer un palpito" al bajar por el muro.
+29. `[x]` En móvil no había acceso fijo a "hacer un palpito" al bajar por el
+    muro. `main` ya reservaba `pb-28` bajo el contenido — parece que estaba
+    pensado para esto y nunca se construyó. Botón flotante, solo en móvil, que
+    hace scroll suave de vuelta al compositor.
 30. `[x]` La explicación de mint-a-pair va en `title`: invisible en táctil. Peor: los
     botones que la llevaban solo salen con wallet conectada, así que un jurado sin
     extensión nunca la veía. Ahora es una línea fija bajo el par Sube/Baja del
@@ -141,7 +149,10 @@ estar abierta).
 32. `[ ]` Sin estado de "recién llegado": no hay onboarding de 3 pasos.
 33. `[ ]` El wordmark es solo texto; falta identidad más marcada.
 34. `[x]` Stagger de entrada en el muro, con tope a las 8 primeras tarjetas.
-35. `[ ]` Sin modo de contraste alto.
+35. `[x]` Sin modo de contraste alto. Respeta `prefers-contrast: more` del
+    sistema operativo automáticamente, igual que ya se respeta
+    `prefers-reduced-motion` — sin toggle nuevo en la app, porque la señal ya
+    existe en el nivel que debería tenerla.
 
 ## D. Entregables del hackathon
 
@@ -168,4 +179,8 @@ estar abierta).
 47. `[ ]` Distinguir en el muro los cuatro caminos de cruce, no solo mint-a-pair.
 48. `[ ]` Conciencia multi-venue en la UI.
 49. `[ ]` Banco de pruebas de verdad en vez de scripts desechables.
-50. `[ ]` Medir y mostrar la latencia de liquidación de Somnia (su argumento de venta).
+50. `[x]` Medir y mostrar la latencia de liquidación de Somnia. Cronometrado
+    desde que la wallet devuelve el hash (no desde antes de la firma, para no
+    contra la lentitud del usuario mirando su wallet como si fuera lentitud de
+    la cadena) hasta el receipt minado. Se muestra en hacer/sumarse/vender/
+    reclamar.

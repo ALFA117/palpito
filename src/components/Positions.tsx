@@ -7,7 +7,7 @@ import { useSell } from "@/lib/useSell";
 import { useBook } from "@/lib/useBook";
 import { estimateProceeds } from "@/lib/book";
 import { explorerTxUrl } from "@/lib/somnia";
-import { money, windowLabel } from "@/lib/format";
+import { formatLatency, money, windowLabel } from "@/lib/format";
 import { useLocale } from "./LocaleProvider";
 import { Countdown } from "./Clock";
 
@@ -34,6 +34,9 @@ function PositionRow({ position }: { position: Position }) {
         </span>
         {phase.filled > 0 && phase.filled < position.size && (
           <span className="text-faint">· {t.partialFill}</span>
+        )}
+        {phase.filled > 0 && (
+          <span className="font-mono text-faint">{formatLatency(phase.latencyMs)}</span>
         )}
         <a
           href={explorerTxUrl(phase.hash)}

@@ -66,6 +66,8 @@ export interface PlaceCallResult {
   hash: string;
   /** Contracts actually filled. An IOC can fill partially or not at all. */
   filled: number;
+  /** Milliseconds from broadcast to a mined receipt. */
+  latencyMs: number;
 }
 
 export interface PlaceCallArgs {
@@ -167,7 +169,7 @@ export async function sellPosition({
 export async function redeemAll(
   walletClient: WalletClient,
   entries: { marketId: string; outcomeIdx: 0 | 1; amount: bigint }[],
-): Promise<{ hash: string }> {
+): Promise<{ hash: string; latencyMs: number }> {
   if (entries.length === 0) throw new Error("NOTHING_TO_CLAIM");
 
   // The outcome-token singleton is read off one of the markets being claimed

@@ -1,7 +1,7 @@
 "use client";
 
 import { explorerTxUrl } from "@/lib/somnia";
-import { money, windowLabel } from "@/lib/format";
+import { formatLatency, money, windowLabel } from "@/lib/format";
 import { useClaim } from "@/lib/useClaim";
 import { useLocale } from "./LocaleProvider";
 
@@ -23,6 +23,7 @@ export function ClaimBanner() {
     return (
       <section className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-up/40 bg-up-dim px-5 py-3.5">
         <span className="text-[14px] font-semibold text-up">{t.claimed}</span>
+        <span className="font-mono text-[11px] text-up/70">{formatLatency(phase.latencyMs)}</span>
         <a
           href={explorerTxUrl(phase.hash)}
           target="_blank"

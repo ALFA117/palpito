@@ -149,6 +149,39 @@
   --sheen-strength: 0.36;
 }
 
+/*
+ * High contrast: an OS setting honoured automatically, the same way
+ * `prefers-reduced-motion` is below — not a toggle in the app, because the
+ * signal already exists at the level that should own it. Three blocks in the
+ * same order the base theme resolves in above (light default, dark-by-system,
+ * dark-by-choice) so a later rule only overrides an earlier one when its own
+ * condition is actually the one that applies.
+ */
+@media (prefers-contrast: more) {
+  :root:not([data-theme="dark"]) {
+    --border: #b3a8c6;
+    --border-bright: #9585b3;
+    --muted: #362f47;
+    --faint: #241f30;
+  }
+}
+@media (prefers-color-scheme: dark) and (prefers-contrast: more) {
+  :root:not([data-theme="light"]) {
+    --border: #453c66;
+    --border-bright: #5c4f85;
+    --muted: #cec5e3;
+    --faint: #ded6ee;
+  }
+}
+@media (prefers-contrast: more) {
+  :root[data-theme="dark"] {
+    --border: #453c66;
+    --border-bright: #5c4f85;
+    --muted: #cec5e3;
+    --faint: #ded6ee;
+  }
+}
+
 @theme inline {
   --color-bg: var(--bg);
   --color-bg-deep: var(--bg-deep);

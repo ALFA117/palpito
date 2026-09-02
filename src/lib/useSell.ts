@@ -15,7 +15,7 @@ const SLIPPAGE = 0.05;
 export type SellPhase =
   | { k: "idle" }
   | { k: "selling" }
-  | { k: "done"; hash: string; filled: number }
+  | { k: "done"; hash: string; filled: number; latencyMs: number }
   | { k: "error"; code: "closed" | "rejected" | "nobid" | "empty" | "approval" | "generic" };
 
 export function useSell() {
@@ -67,7 +67,7 @@ export function useSell() {
         minProbability: Math.max(bid.price - SLIPPAGE, 0.01),
       });
 
-      setPhase({ k: "done", hash: res.hash, filled: res.filled });
+      setPhase({ k: "done", hash: res.hash, filled: res.filled, latencyMs: res.latencyMs });
       afterWrite();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);

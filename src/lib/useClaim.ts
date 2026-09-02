@@ -12,7 +12,7 @@ import { useAfterWrite } from "./useAfterWrite";
 export type ClaimPhase =
   | { k: "idle" }
   | { k: "claiming" }
-  | { k: "done"; hash: string }
+  | { k: "done"; hash: string; latencyMs: number }
   | { k: "error"; code: "rejected" | "generic" };
 
 export function useClaimable(wallet: string | undefined) {
@@ -48,7 +48,7 @@ export function useClaim() {
         walletClient,
         claims.map((c) => ({ marketId: c.marketId, outcomeIdx: c.outcomeIdx, amount: c.raw })),
       );
-      setPhase({ k: "done", hash: res.hash });
+      setPhase({ k: "done", hash: res.hash, latencyMs: res.latencyMs });
       void refetchBalance();
       void claimable.refetch();
       afterWrite();

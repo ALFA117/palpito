@@ -2,7 +2,7 @@
 
 import type { Call } from "@/lib/indexer";
 import { explorerTxUrl } from "@/lib/somnia";
-import { money } from "@/lib/format";
+import { formatLatency, money } from "@/lib/format";
 import { copyStake, useJoin } from "@/lib/useJoin";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -39,6 +39,9 @@ export function JoinButtons({ call }: { call: Call }) {
         <span className={nothingFilled ? "text-muted" : "text-up"}>
           {nothingFilled ? t.noFill : t.joined}
         </span>
+        {!nothingFilled && (
+          <span className="font-mono text-faint">{formatLatency(phase.latencyMs)}</span>
+        )}
         <a
           href={explorerTxUrl(phase.hash)}
           target="_blank"

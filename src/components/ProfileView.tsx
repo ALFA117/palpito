@@ -58,7 +58,15 @@ export function ProfileView({
   // in pages instead, from data already on the page.
   const PAGE = 40;
   const [shown, setShown] = useState(PAGE);
-  const visible = scored.slice(0, shown);
+
+  // Open windows surfaced apart from the settled history: previously the only
+  // place a call in flight was visible was the wall, and a profile with a
+  // deep history buried its live calls dozens of cards down a chronological
+  // list. They stay counted in `scored` too — this is a second, prominent
+  // view onto the same data, not a move.
+  const open = scored.filter((s) => s.outcome === "pending");
+  const settledCalls = scored.filter((s) => s.outcome !== "pending");
+  const visible = settledCalls.slice(0, shown);
 
   return (
     <ClockProvider now={serverNow}>
@@ -112,6 +120,20 @@ export function ProfileView({
 
       {isMe && <Positions />}
 
+      {open.length > 0 && (
+        <section className="mt-6">
+          <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">
+            {t.openNow}
+          </h2>
+          <p className="mt-1 max-w-prose text-[11px] leading-relaxed text-faint">{t.openNowWhy}</p>
+          <div className="mt-3 flex flex-col gap-3">
+            {open.map(({ call, outcome }) => (
+              <CallCard key={call.id} call={call} outcome={outcome} />
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="mt-6">
         <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">
           {t.calibration}
@@ -124,7 +146,7 @@ export function ProfileView({
 
       <section className="mt-6">
         <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">{t.calls}</h2>
-        {scored.length === 0 ? (
+        {settledCalls.length === 0 ? (
           <div className="mt-3">
             <Empty title={t.noRecordYet} body={t.noRecordYetWhy} />
           </div>
@@ -135,7 +157,7 @@ export function ProfileView({
                 <CallCard key={call.id} call={call} outcome={outcome} />
               ))}
             </div>
-            {shown < scored.length && (
+            {shown < settledCalls.length && (
               <button
                 type="button"
                 onClick={() => setShown((n) => n + PAGE)}

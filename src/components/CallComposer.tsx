@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useAccount, useWalletClient } from "wagmi";
 import type { Direction, Market } from "@/lib/indexer";
 import { CHAIN_ID, ONE, explorerTxUrl } from "@/lib/somnia";
-import { money, windowLabel } from "@/lib/format";
+import { formatLatency, money, windowLabel } from "@/lib/format";
 import { placeCall } from "@/lib/trade";
 import { useCollateralBalance, useFaucet } from "@/lib/useCollateral";
 import { useBook } from "@/lib/useBook";
@@ -32,7 +32,7 @@ const STAKES = [1, 5, 10, 25];
 type Phase =
   | { k: "idle" }
   | { k: "placing" }
-  | { k: "placed"; hash: string; filled: number }
+  | { k: "placed"; hash: string; filled: number; latencyMs: number }
   | { k: "error"; code: string };
 
 function Segmented<T extends string | number>({
@@ -157,7 +157,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
         contracts,
         limitProbability: Math.min((price ?? 0) + SLIPPAGE, 0.99),
       });
-      setPhase({ k: "placed", hash: res.hash, filled: res.filled });
+      setPhase({ k: "placed", hash: res.hash, filled: res.filled, latencyMs: res.latencyMs });
       void refetch();
       afterWrite();
     } catch (err) {
@@ -191,6 +191,11 @@ export function CallComposer({ markets }: { markets: Market[] }) {
         <p className="mt-1.5 text-[13px] leading-relaxed text-muted">
           {nothingFilled ? t.noFillBody : t.placedBody}
         </p>
+        {!nothingFilled && (
+          <p className="mt-2 font-mono text-[11px] text-faint">
+            {t.settledIn} <span className="text-gold">{formatLatency(phase.latencyMs)}</span>
+          </p>
+        )}
         <div className="mt-3 flex items-center gap-3 text-[12px]">
           <a
             href={explorerTxUrl(phase.hash)}

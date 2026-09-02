@@ -159,6 +159,13 @@ export interface PlacedOrder {
   hash: Hex;
   /** Contracts filled, from the pool's own fill logs. */
   filled: number;
+  /**
+   * Milliseconds from broadcast to a mined receipt — Somnia's own sell, not
+   * ours to just assert. Timed from right after the wallet returns a hash
+   * rather than from before `writeContract`, so a slow signature (the user
+   * looking at their wallet, not the chain) never counts against the chain.
+   */
+  latencyMs: number;
 }
 
 /**
@@ -213,11 +220,12 @@ export async function placeBinaryOrder(args: {
     account: owner,
     chain: null,
   });
+  const broadcastAt = Date.now();
 
   const receipt = await rpc.waitForTransactionReceipt({ hash });
   if (receipt.status === "reverted") throw new Error("REVERTED");
 
-  return { hash, filled: filledFrom(receipt.logs, state.pool) };
+  return { hash, filled: filledFrom(receipt.logs, state.pool), latencyMs: Date.now() - broadcastAt };
 }
 
 /**
@@ -247,7 +255,7 @@ export async function redeemMany(args: {
   module: Address;
   outcomeToken: Address;
   entries: { marketId: Hex; outcomeIdx: 0 | 1; amount: bigint }[];
-}): Promise<{ hash: Hex }> {
+}): Promise<{ hash: Hex; latencyMs: number }> {
   const { wallet, module, outcomeToken, entries } = args;
   if (entries.length === 0) throw new Error("NOTHING_TO_CLAIM");
 
@@ -268,9 +276,10 @@ export async function redeemMany(args: {
     account: owner,
     chain: null,
   });
+  const broadcastAt = Date.now();
 
   const receipt = await rpc.waitForTransactionReceipt({ hash });
   if (receipt.status === "reverted") throw new Error("REVERTED");
 
-  return { hash };
+  return { hash, latencyMs: Date.now() - broadcastAt };
 }

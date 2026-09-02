@@ -25,6 +25,30 @@ export interface ScoredCall {
 const STAGGER = 0.04;
 const MAX_STAGGERED = 8;
 
+/**
+ * A standing shortcut back to the composer, for the scroll depth the wall
+ * actually reaches.
+ *
+ * `main` already reserved `pb-28` beneath the content for exactly this — a
+ * mobile-only fixed control, so the last cards in the wall never sit flush
+ * against the viewport edge with nothing to tap.
+ */
+function ComposerFab() {
+  const { t } = useLocale();
+  return (
+    <button
+      type="button"
+      onClick={() => document.getElementById("composer")?.scrollIntoView({ behavior: "smooth" })}
+      aria-label={t.composerTitle}
+      className="glow-gold fixed bottom-5 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gold text-on-gold shadow-lg transition-transform hover:scale-105 active:scale-95 sm:hidden"
+    >
+      <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+      </svg>
+    </button>
+  );
+}
+
 function Hero() {
   const { t } = useLocale();
   return (
@@ -200,6 +224,7 @@ export function FeedView({
 
   return (
     <ClockProvider now={serverNow}>
+      <ComposerFab />
       <Hero />
 
       <div className="mt-7">
@@ -208,7 +233,7 @@ export function FeedView({
 
       <ClaimBanner />
 
-      <div className="mt-8">
+      <div id="composer" className="mt-8 scroll-mt-20">
         <CallComposer markets={markets} />
       </div>
 

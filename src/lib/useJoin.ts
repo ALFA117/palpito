@@ -25,7 +25,7 @@ const MAX_COPY = 25;
 export type JoinPhase =
   | { k: "idle" }
   | { k: "placing" }
-  | { k: "done"; hash: string; filled: number }
+  | { k: "done"; hash: string; filled: number; latencyMs: number }
   | { k: "error"; code: "closed" | "rejected" | "nobook" | "funds" | "approval" | "generic" };
 
 export interface JoinArgs {
@@ -77,7 +77,7 @@ export function useJoin() {
         limitProbability: Math.min(ask.price + SLIPPAGE, 0.99),
       });
 
-      setPhase({ k: "done", hash: res.hash, filled: res.filled });
+      setPhase({ k: "done", hash: res.hash, filled: res.filled, latencyMs: res.latencyMs });
       void refetch();
       afterWrite();
     } catch (err) {

@@ -202,6 +202,9 @@ const es = {
   lossStreak: "seguidos fallados",
   loadMore: "Ver más",
   loadingMore: "Cargando...",
+  openNow: "Abierto ahora",
+  openNowWhy: "Ventanas todavía en juego — cualquiera puede sumarse o ir en contra mientras sigan abiertas.",
+  settledIn: "Liquidado en",
 
 
 
@@ -392,6 +395,9 @@ const en: Dict = {
   lossStreak: "misses in a row",
   loadMore: "Load more",
   loadingMore: "Loading...",
+  openNow: "Open now",
+  openNowWhy: "Windows still in play — anyone can join or fade them while they stay open.",
+  settledIn: "Settled in",
 
 
 

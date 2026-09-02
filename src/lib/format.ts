@@ -40,6 +40,9 @@ export function handleFor(address: string): string {
 
 export const windowLabel = (sec: number) => WINDOW_LABEL[sec] ?? `${Math.round(sec / 60)}m`;
 
+/** "420ms", "1.8s" — Somnia's own latency claim, measured rather than quoted. */
+export const formatLatency = (ms: number) => (ms < 1000 ? `${Math.round(ms)}ms` : `${(ms / 1000).toFixed(1)}s`);
+
 /** Probability as a percentage, e.g. 0.327 -> "33%". */
 export const asPercent = (p: number) => `${Math.round(p * 100)}%`;
 
