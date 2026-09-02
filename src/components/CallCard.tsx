@@ -194,6 +194,15 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
               </span>
             </a>
           )}
+          {/* MINT_A_PAIR gets the translated badge above; anything else is
+              shown as the indexer's own raw name rather than a guessed label —
+              the venue documents four distinct crossing paths and this is the
+              only one of them this app can name with confidence. */}
+          {call.kind && !call.mintedPair && (
+            <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-faint">
+              {call.kind}
+            </span>
+          )}
           <a
             href={explorerTxUrl(call.txHash)}
             target="_blank"

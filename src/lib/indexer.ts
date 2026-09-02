@@ -94,6 +94,13 @@ export interface Call {
   txHash: string;
   /** True when this fill was created by two opposite buyers with no seller. */
   mintedPair: boolean;
+  /**
+   * The indexer's own name for how this fill crossed — `MINT_A_PAIR` is the
+   * one we know and give a translated explanation to; anything else is shown
+   * verbatim rather than guessed at. The venue is documented as having four
+   * distinct crossing paths and this only confirms one of them by name.
+   */
+  kind: string;
   market: Market;
 }
 
@@ -192,6 +199,7 @@ function toCall(f: any): Call | null {
     timestamp: Number(f.timestamp),
     txHash: f.txHash,
     mintedPair: f.kind === "MINT_A_PAIR",
+    kind: String(f.kind ?? ""),
     market: toMarket(f.market),
   };
 }
@@ -288,6 +296,13 @@ export async function liveMarkets(): Promise<Market[]> {
   return data.Market.map(toMarket);
 }
 
+// A cursor far enough out that "no cursor given" and "everything before this"
+// are the same set. This indexer's Hasura config rejects an explicit `null`
+// for a `numeric` variable outright — `{_lt: null}` is not "no filter" here,
+// it is a thrown "unexpected null value for type 'numeric'" — so the no-cursor
+// case sends a real, always-true value instead of trying to omit one.
+const FAR_FUTURE = 9_999_999_999;
+
 /**
  * Recent calls across the venue — the feed.
  *
@@ -299,7 +314,7 @@ export async function liveMarkets(): Promise<Market[]> {
 export async function recentCalls(limit = 40, before?: number): Promise<Call[]> {
   const venueId = await resolveVenueId();
   const data = await gql<{ Fill: unknown[] }>(
-    `query Recent($venueId: String!, $windows: [numeric!], $limit: Int!, $before: numeric) {
+    `query Recent($venueId: String!, $windows: [numeric!], $limit: Int!, $before: numeric!) {
        Fill(
          where: {
            market: {
@@ -315,7 +330,7 @@ export async function recentCalls(limit = 40, before?: number): Promise<Call[]> 
          limit: $limit
        ) { ${FILL_FIELDS} market { ${MARKET_FIELDS} } }
      }`,
-    { venueId, windows: WINDOWS, limit, before: before ?? null },
+    { venueId, windows: WINDOWS, limit, before: before ?? FAR_FUTURE },
     before ? 0 : 10,
   );
   return data.Fill.map(toCall).filter((c): c is Call => c !== null);
