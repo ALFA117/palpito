@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { isTheme, THEME_COOKIE, type Theme } from "@/lib/theme";
 import { Chrome } from "@/components/Chrome";
 import { Web3Provider } from "@/components/Web3Provider";
+import { AmbientBackground } from "@/components/AmbientBackground";
 
 // Space Grotesk for anything that speaks, Inter for anything that is read, and
 // JetBrains Mono for every number — prices, countdowns, addresses, hashes. The
@@ -37,6 +38,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://palpito-somnia.vercel.app"),
   title: "Palpito",
   description: DESCRIPTION,
+  alternates: { canonical: "/" },
   openGraph: {
     title: "Palpito — Dilo. Que la cadena lo confirme.",
     description: DESCRIPTION,
@@ -64,8 +66,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       data-theme={theme === "system" ? undefined : theme}
       className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
     >
-      {/* `room` paints the grid and the ambient wash behind everything. */}
-      <body className="room min-h-full flex flex-col bg-bg text-text">
+      <body className="min-h-full flex flex-col bg-bg text-text">
+        {/* The globe behind every page — see components/AmbientBackground. */}
+        <AmbientBackground />
         <ThemeProvider theme={theme}>
           <Web3Provider>
             <LocaleProvider locale={locale}>
