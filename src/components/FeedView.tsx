@@ -15,6 +15,7 @@ import { Ticker } from "./Ticker";
 import { LivePercent, WindowRing } from "./LiveNumber";
 import { Empty } from "./Empty";
 import { Onboarding } from "./Onboarding";
+import { PulseLine } from "./PulseLine";
 import { useLoadMore } from "@/lib/useLoadMore";
 
 export interface ScoredCall {
@@ -52,12 +53,29 @@ function ComposerFab() {
 
 function Hero() {
   const { t } = useLocale();
+  const reduce = useReducedMotion();
+  // Eyebrow, headline, heartbeat, lede — one after another, transform and opacity only.
+  const enter = (i: number) =>
+    reduce
+      ? {}
+      : {
+          initial: { opacity: 0, y: 14 },
+          animate: { opacity: 1, y: 0 },
+          transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const, delay: 0.05 + i * 0.08 },
+        };
   return (
-    <section>
-      <h1 className="t-display t-display-grad">{t.tagline}</h1>
-      <p className="mt-4 max-w-[52ch] text-[15px] leading-relaxed text-muted">
+    <section className="pt-2 sm:pt-6">
+      <motion.p {...enter(0)} className="t-label mb-4 inline-flex items-center gap-2 text-gold">
+        <span className="pulse-dot inline-block h-2 w-2 rounded-full bg-gold" aria-hidden="true" />
+        {t.heroEyebrow}
+      </motion.p>
+      <motion.h1 {...enter(1)} className="t-display t-display-hero t-display-grad">{t.tagline}</motion.h1>
+      <motion.div {...enter(2)} className="mt-4">
+        <PulseLine />
+      </motion.div>
+      <motion.p {...enter(3)} className="mt-3 max-w-[54ch] text-base leading-relaxed text-muted">
         {t.whatIsThisBody}
-      </p>
+      </motion.p>
     </section>
   );
 }
@@ -105,7 +123,7 @@ function LiveWindows({ markets }: { markets: Market[] }) {
             >
               <div className="flex items-baseline gap-2">
                 <span className="t-title text-[14px]">{m.asset}</span>
-                <span className="font-mono text-[10px] text-faint">
+                <span className="font-mono text-[12px] text-faint">
                   {windowLabel(m.intervalSec)}
                 </span>
                 <span className="ml-auto">
@@ -119,7 +137,7 @@ function LiveWindows({ markets }: { markets: Market[] }) {
                 {/* A bare em-dash where the price goes reads as a broken cell.
                     Nothing has traded here yet, and saying that is information. */}
                 {m.lastPrice === null ? (
-                  <span className="flex h-[30px] items-center rounded-md border border-dashed border-border-bright px-2 font-mono text-[10px] uppercase tracking-wider text-faint">
+                  <span className="flex h-[30px] items-center rounded-md border border-dashed border-border-bright px-2 font-mono text-[12px] uppercase tracking-wider text-faint">
                     {t.noQuote}
                   </span>
                 ) : (
@@ -142,7 +160,7 @@ function LiveWindows({ markets }: { markets: Market[] }) {
                 </div>
                 {/* Zeroes, not dashes: this is a live venue reporting no
                     volume, which is a fact rather than a missing value. */}
-                <div className="mt-1 flex items-baseline justify-between font-mono text-[9.5px] text-faint">
+                <div className="mt-1 flex items-baseline justify-between font-mono text-[12px] text-faint">
                   <span>{money(m.volume, locale)} t</span>
                   <span>{m.tradeCount}×</span>
                 </div>
@@ -175,7 +193,7 @@ function AssetFilter({ markets, asset }: { markets: Market[]; asset: string | nu
             key={o.key}
             href={o.href}
             aria-current={active ? "page" : undefined}
-            className="relative rounded-lg px-2.5 py-1 text-[11px] font-medium"
+            className="relative rounded-lg px-2.5 py-1 text-[12px] font-medium"
           >
             {active && !reduce && (
               <motion.span
@@ -276,7 +294,7 @@ export function FeedView({
             type="button"
             disabled={loading}
             onClick={() => void loadMore()}
-            className="mt-4 w-full rounded-xl border border-border bg-surface py-2.5 text-[12px] font-medium text-muted transition-colors hover:border-border-bright hover:text-text disabled:opacity-50"
+            className="mt-4 min-h-11 w-full rounded-xl border border-border bg-surface py-2.5 text-[12px] font-medium text-muted transition-colors hover:border-border-bright hover:text-text disabled:opacity-50"
           >
             {loading ? t.loadingMore : t.loadMore}
           </button>
