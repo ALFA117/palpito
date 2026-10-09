@@ -42,7 +42,7 @@ export function Onboarding() {
         <button
           type="button"
           onClick={dismiss}
-          className="rounded-md border border-gold/30 px-2.5 py-1 text-[11px] font-medium text-gold transition-colors hover:bg-gold-dim/40"
+          className="min-h-11 rounded-md border border-gold/30 px-3 text-[12px] font-medium text-gold transition-colors hover:bg-gold-dim/40"
         >
           {t.onboardDone}
         </button>

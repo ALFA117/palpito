@@ -21,7 +21,7 @@ export function ShareButton({ callId }: { callId: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 1800);
       }}
-      className="font-medium text-faint transition-colors hover:text-gold"
+      className="inline-flex min-h-11 items-center font-medium text-faint transition-colors hover:text-gold"
     >
       {copied ? t.shareCopied : t.share}
     </button>

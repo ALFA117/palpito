@@ -35,7 +35,7 @@ export function JoinButtons({ call }: { call: Call }) {
   if (phase.k === "done") {
     const nothingFilled = phase.filled === 0;
     return (
-      <span className="flex items-center gap-2 text-[11px]">
+      <span className="flex items-center gap-2 text-[12px]">
         <span className={nothingFilled ? "text-muted" : "text-up"}>
           {nothingFilled ? t.noFill : t.joined}
         </span>
@@ -55,7 +55,7 @@ export function JoinButtons({ call }: { call: Call }) {
   }
 
   if (!connected) {
-    return <span className="text-[11px] text-faint">{t.connectToJoin}</span>;
+    return <span className="text-[12px] text-faint">{t.connectToJoin}</span>;
   }
 
   const error =
@@ -107,7 +107,7 @@ export function JoinButtons({ call }: { call: Call }) {
         aria-expanded={showFadeWhy}
         aria-label={t.fadeWhyLabel}
         onClick={() => setShowFadeWhy((v) => !v)}
-        className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-border text-[11px] text-faint transition-colors hover:border-gold/40 hover:text-gold"
+        className="flex h-[22px] w-[22px] items-center justify-center rounded-full border border-border text-[12px] text-faint transition-colors hover:border-gold/40 hover:text-gold"
       >
         ?
       </button>
@@ -127,7 +127,7 @@ export function JoinButtons({ call }: { call: Call }) {
           </motion.span>
         )}
       </AnimatePresence>
-      {error && <span className="text-[11px] text-muted">{error}</span>}
+      {error && <span className="text-[12px] text-muted">{error}</span>}
     </span>
   );
 }

@@ -192,7 +192,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
           {nothingFilled ? t.noFillBody : t.placedBody}
         </p>
         {!nothingFilled && (
-          <p className="mt-2 font-mono text-[11px] text-faint">
+          <p className="mt-2 font-mono text-[12px] text-faint">
             {t.settledIn} <span className="text-gold">{formatLatency(phase.latencyMs)}</span>
           </p>
         )}
@@ -227,7 +227,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
         <div className="h-px bg-border" />
 
         <div>
-          <label className="mb-1.5 block text-[11px] uppercase tracking-wide text-faint">
+          <label className="mb-1.5 block text-[12px] uppercase tracking-wide text-faint">
             {t.asset}
           </label>
           <Segmented
@@ -240,7 +240,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[11px] uppercase tracking-wide text-faint">
+          <label className="mb-1.5 block text-[12px] uppercase tracking-wide text-faint">
             {t.pickWindow}
           </label>
           <Segmented
@@ -253,7 +253,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               return (
                 <span className="flex items-baseline gap-1.5">
                   {windowLabel(w)}
-                  {m && <Countdown expiry={m.expiry} className="font-mono text-[10px] text-faint" />}
+                  {m && <Countdown expiry={m.expiry} className="font-mono text-[12px] text-faint" />}
                 </span>
               );
             }}
@@ -261,7 +261,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[11px] uppercase tracking-wide text-faint">
+          <label className="mb-1.5 block text-[12px] uppercase tracking-wide text-faint">
             {t.pickSide}
           </label>
           <div role="radiogroup" aria-label={t.pickSide} className="flex gap-2">
@@ -311,7 +311,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               );
             })}
           </div>
-          <p className="mt-2 flex items-start gap-1.5 text-[11.5px] leading-relaxed text-faint">
+          <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-relaxed text-faint">
             <span aria-hidden="true" className="text-gold">
               ◇
             </span>
@@ -320,7 +320,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[11px] uppercase tracking-wide text-faint">
+          <label className="mb-1.5 block text-[12px] uppercase tracking-wide text-faint">
             {t.amount}
           </label>
           <Segmented
@@ -408,7 +408,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
           </>
         )}
         {isConnected && formatted && (
-          <p className="mt-2 text-right font-mono text-[11px] text-faint">{formatted} tUSDC</p>
+          <p className="mt-2 text-right font-mono text-[12px] text-faint">{formatted} tUSDC</p>
         )}
       </div>
     </section>

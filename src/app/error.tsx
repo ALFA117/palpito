@@ -40,7 +40,7 @@ export default function GlobalError({
         Reintentar · Retry
       </button>
       {error.digest && (
-        <p className="mt-4 font-mono text-[10px] text-faint">{error.digest}</p>
+        <p className="mt-4 font-mono text-[12px] text-faint">{error.digest}</p>
       )}
     </div>
   );

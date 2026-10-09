@@ -86,8 +86,8 @@ export function Calibration({ bands }: { bands: CalibrationBand[] }) {
               />
             </span>
 
-            <span className={`text-[11px] ${tone}`}>{label}</span>
-            <span className="font-mono text-[10px] text-faint">n={b.n}</span>
+            <span className={`text-[12px] ${tone}`}>{label}</span>
+            <span className="font-mono text-[12px] text-faint">n={b.n}</span>
           </li>
         );
       })}

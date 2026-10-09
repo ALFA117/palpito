@@ -103,7 +103,7 @@ export function HunchInput({
     <div>
       <label
         htmlFor="hunch"
-        className="mb-1.5 block text-[11px] uppercase tracking-wide text-faint"
+        className="mb-1.5 block text-[12px] uppercase tracking-wide text-faint"
       >
         {t.sayIt}
       </label>
@@ -138,7 +138,7 @@ export function HunchInput({
         <div className="mt-2 rounded-lg border border-border bg-surface-2 px-3 py-2.5">
           <p className="text-[12px] leading-relaxed text-muted">{hint}</p>
           <div className="mt-2 flex flex-wrap gap-1.5">
-            <span className="text-[11px] text-faint">{t.tryExample}</span>
+            <span className="text-[12px] text-faint">{t.tryExample}</span>
             {examples.map((ex) => (
               <button
                 key={ex}
@@ -147,7 +147,7 @@ export function HunchInput({
                   setText(ex);
                   setState({ k: "idle" });
                 }}
-                className="text-[11px] text-gold hover:underline"
+                className="text-[12px] text-gold hover:underline"
               >
                 “{ex}”
               </button>
@@ -155,7 +155,7 @@ export function HunchInput({
           </div>
         </div>
       ) : (
-        <p className="mt-1.5 flex items-baseline gap-2 text-[11px] text-faint">
+        <p className="mt-1.5 flex items-baseline gap-2 text-[12px] text-faint">
           <span>{t.readItHint}</span>
           {/* Silent truncation is the worst version of a limit. It only shows
               up once you are close enough to hit it. */}

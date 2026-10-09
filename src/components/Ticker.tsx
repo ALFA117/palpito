@@ -39,8 +39,8 @@ export function Ticker({ markets }: { markets: Market[] }) {
           const up = (m.lastPrice ?? 0.5) >= 0.5;
           return (
             <span key={`${m.marketId}-${i}`} className="flex shrink-0 items-baseline gap-2">
-              <span className="font-mono text-[11px] font-semibold text-text">{m.asset}</span>
-              <span className="font-mono text-[10.5px] text-muted">
+              <span className="font-mono text-[12px] font-semibold text-text">{m.asset}</span>
+              <span className="font-mono text-[12px] text-muted">
                 {windowLabel(m.intervalSec)}
               </span>
               <span
@@ -48,7 +48,7 @@ export function Ticker({ markets }: { markets: Market[] }) {
               >
                 {asPercent(m.lastPrice ?? 0)}
               </span>
-              <span className="font-mono text-[10px] uppercase tracking-wider text-faint">
+              <span className="font-mono text-[12px] uppercase tracking-wider text-faint">
                 {t.up}
               </span>
             </span>
