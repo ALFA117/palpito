@@ -4,6 +4,12 @@ import { LoadError } from "@/components/LoadError";
 
 export const revalidate = 60;
 
+export const metadata = {
+  title: "Ranking — Palpito",
+  description: "Quién acierta de verdad: tasa de acierto y P&L de wallets con al menos 5 palpitos resueltos en DreamDEX (Somnia testnet).",
+  alternates: { canonical: "/ranking" },
+};
+
 const isRange = (v: string | undefined): v is BoardRange =>
   BOARD_RANGES.includes(v as BoardRange);
 
