@@ -64,7 +64,7 @@ function Segmented<T extends string | number>({
             onClick={() => onChange(opt)}
             whileTap={reduce ? undefined : { scale: 0.96 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="relative min-h-[38px] rounded-xl px-3.5 py-2 text-[13px] font-medium"
+            className="relative min-h-11 rounded-xl px-3.5 py-2 text-[13px] font-medium"
           >
             {active && !reduce && (
               <motion.span
@@ -340,16 +340,24 @@ export function CallComposer({ markets }: { markets: Market[] }) {
           />
         </div>
 
-        <dl className="tint-gold flex items-end gap-8 rounded-2xl border border-gold/20 bg-surface-2 px-4 py-4">
+        <dl className="tint-gold flex items-start gap-8 rounded-2xl border border-gold/20 bg-surface-2 px-4 py-4">
           <div>
             <dt className="t-label">{t.youRisk}</dt>
             <dd className="t-figure mt-1.5 text-[22px] text-text">{money(stake, locale)}</dd>
           </div>
           <div>
+            {/* What the winning contracts pay back, stake included — 1 tUSDC
+                each. The profit is the part above the stake, said apart so
+                "5 in, 7.56 back" is not read as "won 7.56". */}
             <dt className="t-label">{t.youWinIfRight}</dt>
             <dd className="t-figure mt-1.5 text-[22px] text-up">
               {price ? money(contracts, locale) : "—"}
             </dd>
+            {price ? (
+              <dd className="mt-0.5 font-mono text-[12px] text-faint">
+                +{money(Math.max(0, contracts - stake), locale)} {t.netGain}
+              </dd>
+            ) : null}
           </div>
         </dl>
       </div>

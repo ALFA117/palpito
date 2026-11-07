@@ -32,7 +32,7 @@ const mono = JetBrains_Mono({
 });
 
 const DESCRIPTION =
-  "Dilo y que la cadena lo confirme. Predicciones con recibo verificable sobre contratos de evento de DreamDEX en Somnia.";
+  "Dilo y que la cadena lo confirme. Palpitos sobre BTC y ETH con recibo verificable, en los contratos de evento de DreamDEX sobre la testnet de Somnia: fichas de prueba, sin dinero real.";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://palpito-somnia.vercel.app"),

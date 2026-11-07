@@ -30,7 +30,7 @@ const es = {
   // Direction
   up: "Sube",
   down: "Baja",
-  upLong: "cierra arriba de su precio de apertura",
+  upLong: "cierra en su precio de apertura o arriba",
   downLong: "cierra abajo de su precio de apertura",
 
   // Call card
@@ -99,7 +99,7 @@ const es = {
   // Onboarding
   whatIsThis: "¿Qué es esto?",
   whatIsThisBody:
-    "Dices lo que crees que va a pasar con el precio de bitcoin o ethereum. Se convierte en una posición real en la red de prueba de Somnia, con fichas de prueba sin valor, y se liquida sola en minutos. Cuando cierra, queda escrito si tenías razón.",
+    "Dices lo que crees que va a pasar con el precio de bitcoin o ethereum. Se convierte en una posición real en la red de prueba de Somnia, con fichas de prueba sin valor, y se liquida sola cuando cierra su ventana (de 5 minutos a 24 horas). Entonces queda escrito si tenías razón.",
   poweredBy: "Contratos de evento de DreamDEX sobre Somnia",
   testnetNotice: "Red de prueba. El dinero no es real.",
 
@@ -128,7 +128,8 @@ const es = {
   pickSide: "¿Qué crees que hace?",
   amount: "Cuánto pones",
   youRisk: "Arriesgas",
-  youWinIfRight: "Ganas si aciertas",
+  youWinIfRight: "Cobras si aciertas",
+  netGain: "ganancia",
   placeCall: "Hacer palpito",
   placing: "Firmando...",
   placedTitle: "Palpito hecho",
@@ -144,7 +145,7 @@ const es = {
   errGeneric: "No se pudo hacer el palpito.",
   tryAgain: "Reintentar",
   noLiveWindows: "Ahora mismo no hay ventanas abiertas.",
-  noLiveWindowsWhy: "Las ventanas se renuevan solas: cuando una cierra, la siguiente ya está abierta. Si esto persiste, la testnet está caída — el muro de abajo sigue mostrando lo que ya pasó.",
+  noLiveWindowsWhy: "Normalmente las ventanas se renuevan solas: cuando una cierra, la siguiente ya está abierta. Si esto dura, o el venue de DreamDEX dejó de abrir ventanas o el indexador público no las está reportando. El muro de abajo sigue mostrando lo que ya pasó.",
   noBookSide: "Nadie está ofreciendo ese lado ahora mismo. Prueba el otro lado u otra ventana.",
   closingSoon: "Esta ventana cierra en menos de un minuto: el resultado ya casi está decidido y el precio lo refleja. Si quieres margen, elige otra ventana.",
   // Natural-language composer
@@ -223,7 +224,7 @@ const es = {
   // Market page
   marketVolume: "Volumen",
   marketTrades: "operaciones",
-  marketClosedUp: "Cerró arriba de su apertura",
+  marketClosedUp: "Cerró en su apertura o arriba",
   marketClosedDown: "Cerró abajo de su apertura",
   backToFeed: "Volver al muro",
   notFoundTitle: "Esta página no existe",
@@ -274,7 +275,7 @@ const en: Dict = {
 
   up: "Up",
   down: "Down",
-  upLong: "closes above its opening price",
+  upLong: "closes at or above its opening price",
   downLong: "closes below its opening price",
 
   called: "called",
@@ -336,7 +337,7 @@ const en: Dict = {
 
   whatIsThis: "What is this?",
   whatIsThisBody:
-    "You say what you think bitcoin or ethereum's price will do. It becomes a real position on Somnia's testnet, with test tokens of no value, and settles itself in minutes. When it closes, whether you were right is written down.",
+    "You say what you think bitcoin or ethereum's price will do. It becomes a real position on Somnia's testnet, with test tokens of no value, and settles itself when its window closes (5 minutes to 24 hours). Then whether you were right is written down.",
   poweredBy: "DreamDEX event contracts on Somnia",
   testnetNotice: "Testnet. The money is not real.",
 
@@ -363,7 +364,8 @@ const en: Dict = {
   pickSide: "What do you think it does?",
   amount: "How much you put in",
   youRisk: "You risk",
-  youWinIfRight: "You win if right",
+  youWinIfRight: "Payout if right",
+  netGain: "profit",
   placeCall: "Make the call",
   placing: "Signing...",
   placedTitle: "Call placed",
@@ -379,7 +381,7 @@ const en: Dict = {
   errGeneric: "The call could not be placed.",
   tryAgain: "Try again",
   noLiveWindows: "No windows are open right now.",
-  noLiveWindowsWhy: "Windows roll on their own: as one closes, the next is already open. If this persists, the testnet is down — the feed below still shows what already happened.",
+  noLiveWindowsWhy: "Windows normally roll on their own: as one closes, the next is already open. If this lasts, either the DreamDEX venue stopped opening windows or the public indexer is not reporting them. The feed below still shows what already happened.",
   noBookSide: "Nobody is offering that side right now. Try the other side, or another window.",
   closingSoon: "This window closes in under a minute: the outcome is nearly decided and the price already shows it. For some room, pick another window.",
   sayIt: "Say it in your own words",
@@ -453,7 +455,7 @@ const en: Dict = {
   // Market page
   marketVolume: "Volume",
   marketTrades: "trades",
-  marketClosedUp: "Closed above its open",
+  marketClosedUp: "Closed at or above its open",
   marketClosedDown: "Closed below its open",
   backToFeed: "Back to the feed",
   notFoundTitle: "This page does not exist",
