@@ -19,10 +19,10 @@ Palpito is that layer.
 ## What it does
 
 - **A feed of live calls.** Every card is a real fill on a real event-contract market, with a ticking countdown to its window close.
-- **A verifiable receipt.** Once a market settles, every call links straight to its own resolution on the Prophecy oracle explorer — the price sources, the median, the block. Not our word for it.
+- **A verifiable receipt.** Once a market settles, every call's *See why* opens the window's receipt: the line it opened against, the closing price the oracle published, and the settlement transaction on the Somnia testnet explorer. Not our word for it.
 - **A record nobody can edit.** Hit rate, settled calls and P&L for any wallet that has ever traded this venue, recomputed from the public indexer on every request. There is no database behind the reputation layer, on purpose.
 - **A leaderboard of who is actually right**, over wallets with enough settled calls to mean something.
-- **Making a call**, end to end: connect an injected wallet, pull testnet collateral from the public faucet without leaving the page, and buy the UP or DOWN side of a live window.
+- **Making a call**, end to end: connect an injected wallet, pull testnet collateral from the public faucet without leaving the page, and buy the UP or DOWN side of a live window. (Built against the SDK; see *Status* for what has and has not been signed end to end.)
 - **Calibration, not just accuracy.** The price you pay is your stated confidence, so a profile shows what you claimed against what happened. One wallet on this venue sits at a 35% hit rate and is well calibrated everywhere — except when it says 83%, where it is right 26% of the time.
 - **Getting out early.** Open positions surface under the composer with a live exit price; sell before the window closes instead of waiting for the result.
 - **Agreeing or disagreeing in one tap.** Every live call in the feed carries *join* and *fade*; a settled one carries a receipt instead.
@@ -65,7 +65,7 @@ Next.js (App Router, RSC)
         ├── reads ──▶ Somnia markets indexer (Hasura GraphQL, public)
         │              markets · fills · resolutions · venues
         │
-        └── links ──▶ Prophecy oracle explorer (per-market resolution graph)
+        └── links ──▶ Shannon explorer (settlement tx of each window)
 ```
 
 | Path | What it is |
@@ -106,11 +106,17 @@ That band is the useful thing to know about them.*
 of whichever bots have run longest. Every number here is recomputed from the
 public indexer, so anyone can check it.*
 
-![The oracle's own resolution page for a settled market](docs/img/oracle-receipt.png)
+*What "See why" opens today: the market page's receipt — the line the window
+opened against, the price the oracle published at the close (both from the
+indexer's `strike` and `OracleAnswer.numericValue`, in cents), and a link to the
+settlement transaction on the Somnia testnet explorer. This is what turns a
+leaderboard into evidence.*
 
-*What "See why" opens. The question, the median across price sources, the block it
-landed in — published by the oracle, not by us. This is what turns a leaderboard
-into evidence.*
+*(Until November 2026 this linked the Prophecy oracle explorer instead. That
+link pointed at `prd.oracle.somnia.host`, which is the mainnet oracle: it showed
+unrelated questions for old ids and "question not found" for every id since the
+venue's 2026-09-30 switch to hashed question ids. The old screenshot,
+`docs/img/oracle-receipt.png`, is kept only as history.)*
 
 ---
 
@@ -161,7 +167,7 @@ The short version:
    schedule and respawn", this is a race every integrator will hit. Returning
    null, or throwing, would make it self-describing.
 
-9. **The oracle explorer deep link is excellent and underadvertised.** `oracleQuestionId` → `prd.oracle.somnia.host/questions/{id}?view=graph` is the single most convincing thing an interface can show a non-crypto user. It deserves more than one line in `market-structure.md`.
+9. **The oracle explorer deep link needs the right network, and it stopped resolving.** `prd.oracle.somnia.host` is the *mainnet* oracle (chain 5031); testnet questions live on `dev.oracle.somnia.host` (chain 50312). Since the venue moved to hashed 77-digit `oracleQuestionId`s on 2026-09-30, neither explorer finds them. The indexer still has everything a receipt needs — `MarketResolutionEvent.txHash` and `OracleAnswer.numericValue` — so that is what Palpito reads now.
 
 ## Reading a sentence
 
@@ -178,7 +184,8 @@ perfectly reasonable thing to type into a prediction app, and the honest answer
 is that DreamDEX event contracts are BTC/ETH price windows and nothing else. A
 regex cannot say that — it can only fail to match. Set `ANTHROPIC_API_KEY` to
 enable it; without one the composer falls back to a fixed explanation plus
-worked examples, which is worse but not broken.
+worked examples, which is worse but not broken. **The public deployment has no
+key**, so it runs on the parser plus that fixed explanation.
 
 Two things that cost real time in the parser, both worth knowing if you extend it:
 
@@ -224,12 +231,17 @@ a success.
 
 ## Status
 
-Working against live testnet data: feed, leaderboard, wallet records, verifiable
-receipts, wallet connect, faucet, placing a call, the sentence composer, one-tap
-join and fade, selling out early, both locales.
+Verified against live testnet data (November 2026): feed, live windows,
+leaderboard, wallet records, settlement receipts, the sentence parser, share
+cards and both locales.
 
-Not yet built: nothing in the core loop. Remaining work is the demo video and
-the deck.
+Built but **not yet signed end to end with a real wallet**: placing a call,
+one-tap join and fade, selling out early, claiming and the tUSDC faucet. The
+write path follows the DreamDEX SDK and its error handling is unit-tested, but
+nobody has completed it with MetaMask on the deployed site yet.
+
+The hackathon closed on 2026-09-08; this is now a portfolio project kept
+running against the live testnet.
 
 ## License
 
@@ -252,7 +264,7 @@ Los contratos de evento ya resuelven la mitad difícil: tu predicción es una po
 ## Qué hace
 
 - **Un muro de palpitos en vivo**, cada uno una operación real con cuenta regresiva hasta el cierre de su ventana.
-- **Recibo verificable**: al liquidarse, cada palpito enlaza a su propia resolución en el explorador del oráculo — fuentes de precio, mediana, bloque.
+- **Recibo verificable**: al liquidarse, «Ver por qué» abre el recibo de la ventana: la línea de apertura, el precio de cierre que publicó el oráculo y la transacción de liquidación en el explorador de la testnet de Somnia.
 - **Un récord que nadie puede editar**: aciertos, resueltos y resultado de cualquier wallet, recalculado desde el indexer público en cada visita. No hay base de datos detrás de la reputación, a propósito.
 - **Un ranking de quién acierta de verdad**, sobre wallets con suficientes palpitos resueltos.
 
