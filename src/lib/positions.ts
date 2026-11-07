@@ -7,7 +7,7 @@
  * path sizes itself from the on-chain balance rather than from this.
  */
 
-import { INDEXER_URL, ONE, OUTCOME_YES, OPENING_PRICE_MARKETS } from "./somnia";
+import { INDEXER_URL, ONE, OUTCOME_YES, OPENING_PRICE_MARKETS, WINDOWS } from "./somnia";
 import type { Direction, Market } from "./indexer";
 
 export interface Position {
@@ -63,13 +63,16 @@ export async function openPositions(wallet: string): Promise<Position[]> {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      query: `query Open($wallet: String!, $now: numeric!) {
+      query: `query Open($wallet: String!, $now: numeric!, $windows: [numeric!]) {
         OutcomeBalance(
           where: {
             account: { _eq: $wallet }
             balance: { _gt: "0" }
             market: {
               marketType: { _eq: "BINARY" }
+              # The venue's 3s/45s/60s test windows are not something a
+              # person opened from this app; same allowlist as the wall.
+              intervalSec: { _in: $windows }
               ${OPENING_PRICE_MARKETS}
               expiry: { _gt: $now }
               tradingStart: { _lte: $now }
@@ -87,7 +90,7 @@ export async function openPositions(wallet: string): Promise<Position[]> {
           }
         }
       }`,
-      variables: { wallet: wallet.toLowerCase(), now },
+      variables: { wallet: wallet.toLowerCase(), now, windows: WINDOWS },
     }),
   });
 

@@ -53,9 +53,18 @@ const es = {
   void: "Anulada",
   pending: "En juego",
   verify: "Ver por qué",
-  verifyLong: "Ver la resolución del oráculo",
+  verifyLong: "Ver el recibo de la liquidación",
   receiptTitle: "Recibo verificable",
   receiptBody: "El oráculo publicó el resultado en cadena. Nadie lo puede editar, ni nosotros.",
+  receiptLine: "Línea (precio de apertura)",
+  receiptClose: "Precio al cierre, según el oráculo",
+  receiptRuleUp: "Cerró en la línea o arriba de ella: ganó Sube.",
+  receiptRuleDown: "Cerró abajo de la línea: ganó Baja.",
+  receiptRuleOld: "Ventana de antes del 30 de septiembre: el índice no guarda su precio de apertura, solo el de cierre. La liquidación en cadena está en la transacción.",
+  receiptVoided: "Esta ventana se anuló: cada contrato paga 0.50 tUSDC, sea del lado que sea.",
+  receiptTx: "Ver la transacción de liquidación en el explorador",
+  receiptBlock: "Ver el bloque de la liquidación en el explorador",
+  receiptUnavailable: "No pudimos leer el recibo en este momento. Reintenta en un momento.",
 
   // Record
   hitRate: "Aciertos",
@@ -65,7 +74,7 @@ const es = {
   streak: "Racha",
   noRecordYet: "Todavía sin palpitos resueltos.",
   noRecordYetWhy: "Un palpito cuenta cuando su ventana cierra y el oráculo publica el precio.",
-  noQuote: "sin libro",
+  noQuote: "sin operar",
   anyWallet: "Pega cualquier dirección y mira su récord real.",
 
   // Board
@@ -74,9 +83,11 @@ const es = {
   boardMin: "mínimo 5 palpitos resueltos",
 
   // Feed
-  feedTitle: "Lo que la gente está diciendo",
+  feedTitle: "Los últimos palpitos en cadena",
   feedEmpty: "Nadie ha dicho nada todavía en esta ventana.",
   feedEmptyWhy: "Sé el primero: escribe tu palpito arriba y queda firmado en la cadena.",
+  marketEmptyLive: "Sé el primero: haz tu palpito desde el muro mientras esta ventana siga abierta.",
+  marketEmptyClosed: "Esta ventana cerró sin palpitos.",
   liveNow: "en vivo",
   loadError: "No pudimos leer la cadena. Reintenta en un momento.",
 
@@ -87,7 +98,7 @@ const es = {
   // Onboarding
   whatIsThis: "¿Qué es esto?",
   whatIsThisBody:
-    "Dices lo que crees que va a pasar con el precio de bitcoin o ethereum. Se convierte en una posición real que se liquida sola en minutos. Cuando cierra, queda escrito si tenías razón.",
+    "Dices lo que crees que va a pasar con el precio de bitcoin o ethereum. Se convierte en una posición real en la red de prueba de Somnia, con fichas de prueba sin valor, y se liquida sola en minutos. Cuando cierra, queda escrito si tenías razón.",
   poweredBy: "Contratos de evento de DreamDEX sobre Somnia",
   testnetNotice: "Red de prueba. El dinero no es real.",
 
@@ -134,6 +145,7 @@ const es = {
   noLiveWindows: "Ahora mismo no hay ventanas abiertas.",
   noLiveWindowsWhy: "Las ventanas se renuevan solas: cuando una cierra, la siguiente ya está abierta. Si esto persiste, la testnet está caída — el muro de abajo sigue mostrando lo que ya pasó.",
   noBookSide: "Nadie está ofreciendo ese lado ahora mismo. Prueba el otro lado u otra ventana.",
+  closingSoon: "Esta ventana cierra en menos de un minuto: el resultado ya casi está decidido y el precio lo refleja. Si quieres margen, elige otra ventana.",
   // Natural-language composer
   sayIt: "Dilo con tus palabras",
   sayItPlaceholder: "Ej: creo que el bitcoin cierra arriba en la próxima media hora",
@@ -211,6 +223,8 @@ const es = {
   marketClosedUp: "Cerró arriba de su apertura",
   marketClosedDown: "Cerró abajo de su apertura",
   backToFeed: "Volver al muro",
+  notFoundTitle: "Esta página no existe",
+  notFoundBody: "Puede ser una wallet o un mercado con la dirección incompleta. Revisa el enlace o vuelve al muro.",
   // Share card
   share: "Compartir",
   shareCopied: "Enlace copiado",
@@ -278,9 +292,18 @@ const en: Dict = {
   void: "Voided",
   pending: "Live",
   verify: "See why",
-  verifyLong: "See the oracle resolution",
+  verifyLong: "See the settlement receipt",
   receiptTitle: "Verifiable receipt",
   receiptBody: "The oracle published this result on-chain. Nobody can edit it, including us.",
+  receiptLine: "Line (opening price)",
+  receiptClose: "Closing price, per the oracle",
+  receiptRuleUp: "Closed at or above the line: Up won.",
+  receiptRuleDown: "Closed below the line: Down won.",
+  receiptRuleOld: "A window from before September 30: the index does not keep its opening price, only the close. The on-chain settlement is in the transaction.",
+  receiptVoided: "This window was voided: every contract pays 0.50 tUSDC, on either side.",
+  receiptTx: "See the settlement transaction on the explorer",
+  receiptBlock: "See the settlement block on the explorer",
+  receiptUnavailable: "We could not read the receipt right now. Try again in a moment.",
 
   hitRate: "Hit rate",
   calls: "calls",
@@ -289,16 +312,18 @@ const en: Dict = {
   streak: "Streak",
   noRecordYet: "No settled calls yet.",
   noRecordYetWhy: "A call counts once its window closes and the oracle posts the price.",
-  noQuote: "no book",
+  noQuote: "no trades",
   anyWallet: "Paste any address and see its real record.",
 
   boardTitle: "Who is actually right",
   boardSub: "Computed from the chain, not from screenshots.",
   boardMin: "minimum 5 settled calls",
 
-  feedTitle: "What people are calling",
+  feedTitle: "Latest calls on-chain",
   feedEmpty: "Nobody has called this window yet.",
   feedEmptyWhy: "Go first: write your call above and it is signed onto the chain.",
+  marketEmptyLive: "Go first: make your call from the feed while this window is still open.",
+  marketEmptyClosed: "This window closed without any calls.",
   liveNow: "live",
   loadError: "We could not read the chain. Try again in a moment.",
 
@@ -307,7 +332,7 @@ const en: Dict = {
 
   whatIsThis: "What is this?",
   whatIsThisBody:
-    "You say what you think bitcoin or ethereum's price will do. It becomes a real position that settles itself in minutes. When it closes, whether you were right is written down.",
+    "You say what you think bitcoin or ethereum's price will do. It becomes a real position on Somnia's testnet, with test tokens of no value, and settles itself in minutes. When it closes, whether you were right is written down.",
   poweredBy: "DreamDEX event contracts on Somnia",
   testnetNotice: "Testnet. The money is not real.",
 
@@ -352,6 +377,7 @@ const en: Dict = {
   noLiveWindows: "No windows are open right now.",
   noLiveWindowsWhy: "Windows roll on their own: as one closes, the next is already open. If this persists, the testnet is down — the feed below still shows what already happened.",
   noBookSide: "Nobody is offering that side right now. Try the other side, or another window.",
+  closingSoon: "This window closes in under a minute: the outcome is nearly decided and the price already shows it. For some room, pick another window.",
   sayIt: "Say it in your own words",
   sayItPlaceholder: "e.g. I think bitcoin closes up over the next half hour",
   readIt: "Convert",
@@ -424,6 +450,8 @@ const en: Dict = {
   marketClosedUp: "Closed above its open",
   marketClosedDown: "Closed below its open",
   backToFeed: "Back to the feed",
+  notFoundTitle: "This page does not exist",
+  notFoundBody: "It may be a wallet or a market with an incomplete address. Check the link or go back to the feed.",
   // Share card
   share: "Share",
   shareCopied: "Link copied",

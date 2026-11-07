@@ -12,7 +12,7 @@ import { useBook } from "@/lib/useBook";
 import { useAfterWrite } from "@/lib/useAfterWrite";
 import { LivePercent } from "./LiveNumber";
 import { useLocale } from "./LocaleProvider";
-import { Countdown } from "./Clock";
+import { Countdown, useNow } from "./Clock";
 import { HunchInput } from "./HunchInput";
 import type { Hunch } from "@/lib/parse";
 import { Empty } from "./Empty";
@@ -102,6 +102,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
   const [direction, setDirection] = useState<Direction>("UP");
   const [stake, setStake] = useState(5);
   const [phase, setPhase] = useState<Phase>({ k: "idle" });
+  const now = useNow();
 
   const assets = useMemo(
     () => [...new Set(markets.map((m) => m.asset))].sort(),
@@ -258,6 +259,13 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               );
             }}
           />
+          {/* "The next hour" snaps to the 1h window even when it is about to
+              roll over; the sentence still gets its window, but not silently. */}
+          {market && market.expiry - now > 0 && market.expiry - now < 60 && (
+            <p className="mt-2 rounded-lg border border-gold/30 bg-gold-dim/40 px-3 py-2 text-[12px] leading-relaxed text-text">
+              {t.closingSoon}
+            </p>
+          )}
         </div>
 
         <div>

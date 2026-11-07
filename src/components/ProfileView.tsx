@@ -115,7 +115,10 @@ export function ProfileView({
           </p>
         )}
 
-        <p className="mt-3 text-[11px] leading-relaxed text-faint">{t.receiptBody}</p>
+        {/* Only a record with a settled call has a result the oracle published. */}
+        {settled + standing.void > 0 && (
+          <p className="mt-3 text-[11px] leading-relaxed text-faint">{t.receiptBody}</p>
+        )}
       </header>
 
       {isMe && <Positions />}
