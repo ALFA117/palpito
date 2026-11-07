@@ -67,6 +67,9 @@ function Hero() {
     <section className="pt-2 sm:pt-6">
       <motion.p {...enter(0)} className="t-label mb-4 inline-flex items-center gap-2 text-gold">
         <span className="pulse-dot inline-block h-2 w-2 rounded-full bg-gold" aria-hidden="true" />
+        {/* On phones the header only has room for the dot of the wordmark, so
+            the name goes here — otherwise it appears nowhere on the screen. */}
+        <span className="sm:hidden">{t.appName} ·</span>
         {t.heroEyebrow}
       </motion.p>
       <motion.h1 {...enter(1)} className="t-display t-display-hero t-display-grad">{t.tagline}</motion.h1>
@@ -126,10 +129,11 @@ function LiveWindows({ markets }: { markets: Market[] }) {
                 <span className="font-mono text-[12px] text-faint">
                   {windowLabel(m.intervalSec)}
                 </span>
-                <span className="ml-auto">
-                  <WindowRing start={m.tradingStart} expiry={m.expiry} size={30}>
-                    <Countdown expiry={m.expiry} className="t-figure text-[8px] text-muted" />
-                  </WindowRing>
+                {/* The countdown sits beside the ring rather than inside it:
+                    "23h 59m" only fit in a 30px ring at 8px, too small to read. */}
+                <span className="ml-auto inline-flex items-center gap-1.5 self-center">
+                  <WindowRing start={m.tradingStart} expiry={m.expiry} size={16} />
+                  <Countdown expiry={m.expiry} className="t-figure text-[12px] text-muted" />
                 </span>
               </div>
 
@@ -193,7 +197,7 @@ function AssetFilter({ markets, asset }: { markets: Market[]; asset: string | nu
             key={o.key}
             href={o.href}
             aria-current={active ? "page" : undefined}
-            className="relative rounded-lg px-2.5 py-1 text-[12px] font-medium"
+            className="relative inline-flex min-h-11 items-center rounded-lg px-3 text-[12px] font-medium"
           >
             {active && !reduce && (
               <motion.span

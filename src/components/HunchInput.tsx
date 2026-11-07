@@ -123,12 +123,12 @@ export function HunchInput({
           }}
           placeholder={t.sayItPlaceholder}
           maxLength={MAX_CHARS}
-          className="min-w-0 flex-1 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[14px] text-text outline-none placeholder:text-faint focus:border-gold/50"
+          className="min-h-11 min-w-0 flex-1 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[14px] text-text outline-none placeholder:text-faint focus:border-gold/50"
         />
         <button
           type="submit"
           disabled={!text.trim() || state.k === "reading"}
-          className="shrink-0 rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-on-gold transition-colors hover:bg-gold/90 disabled:opacity-50"
+          className="min-h-11 shrink-0 rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-on-gold transition-colors hover:bg-gold/90 disabled:opacity-50"
         >
           {state.k === "reading" ? t.reading : t.readIt}
         </button>
@@ -147,7 +147,7 @@ export function HunchInput({
                   setText(ex);
                   setState({ k: "idle" });
                 }}
-                className="text-[12px] text-gold hover:underline"
+                className="inline-flex min-h-8 items-center text-[12px] text-gold hover:underline"
               >
                 “{ex}”
               </button>

@@ -67,7 +67,7 @@ function ReceiptPanel({ market, receipt }: { market: Market; receipt: Receipt | 
               href={link}
               target="_blank"
               rel="noopener noreferrer"
-              className="group mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-gold transition-colors hover:text-gold/80"
+              className="group mt-3 inline-flex min-h-11 items-center gap-1 text-[13px] font-medium text-gold transition-colors hover:text-gold/80"
             >
               {receipt.txHash ? t.receiptTx : t.receiptBlock}
               <span className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">

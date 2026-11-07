@@ -134,7 +134,9 @@ export function Chrome({ children }: { children: React.ReactNode }) {
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-28 pt-6">{children}</main>
 
       <footer className="border-t border-border bg-bg-deep">
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-1.5 px-4 py-8">
+        {/* pb-24 on phones: the wall's floating "make a call" button sits in
+            the bottom-right corner and would otherwise cover this text. */}
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-1.5 px-4 pb-24 pt-8 sm:pb-8">
           <span className="t-label">{t.poweredBy}</span>
           <span className="text-[12px] text-faint">{t.testnetNotice}</span>
           <div className="mt-3 flex items-center gap-2 min-[420px]:hidden">
