@@ -8,7 +8,7 @@ import { useLocale } from "./LocaleProvider";
 import { useCollateralBalance } from "@/lib/useCollateral";
 
 const pill =
-  "whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] font-medium transition-colors disabled:opacity-60";
+  "inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-3.5 text-[12px] font-medium transition-colors disabled:opacity-60";
 
 export function ConnectButton() {
   const { t, locale } = useLocale();
@@ -72,7 +72,7 @@ export function ConnectButton() {
       <NavLink
         href={`/u/${address!.toLowerCase()}`}
         title={t.myRecordShort}
-        className="flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] transition-colors hover:border-gold/40"
+        className="flex min-h-11 items-center gap-2 rounded-full border border-border bg-surface px-3 text-[12px] transition-colors hover:border-gold/40"
       >
         <span className="font-mono text-text">{formatted ?? "—"}</span>
         <span className="hidden text-faint sm:inline">tUSDC</span>
@@ -83,7 +83,7 @@ export function ConnectButton() {
         onClick={() => disconnect()}
         aria-label={t.disconnect}
         title={t.disconnect}
-        className="rounded-full border border-border bg-surface px-2 py-1.5 text-[12px] text-faint transition-colors hover:text-text"
+        className="flex min-h-11 min-w-11 items-center justify-center rounded-full border border-border bg-surface px-2 text-[12px] text-faint transition-colors hover:text-text"
       >
         ×
       </button>

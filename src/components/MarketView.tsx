@@ -103,7 +103,7 @@ export function MarketView({
         <div className="flex items-start justify-between gap-3">
           <div>
             <h1 className="t-display text-[clamp(1.6rem,5vw,2.3rem)]">{market.asset}</h1>
-            <span className="mt-1 inline-block rounded border border-border px-1.5 py-0.5 font-mono text-[11px] text-muted">
+            <span className="mt-1 inline-block rounded border border-border px-1.5 py-0.5 font-mono text-[12px] text-muted">
               {windowLabel(market.intervalSec)}
             </span>
           </div>
@@ -111,18 +111,18 @@ export function MarketView({
           <div className="flex items-center gap-2">
             {live ? (
               <WindowRing start={market.tradingStart} expiry={market.expiry} size={44}>
-                <Countdown expiry={market.expiry} className="t-figure text-[11px] text-text" />
+                <Countdown expiry={market.expiry} className="t-figure text-[12px] text-text" />
               </WindowRing>
             ) : settling ? (
-              <span className="rounded-md bg-surface-3 px-2 py-1 text-[11px] font-semibold text-muted">
+              <span className="rounded-md bg-surface-3 px-2 py-1 text-[12px] font-semibold text-muted">
                 {t.settling}
               </span>
             ) : market.voided ? (
-              <span className="rounded-md bg-surface-3 px-2 py-1 text-[11px] font-semibold text-muted">
+              <span className="rounded-md bg-surface-3 px-2 py-1 text-[12px] font-semibold text-muted">
                 {t.void}
               </span>
             ) : (
-              <span className="rounded-md bg-surface-3 px-2 py-1 text-[11px] font-semibold text-text">
+              <span className="rounded-md bg-surface-3 px-2 py-1 text-[12px] font-semibold text-text">
                 {market.winningOutcome === 0 ? t.marketClosedUp : t.marketClosedDown}
               </span>
             )}

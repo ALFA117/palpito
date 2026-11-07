@@ -38,7 +38,7 @@ export function BoardView({
               key={r}
               href={r === "24h" ? "/ranking" : `/ranking?r=${r}`}
               aria-current={r === range ? "page" : undefined}
-              className={`rounded-xl border px-3.5 py-2 text-[12px] font-medium transition-colors ${
+              className={`min-h-11 rounded-xl border px-3.5 py-2 text-[12px] font-medium transition-colors ${
                 r === range
                   ? "border-gold/50 bg-surface-2 text-text"
                   : "border-border bg-surface text-muted hover:text-text"
@@ -79,7 +79,7 @@ export function BoardView({
                   <span className="t-title block truncate text-[15px]">
                     {handleFor(s.wallet)}
                   </span>
-                  <span className="block font-mono text-[11px] text-faint">
+                  <span className="block font-mono text-[12px] text-faint">
                     {shortAddress(s.wallet)}
                   </span>
                 </span>
@@ -87,7 +87,7 @@ export function BoardView({
                   <span className="t-figure block text-[20px]">
                     {Math.round((s.hitRate ?? 0) * 100)}%
                   </span>
-                  <span className="block text-[10px] text-faint">
+                  <span className="block text-[12px] text-faint">
                     {s.won + s.lost} {t.settledCalls}
                   </span>
                 </span>
@@ -99,7 +99,7 @@ export function BoardView({
                   >
                     {signedMoney(s.pnl, locale)}
                   </span>
-                  <span className="block text-[10px] text-faint">tUSDC</span>
+                  <span className="block text-[12px] text-faint">tUSDC</span>
                 </span>
               </NavLink>
             </li>

@@ -23,12 +23,12 @@ export function ClaimBanner() {
     return (
       <section className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-up/40 bg-up-dim px-5 py-3.5">
         <span className="text-[14px] font-semibold text-up">{t.claimed}</span>
-        <span className="font-mono text-[11px] text-up/70">{formatLatency(phase.latencyMs)}</span>
+        <span className="font-mono text-[12px] text-up/70">{formatLatency(phase.latencyMs)}</span>
         <a
           href={explorerTxUrl(phase.hash)}
           target="_blank"
           rel="noopener noreferrer"
-          className="font-mono text-[11px] text-up/80 hover:underline"
+          className="font-mono text-[12px] text-up/80 hover:underline"
         >
           {phase.hash.slice(0, 10)}
         </a>
@@ -54,7 +54,7 @@ export function ClaimBanner() {
         {claims.slice(0, 8).map((c) => (
           <li
             key={c.id}
-            className="rounded border border-border bg-surface-2 px-2 py-1 text-[11px] text-muted"
+            className="rounded border border-border bg-surface-2 px-2 py-1 text-[12px] text-muted"
           >
             {c.asset} {windowLabel(c.intervalSec)}{" "}
             <span className="font-mono text-text">{money(c.payout, locale)}</span>
@@ -62,7 +62,7 @@ export function ClaimBanner() {
           </li>
         ))}
         {claims.length > 8 && (
-          <li className="px-2 py-1 text-[11px] text-faint">+{claims.length - 8}</li>
+          <li className="px-2 py-1 text-[12px] text-faint">+{claims.length - 8}</li>
         )}
       </ul>
 
@@ -80,7 +80,7 @@ export function ClaimBanner() {
             {phase.code === "rejected" ? t.errRejected : t.claimFailed}
           </span>
         )}
-        <span className="text-[11px] text-faint">
+        <span className="text-[12px] text-faint">
           {claims.length - voids} {t.fromWins}
           {voids > 0 && ` · ${voids} ${t.fromVoids}`}
         </span>

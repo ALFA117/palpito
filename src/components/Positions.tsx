@@ -42,7 +42,7 @@ function PositionRow({ position }: { position: Position }) {
           href={explorerTxUrl(phase.hash)}
           target="_blank"
           rel="noopener noreferrer"
-          className="ml-auto font-mono text-[11px] text-faint hover:text-muted"
+          className="ml-auto font-mono text-[12px] text-faint hover:text-muted"
         >
           {phase.hash.slice(0, 8)}
         </a>
@@ -71,7 +71,7 @@ function PositionRow({ position }: { position: Position }) {
       <span className={`font-semibold ${up ? "text-up" : "text-down"}`}>
         {up ? `▲ ${t.up}` : `▼ ${t.down}`}
       </span>
-      <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted">
+      <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[12px] text-muted">
         {windowLabel(position.market.intervalSec)}
       </span>
       <span className="text-muted">
@@ -118,7 +118,7 @@ export function Positions() {
   return (
     <section className="lit-edge mt-8 rounded-2xl border border-border bg-surface p-5 sm:p-6">
       <h2 className="t-label">{t.yourPositions}</h2>
-      <p className="mt-1 text-[11px] leading-relaxed text-faint">{t.sellWhy}</p>
+      <p className="mt-1 text-[12px] leading-relaxed text-faint">{t.sellWhy}</p>
       <ul className="mt-3 flex flex-col gap-2">
         {positions.map((p) => (
           <PositionRow key={p.id} position={p} />

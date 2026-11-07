@@ -46,7 +46,7 @@ function Verdict({ outcome }: { outcome: CallOutcome }) {
   };
   const v = map[outcome];
   return (
-    <span className={`rounded-md px-2 py-1 text-[11px] font-semibold ${v.cls}`}>{v.label}</span>
+    <span className={`rounded-md px-2 py-1 text-[12px] font-semibold ${v.cls}`}>{v.label}</span>
   );
 }
 
@@ -87,12 +87,12 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
         <header className="flex items-center gap-2">
           <NavLink
             href={`/u/${call.wallet}`}
-            className="t-title text-[14px] text-text transition-colors hover:text-gold"
+            className="t-title -my-2 inline-flex min-h-11 items-center text-[14px] text-text transition-colors hover:text-gold"
           >
             {handleFor(call.wallet)}
           </NavLink>
-          <span className="font-mono text-[10px] text-faint">{shortAddress(call.wallet)}</span>
-          <span className="ml-auto font-mono text-[10px] text-faint">
+          <span className="font-mono text-[12px] text-faint">{shortAddress(call.wallet)}</span>
+          <span className="ml-auto font-mono text-[12px] text-faint">
             {timeAgo(call.timestamp, locale, now)}
           </span>
         </header>
@@ -103,9 +103,11 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
           <DirectionMark direction={call.direction} />
           <NavLink
             href={`/m/${m.marketId}`}
-            className="rounded border border-border px-1.5 py-0.5 font-mono text-[10px] text-muted transition-colors hover:border-border-bright hover:text-text"
+            className="group -my-2 inline-flex min-h-11 min-w-11 items-center justify-center"
           >
-            {windowLabel(m.intervalSec)}
+            <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[12px] text-muted transition-colors group-hover:border-border-bright group-hover:text-text">
+              {windowLabel(m.intervalSec)}
+            </span>
           </NavLink>
         </p>
 
@@ -136,7 +138,7 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
                 <Countdown expiry={m.expiry} className="t-figure text-[17px] text-text" />
               </span>
             ) : settling ? (
-              <span className="rounded-md bg-surface-3 px-2 py-1 text-[11px] font-semibold text-muted">
+              <span className="rounded-md bg-surface-3 px-2 py-1 text-[12px] font-semibold text-muted">
                 {t.settling}
               </span>
             ) : (
@@ -153,7 +155,7 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
               onClick={() => setShowWhy((v) => !v)}
               whileTap={reduce ? undefined : { scale: 0.97 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
-              className="inline-flex items-center gap-1.5 rounded-md border border-gold/25 bg-gold-dim/40 px-2 py-1 text-[10px] font-medium text-gold transition-colors hover:bg-gold-dim"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-gold/25 bg-gold-dim/40 px-3 text-[12px] font-medium text-gold transition-colors hover:bg-gold-dim"
             >
               <span aria-hidden="true">◇</span>
               {t.madeLiquidity}
@@ -184,13 +186,13 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
           </div>
         )}
 
-        <footer className="mt-4 flex flex-wrap items-center gap-4 text-[11px]">
+        <footer className="mt-2 flex flex-wrap items-center gap-x-4 text-[12px]">
           {/* The receipt lives on the market page: the line, the oracle's
               closing price and the settlement tx on the testnet explorer. */}
           {(outcome === "won" || outcome === "lost" || outcome === "void") && (
             <NavLink
               href={`/m/${m.marketId}#recibo`}
-              className="group inline-flex items-center gap-1 font-medium text-gold transition-colors hover:text-gold/80"
+              className="group inline-flex min-h-11 items-center gap-1 font-medium text-gold transition-colors hover:text-gold/80"
             >
               {t.verify}
               <span className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
@@ -203,7 +205,7 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
               the venue documents four distinct crossing paths and this is the
               only one of them this app can name with confidence. */}
           {call.kind && !call.mintedPair && (
-            <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-faint">
+            <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[12px] uppercase tracking-wide text-faint">
               {call.kind}
             </span>
           )}
@@ -211,7 +213,7 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
             href={explorerTxUrl(call.txHash)}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-mono text-faint transition-colors hover:text-muted"
+            className="inline-flex min-h-11 items-center font-mono text-faint transition-colors hover:text-muted"
           >
             tx {call.txHash.slice(0, 8)}
           </a>

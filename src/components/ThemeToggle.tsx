@@ -51,7 +51,7 @@ export function ThemeToggle() {
         onClick={() => setTheme(next)}
         aria-label={`${t.theme}: ${label[theme]}`}
         title={`${t.theme}: ${label[theme]}`}
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-muted sm:hidden"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-muted sm:hidden"
       >
         {reduce ? (
           ICONS[theme]
@@ -87,7 +87,7 @@ export function ThemeToggle() {
               aria-label={label[v]}
               title={label[v]}
               onClick={() => setTheme(v)}
-              className="relative flex h-6 w-6 items-center justify-center rounded-full"
+              className="relative flex h-11 w-11 items-center justify-center rounded-full"
             >
               {active && !reduce && (
                 <motion.span

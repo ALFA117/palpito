@@ -11,7 +11,7 @@ import { ResolutionToast } from "./ResolutionToast";
 
 function Wordmark() {
   return (
-    <NavLink href="/" className="flex shrink-0 items-center gap-2" aria-label="Palpito">
+    <NavLink href="/" className="flex min-h-11 min-w-11 shrink-0 items-center justify-center gap-2" aria-label="Palpito">
       <span className="relative flex h-2 w-2">
         <span className="pulse-dot absolute inline-flex h-full w-full rounded-full bg-gold" />
         <span className="absolute inline-flex h-full w-full rounded-full bg-gold/30 blur-[3px]" />
@@ -47,7 +47,7 @@ function Tabs() {
             key={tab.href}
             href={tab.href}
             aria-current={active ? "page" : undefined}
-            className="relative rounded-full px-3 py-1.5 transition-colors"
+            className="relative flex min-h-11 items-center rounded-full px-3 transition-colors"
           >
             {active && !reduce && (
               <motion.span
@@ -77,7 +77,7 @@ function LangToggle() {
 
   return (
     <div
-      className="relative flex items-center rounded-full border border-border bg-surface p-0.5 text-[10px] font-semibold"
+      className="relative flex items-center rounded-full border border-border bg-surface p-0.5 text-[12px] font-semibold"
       aria-busy={switching}
     >
       {LOCALES.map((l) => {
@@ -88,7 +88,7 @@ function LangToggle() {
             type="button"
             onClick={() => setLocale(l)}
             aria-pressed={active}
-            className="relative rounded-full px-2 py-1 uppercase tracking-wider"
+            className="relative flex h-11 min-w-11 items-center justify-center rounded-full px-2 uppercase tracking-wider"
           >
             {active && !reduce && (
               <motion.span
@@ -118,8 +118,12 @@ export function Chrome({ children }: { children: React.ReactNode }) {
           <Wordmark />
           <Tabs />
           <div className="ml-auto flex min-w-0 items-center gap-1.5 sm:gap-2">
-            <ThemeToggle />
-            <LangToggle />
+            {/* Below 420px there is no room for preferences beside the wallet
+                at full touch size, so they move to the footer. */}
+            <div className="hidden items-center gap-1.5 min-[420px]:flex sm:gap-2">
+              <ThemeToggle />
+              <LangToggle />
+            </div>
             <ConnectButton />
           </div>
         </div>
@@ -132,7 +136,11 @@ export function Chrome({ children }: { children: React.ReactNode }) {
       <footer className="border-t border-border bg-bg-deep">
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-1.5 px-4 py-8">
           <span className="t-label">{t.poweredBy}</span>
-          <span className="text-[11px] text-faint">{t.testnetNotice}</span>
+          <span className="text-[12px] text-faint">{t.testnetNotice}</span>
+          <div className="mt-3 flex items-center gap-2 min-[420px]:hidden">
+            <ThemeToggle />
+            <LangToggle />
+          </div>
         </div>
       </footer>
     </>

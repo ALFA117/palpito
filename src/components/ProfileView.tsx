@@ -76,7 +76,7 @@ export function ProfileView({
           href={explorerAddressUrl(standing.wallet)}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-0.5 block font-mono text-[11px] text-faint hover:text-muted"
+          className="mt-0.5 block font-mono text-[12px] text-faint hover:text-muted"
         >
           {shortAddress(standing.wallet)}
         </a>
@@ -117,7 +117,7 @@ export function ProfileView({
 
         {/* Only a record with a settled call has a result the oracle published. */}
         {settled + standing.void > 0 && (
-          <p className="mt-3 text-[11px] leading-relaxed text-faint">{t.receiptBody}</p>
+          <p className="mt-3 text-[12px] leading-relaxed text-faint">{t.receiptBody}</p>
         )}
       </header>
 
@@ -128,7 +128,7 @@ export function ProfileView({
           <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">
             {t.openNow}
           </h2>
-          <p className="mt-1 max-w-prose text-[11px] leading-relaxed text-faint">{t.openNowWhy}</p>
+          <p className="mt-1 max-w-prose text-[12px] leading-relaxed text-faint">{t.openNowWhy}</p>
           <div className="mt-3 flex flex-col gap-3">
             {open.map(({ call, outcome }) => (
               <CallCard key={call.id} call={call} outcome={outcome} />
@@ -141,7 +141,7 @@ export function ProfileView({
         <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">
           {t.calibration}
         </h2>
-        <p className="mt-1 max-w-prose text-[11px] leading-relaxed text-faint">
+        <p className="mt-1 max-w-prose text-[12px] leading-relaxed text-faint">
           {t.calibrationWhy}
         </p>
         <Calibration bands={standing.calibration} />
