@@ -20,7 +20,15 @@ export async function generateMetadata({ params }: PageProps<"/m/[marketId]">) {
   const market = await marketById(marketId).catch(() => null);
   if (!market) return {};
   const title = `${market.asset} · ${windowLabel(market.intervalSec)} — Palpito`;
-  return { title, alternates: { canonical: `/m/${marketId}` }, openGraph: { title }, twitter: { title } };
+  // A child `openGraph` replaces the root one whole, file-based image
+  // included, so the share image is named again here or the page has none.
+  const images = ["/opengraph-image.png"];
+  return {
+    title,
+    alternates: { canonical: `/m/${marketId}` },
+    openGraph: { title, images },
+    twitter: { card: "summary_large_image", title, images },
+  };
 }
 
 export default async function MarketPage({ params }: PageProps<"/m/[marketId]">) {
