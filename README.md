@@ -283,3 +283,27 @@ npm install && npm run dev
 Eso es todo. Todas las lecturas son públicas: el indexer de Somnia no pide llave y la app trae las direcciones desplegadas.
 
 **Red:** testnet de Somnia (chain 50312). **Colateral:** tUSDC, 6 decimales, con faucet público.
+
+---
+
+## FIX_NOTES — design pass, 2026-10-09
+
+- **Sideways scroll at 320px.** The header held the wordmark, two tabs, the theme switch, the language switch and the wallet in one row and pushed the page wider than the screen. Below 420px the theme and language switches now live in the footer; the header keeps navigation and the wallet.
+- **Text at 9.5–11px.** The `t-label` style was 10px and around 50 utilities used 9.5–11.5px (addresses, times, the window chip, the volume line). The floor is 12px everywhere.
+- **Touch targets under 44px.** The wordmark (an 8px dot on phones), the tabs, the theme and language switches, the wallet pill, *Entendido*, the board's range filters, *Load more*, and every link inside a call card (handle, window, *Why*, tx, *Share*) are 44px tall now, without changing how the cards look.
+- **SEO.** Added `robots.txt`, `sitemap.xml`, a web manifest, an SVG icon, an apple icon, a share image for the home page and a canonical URL for every route; the board and profiles got their own titles and descriptions.
+
+## DESIGN_NOTES
+
+- **Background — recipe 3 of the dice, a globe of points with arcs.** A Fibonacci sphere turns slowly on the right; every second or so an arc is drawn from a green point to a pink one. That arc is the venue's mechanism drawn large — on DreamDEX an UP buyer and a DOWN buyer crossing mint a fresh pair, so disagreement *is* the liquidity. It replaces the square grid, which read as a template. Three layers with their own pointer and scroll parallax (a far wash of up/down/gold light, the canvas globe, a few near sparks). Full on the feed; quiet on the board, profiles, markets and receipts. Fewer points and sparks on phones, DPR capped at 2, paused when the tab is hidden, one still frame with one arc under reduced motion, dimmed on the light theme. `src/components/AmbientBackground.tsx`.
+- **Hero.** A testnet eyebrow first (the money is not real, and the page says so before anything else), a larger headline, then a heartbeat trace that runs under it like a monitor — *palpito* is a heartbeat — with up-spikes in the UP colour and drops in the DOWN colour. It moves as one transform. `src/components/PulseLine.tsx`.
+- The two palettes, the three families (Space Grotesk / Inter / JetBrains Mono) and the existing motion are unchanged; this pass completes them.
+
+## Two-minute phone check
+
+1. Open https://palpito-somnia.vercel.app — the heartbeat runs under the headline; nothing scrolls sideways, even on a small phone.
+2. The header shows Muro / Ranking and the wallet; theme and language are at the bottom of the page.
+3. Tap a user's name, the window chip and *Ver por qué* on a card: each is easy to hit.
+4. Open Ranking: the globe behind it is quieter.
+5. Switch to the light theme: the globe fades back and the text stays readable.
+6. With "Reduce motion" on, the globe holds still with a single arc.
