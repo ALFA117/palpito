@@ -235,7 +235,12 @@ export async function resolveVenueId(): Promise<string> {
   // why `clobStatus` cannot be used here either. Counting zombie rows would
   // rank venues by how much history they carry rather than by where the action
   // currently is, and those are not the same venue after a migration.
-  const now = Math.floor(Date.now() / 1000);
+  //
+  // `now` is floored to the minute because it is part of the cache key: with
+  // the exact second, every request was a new query and the `revalidate: 60`
+  // below never served a single hit — a ~0.6s indexer round trip in front of
+  // every page. A venue does not migrate within a minute.
+  const now = Math.floor(Date.now() / 60_000) * 60;
   const data = await gql<{ Market: { venueId: string }[] }>(
     `query Venues($now: numeric!) {
        Market(
@@ -700,7 +705,9 @@ export async function leaderboard(
   limit = 10,
 ): Promise<Board> {
   const venueId = await resolveVenueId();
-  const since = Math.floor(Date.now() / 1000) - RANGE_SECONDS[range];
+  // Floored to the minute for the same reason as in resolveVenueId: the range
+  // start is part of the cache key, and to the second it never repeats.
+  const since = Math.floor(Date.now() / 60_000) * 60 - RANGE_SECONDS[range];
 
   const data = await gql<{ Fill: unknown[] }>(
     `query Board($venueId: String!, $windows: [numeric!], $since: numeric!, $scan: Int!) {
