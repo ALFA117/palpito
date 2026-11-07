@@ -53,6 +53,10 @@ export function money(n: number, locale: Locale) {
   }).format(n);
 }
 
+/** An asset price in dollars, "$75,945.87" — same shape in both locales. */
+const USD = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const usd = (n: number) => "$" + USD.format(n);
+
 export function signedMoney(n: number, locale: Locale) {
   const s = money(Math.abs(n), locale);
   return n >= 0 ? `+${s}` : `-${s}`;

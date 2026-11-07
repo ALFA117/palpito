@@ -4,7 +4,7 @@ import { NavLink } from "./RouteProgress";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import type { Call, CallOutcome } from "@/lib/indexer";
-import { oracleGraphUrl, explorerTxUrl } from "@/lib/somnia";
+import { explorerTxUrl } from "@/lib/somnia";
 import { asPercent, handleFor, money, shortAddress, timeAgo, windowLabel } from "@/lib/format";
 import { useLocale } from "./LocaleProvider";
 import { Countdown, useNow } from "./Clock";
@@ -185,18 +185,18 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
         )}
 
         <footer className="mt-4 flex flex-wrap items-center gap-4 text-[11px]">
-          {m.oracleQuestionId && (outcome === "won" || outcome === "lost" || outcome === "void") && (
-            <a
-              href={oracleGraphUrl(m.oracleQuestionId)}
-              target="_blank"
-              rel="noopener noreferrer"
+          {/* The receipt lives on the market page: the line, the oracle's
+              closing price and the settlement tx on the testnet explorer. */}
+          {(outcome === "won" || outcome === "lost" || outcome === "void") && (
+            <NavLink
+              href={`/m/${m.marketId}#recibo`}
               className="group inline-flex items-center gap-1 font-medium text-gold transition-colors hover:text-gold/80"
             >
               {t.verify}
               <span className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
                 →
               </span>
-            </a>
+            </NavLink>
           )}
           {/* MINT_A_PAIR gets the translated badge above; anything else is
               shown as the indexer's own raw name rather than a guessed label —

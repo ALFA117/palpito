@@ -85,12 +85,26 @@ export const WINDOW_LABEL: Record<number, string> = {
 export const OUTCOME_YES = 0;
 export const OUTCOME_NO = 1;
 
-/** Deep link to the oracle's own resolution graph for a market's question. */
-export const oracleGraphUrl = (oracleQuestionId: string) =>
-  `https://prd.oracle.somnia.host/questions/${oracleQuestionId}?view=graph`;
+/**
+ * Prices on the oracle side are in cents: a market's `strike` and the oracle's
+ * `numericValue` are both USD x 100 (strike 7594587 is the "75945.875" in the
+ * question text, truncated). Checked on 2026-11-07 against 30 settled windows:
+ * `numericValue >= strike` matched `winningOutcome = 0` on every one.
+ *
+ * There used to be a deep link to the oracle's explorer here. It pointed at
+ * prd.oracle.somnia.host, which is the MAINNET oracle (chain 5031): old ids
+ * opened unrelated questions there (a football match) and every id since the
+ * 2026-09-30 switch is a 77-digit hash it answers "question not found". The
+ * receipt now lives on the market page and links the settlement transaction on
+ * the testnet explorer instead — something that always exists.
+ */
+export const ORACLE_PRICE_SCALE = 100;
 
 export const explorerTxUrl = (hash: string) =>
   `https://shannon-explorer.somnia.network/tx/${hash}`;
+
+export const explorerBlockUrl = (block: string | number) =>
+  `https://shannon-explorer.somnia.network/block/${block}`;
 
 export const explorerAddressUrl = (addr: string) =>
   `https://shannon-explorer.somnia.network/address/${addr}`;

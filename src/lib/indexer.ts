@@ -10,7 +10,15 @@
  * so 327000 is a probability of 0.327 and 6000000 is six contracts.
  */
 
-import { INDEXER_URL, DEFAULT_VENUE_ID, WINDOWS, ONE, OUTCOME_YES, OPENING_PRICE_MARKETS } from "./somnia";
+import {
+  INDEXER_URL,
+  DEFAULT_VENUE_ID,
+  WINDOWS,
+  ONE,
+  OUTCOME_YES,
+  OPENING_PRICE_MARKETS,
+  ORACLE_PRICE_SCALE,
+} from "./somnia";
 
 type Json = Record<string, unknown>;
 
@@ -302,20 +310,22 @@ export async function liveMarkets(): Promise<Market[]> {
     try {
       const spark = await gql<{ Fill: { market_id: string; fillPrice: string }[] }>(
         `query Spark($ids: [String!]) {
-           Fill(where: { market_id: { _in: $ids } }, order_by: { timestamp: asc }, limit: 2000) {
+           Fill(where: { market_id: { _in: $ids } }, order_by: { timestamp: desc }, limit: 2000) {
              market_id fillPrice
            }
          }`,
         { ids: rows.map((m) => m.marketId) },
         10,
       );
+      // Newest first so a busy window keeps its LATEST 40 prices (the line
+      // should end where the price is now), then flipped back to oldest-first.
       const byMarket = new Map<string, { fillPrice: string }[]>();
       for (const f of spark.Fill) {
         const list = byMarket.get(f.market_id) ?? [];
         if (list.length < 40) list.push(f);
         byMarket.set(f.market_id, list);
       }
-      for (const m of rows) m.fills = byMarket.get(m.marketId) ?? [];
+      for (const m of rows) m.fills = (byMarket.get(m.marketId) ?? []).reverse();
     } catch {
       // A missing sparkline is cosmetic; never let it take the wall down.
     }
@@ -370,14 +380,82 @@ export async function marketById(marketId: string): Promise<Market | null> {
     `query OneMarket($marketId: String!) {
        Market(where: { marketId: { _eq: $marketId } }, limit: 1) {
          ${MARKET_FIELDS}
-         fills(order_by: { timestamp: asc }, limit: 40) { fillPrice }
+         fills(order_by: { timestamp: desc }, limit: 40) { fillPrice }
        }
      }`,
     { marketId },
     10,
   );
-  const row = data.Market[0];
-  return row ? toMarket(row) : null;
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const row = data.Market[0] as any;
+  if (!row) return null;
+  // The latest 40 prices, drawn oldest to newest.
+  if (Array.isArray(row.fills)) row.fills = [...row.fills].reverse();
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+  return toMarket(row);
+}
+
+/**
+ * What settled a window, read back from the chain's own records.
+ *
+ * This is the "see why" a card promises: the price line the window was opened
+ * against, the price the oracle published at the close, and the transaction
+ * that settled the market on the testnet explorer.
+ */
+export interface Receipt {
+  /** The settlement transaction. Null when the indexer has no resolution row yet. */
+  txHash: string | null;
+  /** Block the market resolved in — a fallback link when the tx is missing. */
+  block: string | null;
+  /**
+   * The line the close was compared with, in USD. Null for windows opened
+   * before 2026-09-30, which compared against an opening price the market row
+   * does not carry (they were written as strike 0).
+   */
+  line: number | null;
+  /** The price the oracle published at the close, in USD. */
+  close: number | null;
+}
+
+export async function marketReceipt(
+  marketId: string,
+  oracleQuestionId: string | null,
+): Promise<Receipt> {
+  const data = await gql<{
+    MarketResolutionEvent: { txHash: string; blockNumber: string }[];
+    OracleAnswer: { numericValue: string | null; voided: boolean }[];
+    Market: { strike: string | null; resolvedAtBlock: string | null }[];
+  }>(
+    `query Receipt($marketId: String!, $questionId: numeric!) {
+       MarketResolutionEvent(
+         where: { market_id: { _eq: $marketId } }
+         order_by: { blockNumber: desc }
+         limit: 1
+       ) { txHash blockNumber }
+       OracleAnswer(where: { oracleQuestionId: { _eq: $questionId } }, limit: 1) {
+         numericValue voided
+       }
+       Market(where: { marketId: { _eq: $marketId } }, limit: 1) { strike resolvedAtBlock }
+     }`,
+    // A 77-digit id does not survive a JSON number; Hasura reads numeric from a string.
+    { marketId, questionId: oracleQuestionId ?? "0" },
+    300,
+  );
+
+  const event = data.MarketResolutionEvent[0];
+  const answer = oracleQuestionId ? data.OracleAnswer[0] : undefined;
+  const market = data.Market[0];
+  const strike = Number(market?.strike ?? 0);
+
+  return {
+    txHash: event?.txHash ?? null,
+    block: event?.blockNumber ?? market?.resolvedAtBlock ?? null,
+    line: strike > 0 ? strike / ORACLE_PRICE_SCALE : null,
+    close:
+      answer && !answer.voided && answer.numericValue != null
+        ? Number(answer.numericValue) / ORACLE_PRICE_SCALE
+        : null,
+  };
 }
 
 /** Every call made on one market — the deep-linked page's own thread. */

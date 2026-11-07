@@ -1,23 +1,97 @@
 "use client";
 
-import type { Market } from "@/lib/indexer";
+import type { Market, Receipt } from "@/lib/indexer";
+import { explorerBlockUrl, explorerTxUrl } from "@/lib/somnia";
 import { useLocale } from "./LocaleProvider";
 import { CallCard } from "./CallCard";
 import { ClockProvider, Countdown } from "./Clock";
 import { LivePercent, WindowRing } from "./LiveNumber";
 import { Sparkline } from "./Sparkline";
 import { Empty } from "./Empty";
-import { money, windowLabel } from "@/lib/format";
+import { money, usd, windowLabel } from "@/lib/format";
 import type { ScoredCall } from "./FeedView";
+
+/**
+ * Why a settled window went the way it did, from the chain's own records.
+ *
+ * The line it opened against, the price the oracle published at the close, and
+ * the transaction that settled it on the testnet explorer. Every card's "see
+ * why" lands here.
+ */
+function ReceiptPanel({ market, receipt }: { market: Market; receipt: Receipt | null }) {
+  const { t } = useLocale();
+  const link = receipt?.txHash
+    ? explorerTxUrl(receipt.txHash)
+    : receipt?.block
+      ? explorerBlockUrl(receipt.block)
+      : null;
+
+  return (
+    <section
+      id="recibo"
+      className="mt-4 scroll-mt-24 rounded-2xl border border-gold/25 bg-surface-2 p-5 sm:p-6"
+    >
+      <h2 className="t-label text-gold">{t.receiptTitle}</h2>
+
+      {receipt === null ? (
+        <p className="mt-2 text-[13px] leading-relaxed text-muted">{t.receiptUnavailable}</p>
+      ) : (
+        <>
+          {(receipt.line !== null || receipt.close !== null) && (
+            <dl className="mt-3 flex flex-wrap gap-x-8 gap-y-3">
+              {receipt.line !== null && (
+                <div>
+                  <dt className="t-label">{t.receiptLine}</dt>
+                  <dd className="t-figure mt-1 text-[19px] text-text">{usd(receipt.line)}</dd>
+                </div>
+              )}
+              {receipt.close !== null && (
+                <div>
+                  <dt className="t-label">{t.receiptClose}</dt>
+                  <dd className="t-figure mt-1 text-[19px] text-text">{usd(receipt.close)}</dd>
+                </div>
+              )}
+            </dl>
+          )}
+          <p className="mt-3 text-[13px] leading-relaxed text-muted">
+            {market.voided
+              ? t.receiptVoided
+              : receipt.line !== null && receipt.close !== null
+                ? receipt.close >= receipt.line
+                  ? t.receiptRuleUp
+                  : t.receiptRuleDown
+                : t.receiptRuleOld}
+          </p>
+          {link && (
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mt-3 inline-flex items-center gap-1 text-[13px] font-medium text-gold transition-colors hover:text-gold/80"
+            >
+              {receipt.txHash ? t.receiptTx : t.receiptBlock}
+              <span className="transition-transform group-hover:translate-x-0.5" aria-hidden="true">
+                →
+              </span>
+            </a>
+          )}
+          <p className="mt-3 text-[12px] leading-relaxed text-faint">{t.receiptBody}</p>
+        </>
+      )}
+    </section>
+  );
+}
 
 export function MarketView({
   market,
   scored,
   serverNow,
+  receipt = null,
 }: {
   market: Market;
   scored: ScoredCall[];
   serverNow: number;
+  receipt?: Receipt | null;
 }) {
   const { t, locale } = useLocale();
   const live = market.expiry > serverNow;
@@ -78,11 +152,18 @@ export function MarketView({
         </div>
       </header>
 
+      {market.finalized && <ReceiptPanel market={market} receipt={receipt} />}
+
       <section className="mt-6">
         <h2 className="text-[12px] font-semibold uppercase tracking-wide text-faint">{t.calls}</h2>
         {scored.length === 0 ? (
           <div className="mt-3">
-            <Empty title={t.feedEmpty} body={t.feedEmptyWhy} />
+            {/* This page has no composer, so "write it above" would point at nothing. */}
+            {live ? (
+              <Empty title={t.feedEmpty} body={t.marketEmptyLive} />
+            ) : (
+              <Empty title={t.marketEmptyClosed} />
+            )}
           </div>
         ) : (
           <div className="mt-3 flex flex-col gap-3">

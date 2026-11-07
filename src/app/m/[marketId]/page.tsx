@@ -1,5 +1,13 @@
 import { notFound } from "next/navigation";
-import { marketById, callsByMarket, outcomeOf, type Call, type Market } from "@/lib/indexer";
+import {
+  marketById,
+  callsByMarket,
+  marketReceipt,
+  outcomeOf,
+  type Call,
+  type Market,
+  type Receipt,
+} from "@/lib/indexer";
 import { MarketView } from "@/components/MarketView";
 import { LoadError } from "@/components/LoadError";
 import type { ScoredCall } from "@/components/FeedView";
@@ -35,7 +43,27 @@ export default async function MarketPage({ params }: PageProps<"/m/[marketId]">)
   if (missing) notFound();
   if (!snapshot) return <LoadError />;
 
+  // The receipt only exists once the window settled. A failed read is not a
+  // failed page: the view says the receipt could not be read and moves on.
+  let receipt: Receipt | null = null;
+  if (snapshot.market.finalized) {
+    receipt = await marketReceipt(
+      snapshot.market.marketId,
+      snapshot.market.oracleQuestionId,
+    ).catch((err) => {
+      console.error("receipt load failed", err);
+      return null;
+    });
+  }
+
   const scored: ScoredCall[] = snapshot.calls.map((call) => ({ call, outcome: outcomeOf(call) }));
 
-  return <MarketView market={snapshot.market} scored={scored} serverNow={snapshot.takenAt} />;
+  return (
+    <MarketView
+      market={snapshot.market}
+      scored={scored}
+      serverNow={snapshot.takenAt}
+      receipt={receipt}
+    />
+  );
 }
