@@ -13,6 +13,10 @@
  * The direction pair is tuned per theme rather than shared: a mint that sings on
  * near-black is illegible on paper, and a green dark enough to read on white
  * looks like moss in the dark.
+ *
+ * Light values are dark enough for small text: up, down and gold each clear
+ * 4.5:1 on every light surface they sit on (bg, surface-2/3 and their own
+ * -dim chips). The first light set was 3.6-4.2:1 on those grounds.
  */
 :root {
   --bg: #f7f5fa;
@@ -27,24 +31,24 @@
   --muted: #5c5370;
   --faint: #675e80;
 
-  --up: #00875a;
+  --up: #00704b;
   --up-dim: #d7f2e6;
-  --up-glow: #00875a24;
-  --down: #cf2b56;
+  --up-glow: #00704b24;
+  --down: #b8234b;
   --down-dim: #fbdde5;
-  --down-glow: #cf2b5624;
+  --down-glow: #b8234b24;
 
-  --gold: #9a6a06;
+  --gold: #8a5f05;
   --gold-dim: #fbeecd;
-  --gold-glow: #9a6a0624;
+  --gold-glow: #8a5f0524;
 
   --cyan: #0a7ea4;
   --cyan-dim: #d6eef6;
   --violet: #6d4bd8;
 
-  --tint-up: linear-gradient(160deg, #00875a12 0%, transparent 55%);
-  --tint-down: linear-gradient(160deg, #cf2b5612 0%, transparent 55%);
-  --tint-gold: linear-gradient(160deg, #9a6a0612 0%, transparent 55%);
+  --tint-up: linear-gradient(160deg, #00704b12 0%, transparent 55%);
+  --tint-down: linear-gradient(160deg, #b8234b12 0%, transparent 55%);
+  --tint-gold: linear-gradient(160deg, #8a5f0512 0%, transparent 55%);
 
   /* The ink that sits ON the gold CTA. Light theme needs white, dark needs near-black. */
   --on-gold: #ffffff;
