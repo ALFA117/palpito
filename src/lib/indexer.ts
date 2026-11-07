@@ -10,7 +10,7 @@
  * so 327000 is a probability of 0.327 and 6000000 is six contracts.
  */
 
-import { INDEXER_URL, DEFAULT_VENUE_ID, WINDOWS, ONE, OUTCOME_YES } from "./somnia";
+import { INDEXER_URL, DEFAULT_VENUE_ID, WINDOWS, ONE, OUTCOME_YES, OPENING_PRICE_MARKETS } from "./somnia";
 
 type Json = Record<string, unknown>;
 
@@ -273,11 +273,10 @@ export async function liveMarkets(): Promise<Market[]> {
            marketType: { _eq: "BINARY" }
            venueId: { _eq: $venueId }
            intervalSec: { _in: $windows }
-           # Strike 0 means "closes at or above its opening price", which is what
-           # the app's copy says. The venue also lists strike-based questions
-           # ("will BTC be above $79,012"), and showing those under this wording
-           # would describe the wrong bet.
-           strike: { _eq: "0" }
+           # Only "closes at or above its opening price", which is what the
+           # app's copy says. See OPENING_PRICE_MARKETS for why this is not
+           # simply strike = 0 any more.
+           ${OPENING_PRICE_MARKETS}
            expiry: { _gt: $now }
            tradingStart: { _lte: $now }
            finalized: { _eq: false }
@@ -287,13 +286,42 @@ export async function liveMarkets(): Promise<Market[]> {
          limit: 40
        ) {
          ${MARKET_FIELDS}
-         fills(order_by: { timestamp: asc }, limit: 40) { fillPrice }
        }
      }`,
     { venueId, windows: WINDOWS, now },
     10,
   );
-  return data.Market.map(toMarket);
+
+  // Sparkline prices come in ONE batched query instead of a nested `fills`
+  // per market. Nested, each market cost ~1s on this indexer, so ten live
+  // windows ran into its statement timeout ("database query error") and the
+  // whole wall failed. Batched by market_id it answers in under a second.
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const rows = data.Market as any[];
+  if (rows.length > 0) {
+    try {
+      const spark = await gql<{ Fill: { market_id: string; fillPrice: string }[] }>(
+        `query Spark($ids: [String!]) {
+           Fill(where: { market_id: { _in: $ids } }, order_by: { timestamp: asc }, limit: 2000) {
+             market_id fillPrice
+           }
+         }`,
+        { ids: rows.map((m) => m.marketId) },
+        10,
+      );
+      const byMarket = new Map<string, { fillPrice: string }[]>();
+      for (const f of spark.Fill) {
+        const list = byMarket.get(f.market_id) ?? [];
+        if (list.length < 40) list.push(f);
+        byMarket.set(f.market_id, list);
+      }
+      for (const m of rows) m.fills = byMarket.get(m.marketId) ?? [];
+    } catch {
+      // A missing sparkline is cosmetic; never let it take the wall down.
+    }
+  }
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+  return rows.map(toMarket);
 }
 
 // A cursor far enough out that "no cursor given" and "everything before this"
@@ -321,7 +349,7 @@ export async function recentCalls(limit = 40, before?: number): Promise<Call[]> 
              marketType: { _eq: "BINARY" }
              venueId: { _eq: $venueId }
              intervalSec: { _in: $windows }
-             strike: { _eq: "0" }
+             ${OPENING_PRICE_MARKETS}
            }
            takerSide: { _in: ["BUY_YES", "BUY_NO"] }
            timestamp: { _lt: $before }
@@ -569,7 +597,7 @@ export async function leaderboard(
              marketType: { _eq: "BINARY" }
              venueId: { _eq: $venueId }
              finalized: { _eq: true }
-             strike: { _eq: "0" }
+             ${OPENING_PRICE_MARKETS}
            }
            takerSide: { _in: ["BUY_YES", "BUY_NO"] }
            timestamp: { _gte: $since }

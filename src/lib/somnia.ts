@@ -51,6 +51,26 @@ export const DEFAULT_VENUE_ID =
  * excluding the junk — a new junk interval would otherwise leak straight in.
  */
 export const WINDOWS = [300, 900, 3600, 14400, 86400] as const;
+
+/**
+ * Which markets mean "closes at or above its opening price" — the only bet the
+ * app's copy describes.
+ *
+ * Until 2026-09-30 18:15 UTC our venue wrote that as `strike = 0`. From the
+ * window that opened at 18:20 UTC (unix 1790792400) on, the same venue writes
+ * the opening price itself into the strike ("Will BTC/USDC's price be at or
+ * above 83957.015 at unix time …"), and has created no `strike = 0` market
+ * since. Filtering on `strike = 0` alone therefore emptied the app from that
+ * day. Verified against the indexer on 2026-11-07: every window opened at the
+ * same moment shares one strike, and consecutive windows walk with the price.
+ *
+ * Older non-zero strikes on other venues are still excluded: before the switch
+ * a strike could be an arbitrary level, which this wording would misdescribe.
+ */
+export const OPENING_STRIKE_SINCE = 1790792400;
+
+/** Hasura condition, to drop inside any `Market` where-clause. */
+export const OPENING_PRICE_MARKETS = `_or: [{ strike: { _eq: "0" } }, { tradingStart: { _gte: "${OPENING_STRIKE_SINCE}" } }]`;
 export type WindowSec = (typeof WINDOWS)[number];
 
 export const WINDOW_LABEL: Record<number, string> = {

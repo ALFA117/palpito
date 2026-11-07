@@ -7,7 +7,7 @@
  * path sizes itself from the on-chain balance rather than from this.
  */
 
-import { INDEXER_URL, ONE, OUTCOME_YES } from "./somnia";
+import { INDEXER_URL, ONE, OUTCOME_YES, OPENING_PRICE_MARKETS } from "./somnia";
 import type { Direction, Market } from "./indexer";
 
 export interface Position {
@@ -70,7 +70,7 @@ export async function openPositions(wallet: string): Promise<Position[]> {
             balance: { _gt: "0" }
             market: {
               marketType: { _eq: "BINARY" }
-              strike: { _eq: "0" }
+              ${OPENING_PRICE_MARKETS}
               expiry: { _gt: $now }
               tradingStart: { _lte: $now }
               finalized: { _eq: false }
