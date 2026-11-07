@@ -141,7 +141,7 @@ function LiveWindows({ markets }: { markets: Market[] }) {
                 {/* A bare em-dash where the price goes reads as a broken cell.
                     Nothing has traded here yet, and saying that is information. */}
                 {m.lastPrice === null ? (
-                  <span className="flex h-[30px] items-center rounded-md border border-dashed border-border-bright px-2 font-mono text-[12px] uppercase tracking-wider text-faint">
+                  <span className="flex h-[30px] shrink-0 items-center whitespace-nowrap rounded-md border border-dashed border-border-bright px-2 font-mono text-[12px] uppercase tracking-wide text-faint">
                     {t.noQuote}
                   </span>
                 ) : (
@@ -150,7 +150,12 @@ function LiveWindows({ markets }: { markets: Market[] }) {
                     className={`t-figure text-[26px] ${rising ? "text-up" : "text-down"}`}
                   />
                 )}
-                <Sparkline points={m.spark} className="h-7 w-[84px] text-faint" />
+                {/* With no trades the dashes give way to the label, which at
+                    12px needs the room to stay on one line. */}
+                <Sparkline
+                  points={m.spark}
+                  className={`h-7 text-faint ${m.lastPrice === null ? "min-w-0 flex-1" : "w-[84px]"}`}
+                />
               </div>
 
               {/* DreamDEX's own FAQ notes volume "is not shown in the app yet,
