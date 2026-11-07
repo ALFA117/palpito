@@ -14,7 +14,12 @@ export async function generateMetadata({ params }: PageProps<"/c/[callId]">) {
 
   const title = `${call.market.asset} ${call.direction === "UP" ? "↑" : "↓"} — Palpito`;
   const images = [`/api/og/${callId}`];
-  return { title, openGraph: { title, images }, twitter: { title, images, card: "summary_large_image" } };
+  return {
+    title,
+    alternates: { canonical: `/c/${callId}` },
+    openGraph: { title, images },
+    twitter: { title, images, card: "summary_large_image" },
+  };
 }
 
 export default async function CallPage({ params }: PageProps<"/c/[callId]">) {

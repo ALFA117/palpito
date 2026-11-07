@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps<"/m/[marketId]">) {
   const market = await marketById(marketId).catch(() => null);
   if (!market) return {};
   const title = `${market.asset} · ${windowLabel(market.intervalSec)} — Palpito`;
-  return { title, openGraph: { title }, twitter: { title } };
+  return { title, alternates: { canonical: `/m/${marketId}` }, openGraph: { title }, twitter: { title } };
 }
 
 export default async function MarketPage({ params }: PageProps<"/m/[marketId]">) {

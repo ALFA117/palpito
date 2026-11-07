@@ -7,6 +7,16 @@ import { nowSeconds } from "@/lib/format";
 
 export const revalidate = 15;
 
+export async function generateMetadata({ params }: PageProps<"/u/[wallet]">) {
+  const { wallet } = await params;
+  const short = `${wallet.slice(0, 6)}…${wallet.slice(-4)}`;
+  return {
+    title: `${short} — Palpito`,
+    description: "Historial público de palpitos de esta wallet: aciertos, calibración y P&L recalculados desde el indexador.",
+    alternates: { canonical: `/u/${wallet}` },
+  };
+}
+
 const isAddress = (v: string) => /^0x[0-9a-fA-F]{40}$/.test(v);
 
 export default async function ProfilePage({ params }: PageProps<"/u/[wallet]">) {
