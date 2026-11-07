@@ -490,14 +490,30 @@ export async function callById(id: string): Promise<Call | null> {
   return row ? toCall(row) : null;
 }
 
-/** Every call a wallet has ever made on this venue. */
+/**
+ * A wallet's latest calls on this venue, newest first, up to `limit`.
+ *
+ * Same set the wall and the board count — real windows, "closes at or above
+ * its opening price" — so a profile and the leaderboard score the same calls.
+ * Before, the profile also counted the venue's 60-second test windows, which
+ * the wall drops as noise, and the two pages disagreed for the same wallet.
+ *
+ * It is NOT every call ever: an active bot has tens of thousands, and the
+ * public indexer has no aggregates. The page says how far back it reaches
+ * whenever the cap is hit.
+ */
 export async function callsByWallet(wallet: string, limit = 200): Promise<Call[]> {
   const venueId = await resolveVenueId();
   const data = await gql<{ Fill: unknown[] }>(
-    `query Wallet($venueId: String!, $wallet: String!, $limit: Int!) {
+    `query Wallet($venueId: String!, $windows: [numeric!], $wallet: String!, $limit: Int!) {
        Fill(
          where: {
-           market: { marketType: { _eq: "BINARY" }, venueId: { _eq: $venueId } }
+           market: {
+             marketType: { _eq: "BINARY" }
+             venueId: { _eq: $venueId }
+             intervalSec: { _in: $windows }
+             ${OPENING_PRICE_MARKETS}
+           }
            taker: { _eq: $wallet }
            takerSide: { _in: ["BUY_YES", "BUY_NO"] }
          }
@@ -505,7 +521,7 @@ export async function callsByWallet(wallet: string, limit = 200): Promise<Call[]
          limit: $limit
        ) { ${FILL_FIELDS} market { ${MARKET_FIELDS} } }
      }`,
-    { venueId, wallet: wallet.toLowerCase(), limit },
+    { venueId, windows: WINDOWS, wallet: wallet.toLowerCase(), limit },
     15,
   );
   return data.Fill.map(toCall).filter((c): c is Call => c !== null);
@@ -639,16 +655,36 @@ const STANDING_FIELDS = `
   market { winningOutcome voided finalized }
 `;
 
-/** How far back a leaderboard looks. */
-export type BoardRange = "24h" | "7d" | "all";
+/**
+ * How far back a leaderboard looks.
+ *
+ * There is no "all time": the venue has carried well over 60,000 settled
+ * calls since July, the public indexer has no aggregates, and one board
+ * request can only score a few thousand rows. An "all time" tab was really
+ * "the latest 2,000 calls" (about five weeks), so it now says what it is.
+ */
+export type BoardRange = "24h" | "7d" | "30d";
 
-export const BOARD_RANGES: BoardRange[] = ["24h", "7d", "all"];
+export const BOARD_RANGES: BoardRange[] = ["24h", "7d", "30d"];
 
-const RANGE_SECONDS: Record<BoardRange, number | null> = {
+const RANGE_SECONDS: Record<BoardRange, number> = {
   "24h": 86_400,
   "7d": 604_800,
-  all: null,
+  "30d": 2_592_000,
 };
+
+/** Rows one board request scores. Slim rows, ~250 bytes each. */
+const BOARD_SCAN = 2000;
+
+export interface Board {
+  standings: Standing[];
+  /**
+   * Set only when the scan hit BOARD_SCAN before the start of the range: the
+   * timestamp of the oldest call that was counted, so the page can say the
+   * board starts there rather than at the top of the range.
+   */
+  truncatedSince: number | null;
+}
 
 /**
  * Top callers by hit rate, over wallets with enough settled calls to mean something.
@@ -659,32 +695,35 @@ const RANGE_SECONDS: Record<BoardRange, number | null> = {
  * which is the only version a feed has any use for.
  */
 export async function leaderboard(
-  range: BoardRange = "all",
+  range: BoardRange = "24h",
   minSettled = 5,
   limit = 10,
-): Promise<Standing[]> {
+): Promise<Board> {
   const venueId = await resolveVenueId();
-  const window = RANGE_SECONDS[range];
-  const since = window === null ? 0 : Math.floor(Date.now() / 1000) - window;
+  const since = Math.floor(Date.now() / 1000) - RANGE_SECONDS[range];
 
   const data = await gql<{ Fill: unknown[] }>(
-    `query Board($venueId: String!, $since: numeric!) {
+    `query Board($venueId: String!, $windows: [numeric!], $since: numeric!, $scan: Int!) {
        Fill(
          where: {
            market: {
              marketType: { _eq: "BINARY" }
              venueId: { _eq: $venueId }
              finalized: { _eq: true }
+             # The same windows the wall shows. The venue's 60-second test
+             # series used to count here, and the top of the board was a bot
+             # living in windows the wall drops as noise.
+             intervalSec: { _in: $windows }
              ${OPENING_PRICE_MARKETS}
            }
            takerSide: { _in: ["BUY_YES", "BUY_NO"] }
            timestamp: { _gte: $since }
          }
          order_by: { timestamp: desc }
-         limit: 2000
+         limit: $scan
        ) { ${STANDING_FIELDS} }
      }`,
-    { venueId, since },
+    { venueId, windows: WINDOWS, since, scan: BOARD_SCAN },
     60,
   );
 
@@ -734,7 +773,7 @@ export async function leaderboard(
     byWallet.set(wallet, s);
   }
 
-  return [...byWallet.values()]
+  const standings = [...byWallet.values()]
     .map((s) => {
       const settled = s.won + s.lost;
       return { ...s, hitRate: settled > 0 ? s.won / settled : null, pnl: s.returned - s.staked };
@@ -742,4 +781,10 @@ export async function leaderboard(
     .filter((s) => s.won + s.lost >= minSettled)
     .sort((a, b) => (b.hitRate ?? 0) - (a.hitRate ?? 0) || b.pnl - a.pnl)
     .slice(0, limit);
+
+  return {
+    standings,
+    truncatedSince:
+      rows.length >= BOARD_SCAN ? Number(rows[rows.length - 1].timestamp) || null : null,
+  };
 }

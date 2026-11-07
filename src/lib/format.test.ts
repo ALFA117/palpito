@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { handleFor, formatLatency, countdown, shortAddress, asPercent } from "./format";
+import { handleFor, formatLatency, countdown, shortAddress, asPercent, shortDate } from "./format";
 
 describe("handleFor", () => {
   it("is deterministic for the same address", () => {
@@ -60,5 +60,16 @@ describe("shortAddress", () => {
 describe("asPercent", () => {
   it("rounds to the nearest whole percent", () => {
     expect(asPercent(0.327)).toBe("33%");
+  });
+});
+
+describe("shortDate", () => {
+  // 2026-10-04 23:30 UTC: the next day in UTC+1 and later, the same day in the
+  // Americas. Pinned to UTC, server and browser always print the same thing.
+  const lateUtc = Date.UTC(2026, 9, 4, 23, 30) / 1000;
+
+  it("prints day and month, in UTC", () => {
+    expect(shortDate(lateUtc, "en")).toBe("Oct 4");
+    expect(shortDate(lateUtc, "es")).toMatch(/^4 oct/);
   });
 });

@@ -102,9 +102,13 @@ That band is the useful thing to know about them.*
 
 ![The leaderboard, computed from the chain](docs/img/leaderboard.png)
 
-*Ranked over 24 hours by default: all-time on a venue this young is a static list
-of whichever bots have run longest. Every number here is recomputed from the
-public indexer, so anyone can check it.*
+*Ranked over 24 hours by default, with 7- and 30-day tabs. There is no all-time
+tab: the venue has carried well over 60,000 settled calls since July, the public
+indexer has no aggregates, and one request scores at most 2,000 of them — so when
+that cap is hit the board says from which date it counts, and so does a profile
+past its 500 latest calls. Both count the same set as the wall (the real 5m–24h
+windows, never the venue's 60-second test series). Every number here is
+recomputed from the public indexer, so anyone can check it.*
 
 *What "See why" opens today: the market page's receipt — the line the window
 opened against, the price the oracle published at the close (both from the

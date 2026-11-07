@@ -145,7 +145,7 @@ la pregunta, las fuentes, la mediana, el bloque.
 
 ## 2:30–2:50 · Cierre
 
-**Plano:** el ranking, con las pestañas de 24 h / 7 días / histórico. Luego el
+**Plano:** el ranking, con las pestañas de 24 h / 7 días / 30 días. Luego el
 toggle **ES/EN**, un clic, la interfaz cambia entera.
 
 > "Spanish first, English second — that's the on-ramp we care about. It's live on

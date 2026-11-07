@@ -62,6 +62,18 @@ export function signedMoney(n: number, locale: Locale) {
   return n >= 0 ? `+${s}` : `-${s}`;
 }
 
+/**
+ * "4 oct" / "Oct 4". Pinned to UTC so the server render and the first client
+ * render print the same day whatever the visitor's timezone.
+ */
+export function shortDate(unix: number, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === "es" ? "es-MX" : "en-US", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  }).format(new Date(unix * 1000));
+}
+
 /** Compact countdown: "4h 12m", "12m 30s", "0s" once past. */
 export function countdown(secondsLeft: number): string {
   const s = Math.max(0, Math.floor(secondsLeft));

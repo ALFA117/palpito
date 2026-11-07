@@ -4,22 +4,25 @@ import { NavLink } from "./RouteProgress";
 import { BOARD_RANGES, type BoardRange } from "@/lib/indexer";
 import type { Standing } from "@/lib/indexer";
 import { useLocale } from "./LocaleProvider";
-import { handleFor, shortAddress, signedMoney } from "@/lib/format";
+import { handleFor, shortAddress, shortDate, signedMoney } from "@/lib/format";
 import type { Dict } from "@/lib/i18n";
 import { Empty } from "./Empty";
 
 const RANGE_LABEL: Record<BoardRange, keyof Dict> = {
   "24h": "range24h",
   "7d": "range7d",
-  all: "rangeAll",
+  "30d": "range30d",
 };
 
 export function BoardView({
   standings,
   range,
+  truncatedSince,
 }: {
   standings: Standing[];
   range: BoardRange;
+  /** Oldest call counted, when the scan ran out before the start of the range. */
+  truncatedSince: number | null;
 }) {
   const { t, locale } = useLocale();
 
@@ -48,6 +51,11 @@ export function BoardView({
             </NavLink>
           ))}
         </nav>
+        {truncatedSince !== null && (
+          <p className="mt-2 max-w-[60ch] text-[12px] leading-relaxed text-faint">
+            {t.boardTruncated.replace("{date}", shortDate(truncatedSince, locale))}
+          </p>
+        )}
       </header>
 
       {standings.length === 0 ? (

@@ -1,4 +1,4 @@
-import { leaderboard, BOARD_RANGES, type BoardRange, type Standing } from "@/lib/indexer";
+import { leaderboard, BOARD_RANGES, type Board, type BoardRange } from "@/lib/indexer";
 import { BoardView } from "@/components/BoardView";
 import { LoadError } from "@/components/LoadError";
 
@@ -18,15 +18,19 @@ export default async function RankingPage({ searchParams }: PageProps<"/ranking"
   const raw = Array.isArray(params.r) ? params.r[0] : params.r;
   // 24h is the default on purpose: an all-time board on a venue this young is a
   // static list of whichever bots have run longest.
-  const range: BoardRange = isRange(raw) ? raw : "24h";
+  // `?r=all` was the old "all time" tab, which only ever covered the latest
+  // 2,000 calls; old links land on the widest range that is really complete.
+  const range: BoardRange = isRange(raw) ? raw : raw === "all" ? "30d" : "24h";
 
-  let standings: Standing[] | null = null;
+  let board: Board | null = null;
   try {
-    standings = await leaderboard(range, 5, 15);
+    board = await leaderboard(range, 5, 15);
   } catch (err) {
     console.error("leaderboard load failed", err);
   }
 
-  if (!standings) return <LoadError />;
-  return <BoardView standings={standings} range={range} />;
+  if (!board) return <LoadError />;
+  return (
+    <BoardView standings={board.standings} range={range} truncatedSince={board.truncatedSince} />
+  );
 }

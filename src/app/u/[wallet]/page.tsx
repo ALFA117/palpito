@@ -7,6 +7,9 @@ import { nowSeconds } from "@/lib/format";
 
 export const revalidate = 15;
 
+/** Calls one profile reads. ~0.9 KB each with the market row, so ~430 KB. */
+const PROFILE_CAP = 500;
+
 export async function generateMetadata({ params }: PageProps<"/u/[wallet]">) {
   const { wallet } = await params;
   const short = `${wallet.slice(0, 6)}…${wallet.slice(-4)}`;
@@ -26,10 +29,11 @@ export default async function ProfilePage({ params }: PageProps<"/u/[wallet]">) 
   let snapshot: { calls: Call[]; takenAt: number } | null = null;
   try {
     const takenAt = nowSeconds();
-    // One fetch, high-capped, for both: the standing needs full history to
-    // score hit rate and calibration correctly, and the history below reads
-    // off the same array rather than paying for a second round trip.
-    snapshot = { calls: await callsByWallet(wallet, 500), takenAt };
+    // One fetch, high-capped, for both: the standing and the history below
+    // read off the same array rather than paying for a second round trip.
+    // The cap is real — an active bot has thousands of calls — so when it is
+    // hit the page says where the count starts (see `truncatedSince`).
+    snapshot = { calls: await callsByWallet(wallet, PROFILE_CAP), takenAt };
   } catch (err) {
     console.error("profile load failed", err);
   }
@@ -46,6 +50,11 @@ export default async function ProfilePage({ params }: PageProps<"/u/[wallet]">) 
       standing={buildStanding(wallet, snapshot.calls)}
       scored={scored}
       serverNow={snapshot.takenAt}
+      truncatedSince={
+        snapshot.calls.length >= PROFILE_CAP
+          ? (snapshot.calls[snapshot.calls.length - 1]?.timestamp ?? null)
+          : null
+      }
     />
   );
 }

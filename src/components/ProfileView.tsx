@@ -10,13 +10,23 @@ import { Positions } from "./Positions";
 import { useAccount } from "wagmi";
 import type { ScoredCall } from "./FeedView";
 import { explorerAddressUrl } from "@/lib/somnia";
-import { handleFor, shortAddress, signedMoney } from "@/lib/format";
+import { handleFor, shortAddress, shortDate, signedMoney } from "@/lib/format";
 import { Empty } from "./Empty";
 
-function Stat({ label, value, tone }: { label: string; value: string; tone?: "up" | "down" }) {
+function Stat({
+  label,
+  value,
+  tone,
+  className = "",
+}: {
+  label: string;
+  value: string;
+  tone?: "up" | "down";
+  className?: string;
+}) {
   return (
     <div
-      className={`lift flex-1 rounded-2xl border px-4 py-4 ${
+      className={`lift min-w-0 rounded-2xl border px-4 py-4 ${className} ${
         tone === "up"
           ? "tint-up bg-surface-2 border-up/30 glow-up"
           : tone === "down"
@@ -40,10 +50,13 @@ export function ProfileView({
   standing,
   scored,
   serverNow,
+  truncatedSince = null,
 }: {
   standing: Standing;
   scored: ScoredCall[];
   serverNow: number;
+  /** Oldest call counted, when the profile read hit its cap. */
+  truncatedSince?: number | null;
 }) {
   const { t, locale } = useLocale();
   const { address } = useAccount();
@@ -52,10 +65,9 @@ export function ProfileView({
   // looking at your own record.
   const isMe = address?.toLowerCase() === standing.wallet.toLowerCase();
 
-  // The full history is already in `scored` — `buildStanding` needed all of it
-  // for a correct hit rate, so there was no cheaper fetch to make. What was
-  // expensive was rendering up to 200 cards on first paint; this reveals them
-  // in pages instead, from data already on the page.
+  // Everything the page read is already in `scored` — `buildStanding` scored
+  // the same array. What was expensive was rendering hundreds of cards on
+  // first paint; this reveals them in pages instead, from data already here.
   const PAGE = 40;
   const [shown, setShown] = useState(PAGE);
 
@@ -76,12 +88,15 @@ export function ProfileView({
           href={explorerAddressUrl(standing.wallet)}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-0.5 block font-mono text-[12px] text-faint hover:text-muted"
+          className="inline-flex min-h-11 items-center font-mono text-[12px] text-faint hover:text-muted"
         >
           {shortAddress(standing.wallet)}
         </a>
 
-        <div className="mt-4 flex gap-2">
+        {/* Three across only where three fit: each box needs ~113px for its
+            12px label, and below ~440px the row spilled out of the card (and
+            off a 320px screen). Narrower, the result takes its own row. */}
+        <div className="mt-4 grid grid-cols-2 gap-2 min-[440px]:grid-cols-3">
           <Stat
             label={t.hitRate}
             value={standing.hitRate === null ? "—" : `${Math.round(standing.hitRate * 100)}%`}
@@ -93,12 +108,19 @@ export function ProfileView({
           <Stat label={t.settledCalls} value={String(settled)} />
           <Stat
             label={t.pnl}
+            className="col-span-2 min-[440px]:col-span-1"
             value={signedMoney(standing.pnl, locale)}
             // Exactly zero is neither, and a glowing green nought on an empty
             // profile claims a result nobody earned.
             tone={standing.pnl === 0 ? undefined : standing.pnl > 0 ? "up" : "down"}
           />
         </div>
+
+        {truncatedSince !== null && (
+          <p className="mt-3 text-[12px] leading-relaxed text-faint">
+            {t.profileTruncated.replace("{date}", shortDate(truncatedSince, locale))}
+          </p>
+        )}
 
         {standing.streak !== 0 && (
           <p className="mt-3 text-[12px]">
@@ -164,7 +186,7 @@ export function ProfileView({
               <button
                 type="button"
                 onClick={() => setShown((n) => n + PAGE)}
-                className="mt-4 w-full rounded-xl border border-border bg-surface py-2.5 text-[12px] font-medium text-muted transition-colors hover:border-border-bright hover:text-text"
+                className="mt-4 min-h-11 w-full rounded-xl border border-border bg-surface py-2.5 text-[12px] font-medium text-muted transition-colors hover:border-border-bright hover:text-text"
               >
                 {t.loadMore}
               </button>
