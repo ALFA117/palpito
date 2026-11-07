@@ -14,6 +14,7 @@ const es = {
   // Shell
   appName: "Palpito",
   tagline: "Dilo. Que la cadena lo confirme.",
+  heroEyebrow: "DreamDEX · Somnia testnet",
   navFeed: "Muro",
   navBoard: "Ranking",
   navMe: "Mi récord",
@@ -257,6 +258,7 @@ export type Dict = Record<keyof typeof es, string>;
 const en: Dict = {
   appName: "Palpito",
   tagline: "Say it. Let the chain settle it.",
+  heroEyebrow: "DreamDEX · Somnia testnet",
   navFeed: "Feed",
   navBoard: "Leaderboard",
   navMe: "My record",
