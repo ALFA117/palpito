@@ -11,7 +11,7 @@ import { ResolutionToast } from "./ResolutionToast";
 
 function Wordmark() {
   return (
-    <NavLink href="/" className="flex min-h-11 min-w-11 shrink-0 items-center gap-2.5" aria-label="Palpito">
+    <NavLink href="/" className="flex min-h-11 min-w-11 shrink-0 items-center gap-2" aria-label="Palpito">
       {/* The mark: one heartbeat inside a square — up-spike, down-spike. */}
       <span className="flex h-8 w-8 items-center justify-center rounded-md bg-text text-bg">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
@@ -24,7 +24,7 @@ function Wordmark() {
           />
         </svg>
       </span>
-      <span className="hidden font-display text-[20px] font-semibold tracking-[-0.02em] sm:inline">Palpito</span>
+      <span className="hidden font-display text-[19px] font-semibold tracking-[-0.025em] min-[380px]:inline">Palpito</span>
     </NavLink>
   );
 }
@@ -55,16 +55,16 @@ function Tabs() {
             key={tab.href}
             href={tab.href}
             aria-current={active ? "page" : undefined}
-            className="relative flex h-16 items-center px-3 transition-colors"
+            className="relative flex h-16 items-center px-2.5 transition-colors sm:px-3"
           >
             {active && !reduce && (
               <motion.span
                 layoutId="nav-pill"
-                className="absolute inset-x-3 bottom-0 h-[2px] bg-text"
+                className="absolute inset-x-2.5 bottom-0 h-[2px] bg-text sm:inset-x-3"
                 transition={{ type: "spring", stiffness: 380, damping: 32 }}
               />
             )}
-            {active && reduce && <span className="absolute inset-x-3 bottom-0 h-[2px] bg-text" />}
+            {active && reduce && <span className="absolute inset-x-2.5 bottom-0 h-[2px] bg-text sm:inset-x-3" />}
             <span
               className={`relative z-10 ${active ? "font-medium text-text" : "text-muted hover:text-text"}`}
             >
@@ -116,9 +116,6 @@ function LangToggle() {
 
 export function Chrome({ children }: { children: React.ReactNode }) {
   const { t } = useLocale();
-  // The wall gets a two-column desk on wide screens; every other page reads
-  // best as a single measured column.
-  const wide = usePathname() === "/";
 
   return (
     <>
@@ -140,7 +137,8 @@ export function Chrome({ children }: { children: React.ReactNode }) {
 
       <ResolutionToast />
 
-      <main className={`mx-auto w-full flex-1 px-4 pb-28 pt-6 sm:px-6 sm:pt-10 ${wide ? "max-w-6xl" : "max-w-3xl"}`}>{children}</main>
+      {/* One container for header, page and footer, so every left edge lines up. */}
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 pb-24 pt-6 sm:px-6 sm:pb-16 sm:pt-10">{children}</main>
 
       <footer className="border-t border-border bg-surface-2">
         {/* pb-24 on phones: the wall's floating "make a call" button sits in

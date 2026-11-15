@@ -99,6 +99,8 @@ export function MarketView({
 
   return (
     <ClockProvider now={serverNow}>
+      {/* Detail pages keep a reading measure, aligned to the shell's left edge. */}
+      <div className="max-w-3xl">
       <header className="lit-edge rounded-2xl border border-border bg-surface p-5 sm:p-6">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -173,6 +175,7 @@ export function MarketView({
           </div>
         )}
       </section>
+    </div>
     </ClockProvider>
   );
 }

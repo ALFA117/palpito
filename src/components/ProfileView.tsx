@@ -82,6 +82,8 @@ export function ProfileView({
 
   return (
     <ClockProvider now={serverNow}>
+      {/* Detail pages keep a reading measure, aligned to the shell's left edge. */}
+      <div className="max-w-3xl">
       <header className="lit-edge rounded-2xl border border-border bg-surface p-5 sm:p-6">
         <h1 className="t-display text-[clamp(1.6rem,5vw,2.3rem)]">{handleFor(standing.wallet)}</h1>
         <a
@@ -194,6 +196,7 @@ export function ProfileView({
           </>
         )}
       </section>
+    </div>
     </ClockProvider>
   );
 }

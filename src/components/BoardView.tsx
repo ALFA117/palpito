@@ -27,24 +27,25 @@ export function BoardView({
   const { t, locale } = useLocale();
 
   return (
-    <div>
-      <header>
+    // Two columns on wide screens — the brief on the left, the standings on the
+    // right — so the page fills the same frame as the header instead of
+    // floating as a narrow strip in the middle.
+    <div className="grid gap-8 lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-14">
+      <header className="lg:sticky lg:top-24 lg:self-start">
         <h1 className="t-display">{t.boardTitle}</h1>
-        <p className="mt-3 max-w-[46ch] text-[15px] text-muted">{t.boardSub}</p>
-        <p className="t-label mt-2">{t.boardMin}</p>
+        <p className="mt-3 max-w-[46ch] text-[16px] leading-relaxed text-muted">{t.boardSub}</p>
+        <p className="t-label mt-3">{t.boardMin}</p>
 
         {/* Links rather than buttons: each range is a real URL, so a board worth
             sharing can be shared. */}
-        <nav className="mt-3 flex gap-1.5">
+        <nav className="mt-5 inline-flex rounded-md border border-border bg-surface p-0.5">
           {BOARD_RANGES.map((r) => (
             <NavLink
               key={r}
               href={r === "24h" ? "/ranking" : `/ranking?r=${r}`}
               aria-current={r === range ? "page" : undefined}
-              className={`min-h-11 rounded-xl border px-3.5 py-2 text-[12px] font-medium transition-colors ${
-                r === range
-                  ? "border-gold/50 bg-surface-2 text-text"
-                  : "border-border bg-surface text-muted hover:text-text"
+              className={`inline-flex min-h-11 items-center rounded-[5px] px-4 text-[13px] font-medium transition-colors ${
+                r === range ? "bg-text text-bg" : "text-muted hover:text-text"
               }`}
             >
               {t[RANGE_LABEL[r]]}
@@ -52,68 +53,63 @@ export function BoardView({
           ))}
         </nav>
         {truncatedSince !== null && (
-          <p className="mt-2 max-w-[60ch] text-[12px] leading-relaxed text-faint">
+          <p className="mt-3 max-w-[60ch] text-[13px] leading-relaxed text-faint">
             {t.boardTruncated.replace("{date}", shortDate(truncatedSince, locale))}
           </p>
         )}
       </header>
 
-      {standings.length === 0 ? (
-        <div className="mt-5">
+      <div className="min-w-0">
+        {standings.length === 0 ? (
           <Empty title={t.boardEmptyRange} body={t.boardEmptyRangeWhy} />
-        </div>
-      ) : (
-        <ol className="mt-5 flex flex-col gap-2">
-          {standings.map((s, i) => (
-            <li key={s.wallet}>
-              <NavLink
-                href={`/u/${s.wallet}`}
-                className={`lift flex items-center gap-3 rounded-2xl border p-4 ${
-                  i === 0
-                    ? "tint-gold bg-surface border-gold/40 glow-gold"
-                    : i < 3
-                      ? "border-border-bright bg-surface"
-                      : "border-border bg-surface"
-                }`}
-              >
-                <span
-                  className={`t-figure w-7 shrink-0 text-center ${
-                    i === 0 ? "text-[19px] text-gold" : i < 3 ? "text-[16px] text-muted" : "text-[15px] text-faint"
-                  }`}
+        ) : (
+          <ol className="overflow-hidden rounded-lg border border-border bg-surface">
+            <li
+              aria-hidden="true"
+              className="hidden items-center gap-3 border-b border-border bg-surface-2 px-4 py-2.5 sm:flex"
+            >
+              <span className="t-label w-7 text-center">#</span>
+              <span className="t-label flex-1">Wallet</span>
+              <span className="t-label w-24 text-right">%</span>
+              <span className="t-label w-24 text-right">P&amp;L</span>
+            </li>
+            {standings.map((s, i) => (
+              <li key={s.wallet} className="border-b border-border last:border-b-0">
+                <NavLink
+                  href={`/u/${s.wallet}`}
+                  className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-surface-2"
                 >
-                  {i + 1}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="t-title block truncate text-[15px]">
-                    {handleFor(s.wallet)}
-                  </span>
-                  <span className="block font-mono text-[12px] text-faint">
-                    {shortAddress(s.wallet)}
-                  </span>
-                </span>
-                <span className="shrink-0 text-right">
-                  <span className="t-figure block text-[20px]">
-                    {Math.round((s.hitRate ?? 0) * 100)}%
-                  </span>
-                  <span className="block text-[12px] text-faint">
-                    {s.won + s.lost} {t.settledCalls}
-                  </span>
-                </span>
-                <span className="w-20 shrink-0 text-right">
                   <span
-                    className={`t-figure block text-[14px] ${
-                      s.pnl >= 0 ? "text-up" : "text-down"
+                    className={`t-figure w-7 shrink-0 text-center text-[15px] ${
+                      i === 0 ? "font-semibold text-gold" : i < 3 ? "text-text" : "text-faint"
                     }`}
                   >
-                    {signedMoney(s.pnl, locale)}
+                    {i + 1}
                   </span>
-                  <span className="block text-[12px] text-faint">tUSDC</span>
-                </span>
-              </NavLink>
-            </li>
-          ))}
-        </ol>
-      )}
+                  <span className="min-w-0 flex-1">
+                    <span className="t-title block truncate text-[15px]">{handleFor(s.wallet)}</span>
+                    <span className="block font-mono text-[12px] text-faint">{shortAddress(s.wallet)}</span>
+                  </span>
+                  <span className="w-20 shrink-0 text-right sm:w-24">
+                    <span className="t-figure block text-[18px]">
+                      {Math.round((s.hitRate ?? 0) * 100)}%
+                    </span>
+                    <span className="block text-[12px] text-faint">
+                      {s.won + s.lost} {t.settledCalls}
+                    </span>
+                  </span>
+                  <span className="w-20 shrink-0 text-right sm:w-24">
+                    <span className={`t-figure block text-[14px] ${s.pnl >= 0 ? "text-up" : "text-down"}`}>
+                      {signedMoney(s.pnl, locale)}
+                    </span>
+                    <span className="block text-[12px] text-faint">tUSDC</span>
+                  </span>
+                </NavLink>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
     </div>
   );
 }
