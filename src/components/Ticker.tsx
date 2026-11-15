@@ -27,12 +27,12 @@ export function Ticker({ markets }: { markets: Market[] }) {
 
   return (
     <div
-      className="relative -mx-4 overflow-hidden border-y border-border bg-bg-deep py-2.5"
+      className="relative -mx-4 overflow-hidden border-y border-border bg-surface py-3 sm:mx-0 sm:rounded-md sm:border"
       aria-hidden="true"
     >
       {/* The edges fade rather than cut, so the row reads as continuous. */}
-      <span className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-bg-deep to-transparent" />
-      <span className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-bg-deep to-transparent" />
+      <span className="pointer-events-none absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-surface to-transparent" />
+      <span className="pointer-events-none absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-surface to-transparent" />
 
       <div className={`flex w-max gap-8 ${reduce ? "" : "ticker-run"}`}>
         {row.map((m, i) => {

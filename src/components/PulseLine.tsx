@@ -18,24 +18,15 @@ export function PulseLine() {
   const d = `M0 32 ${PERIOD} ${PERIOD} ${PERIOD} ${PERIOD}`;
 
   return (
-    <div aria-hidden="true" className="pulse-line relative h-16 w-full overflow-hidden">
+    <div aria-hidden="true" className="pulse-line relative h-12 w-full overflow-hidden">
       <motion.svg
         viewBox="0 0 880 64"
         preserveAspectRatio="none"
         className="absolute inset-y-0 left-0 h-full w-[200%]"
         animate={reduce ? undefined : { x: ["0%", "-50%"] }}
-        transition={{ duration: 7, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
       >
-        <defs>
-          <linearGradient id="pulse-ink" x1="0" x2="1" y1="0" y2="0">
-            <stop offset="0" stopColor="var(--up)" />
-            <stop offset="0.25" stopColor="var(--down)" />
-            <stop offset="0.5" stopColor="var(--up)" />
-            <stop offset="0.75" stopColor="var(--down)" />
-            <stop offset="1" stopColor="var(--up)" />
-          </linearGradient>
-        </defs>
-        <path d={d} fill="none" stroke="url(#pulse-ink)" strokeWidth="2" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        <path d={d} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
       </motion.svg>
     </div>
   );

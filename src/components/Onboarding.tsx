@@ -36,21 +36,21 @@ export function Onboarding() {
   const steps = [t.onboardStep1, t.onboardStep2, t.onboardStep3];
 
   return (
-    <div className="lit-edge tint-gold mt-4 rounded-2xl border border-gold/25 p-4 sm:p-5">
+    <div className="lit-edge rounded-lg border border-border-bright bg-surface p-5">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="t-label text-gold">{t.onboardTitle}</h2>
+        <h2 className="t-label text-text">{t.onboardTitle}</h2>
         <button
           type="button"
           onClick={dismiss}
-          className="min-h-11 rounded-md border border-gold/30 px-3 text-[12px] font-medium text-gold transition-colors hover:bg-gold-dim/40"
+          className="min-h-11 rounded-md border border-border px-3 text-[13px] font-medium text-muted transition-colors hover:border-border-bright hover:text-text"
         >
           {t.onboardDone}
         </button>
       </div>
-      <ol className="mt-3 flex flex-col gap-2 text-[13px] leading-relaxed text-muted">
+      <ol className="mt-4 flex flex-col divide-y divide-border border-t border-border text-[14px] leading-relaxed text-muted">
         {steps.map((step, i) => (
-          <li key={i} className="flex gap-2.5">
-            <span className="t-figure shrink-0 text-gold">{i + 1}</span>
+          <li key={i} className="flex gap-3 py-3">
+            <span className="t-figure flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-border-bright text-[12px] text-text">{i + 1}</span>
             <span>{step}</span>
           </li>
         ))}

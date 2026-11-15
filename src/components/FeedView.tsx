@@ -42,7 +42,7 @@ function ComposerFab() {
       type="button"
       onClick={() => document.getElementById("composer")?.scrollIntoView({ behavior: "smooth" })}
       aria-label={t.composerTitle}
-      className="glow-gold fixed bottom-5 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gold text-on-gold shadow-lg transition-transform hover:scale-105 active:scale-95 sm:hidden"
+      className="fixed bottom-5 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-lg border border-text bg-gold text-on-gold shadow-[3px_3px_0_0_var(--text)] transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none sm:hidden"
     >
       <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden="true">
         <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
@@ -54,31 +54,43 @@ function ComposerFab() {
 function Hero() {
   const { t } = useLocale();
   const reduce = useReducedMotion();
-  // Eyebrow, headline, heartbeat, lede — one after another, transform and opacity only.
   const enter = (i: number) =>
     reduce
       ? {}
       : {
-          initial: { opacity: 0, y: 14 },
+          initial: { opacity: 0, y: 10 },
           animate: { opacity: 1, y: 0 },
-          transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const, delay: 0.05 + i * 0.08 },
+          transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const, delay: 0.04 + i * 0.07 },
         };
+  // The claim in ink, the promise in italic.
+  const cut = t.tagline.indexOf(". ");
+  const lead = cut > 0 ? t.tagline.slice(0, cut + 1) : t.tagline;
+  const rest = cut > 0 ? t.tagline.slice(cut + 2) : "";
   return (
-    <section className="pt-2 sm:pt-6">
-      <motion.p {...enter(0)} className="t-label mb-4 inline-flex items-center gap-2 text-gold">
-        <span className="pulse-dot inline-block h-2 w-2 rounded-full bg-gold" aria-hidden="true" />
-        {/* On phones the header only has room for the dot of the wordmark, so
-            the name goes here — otherwise it appears nowhere on the screen. */}
-        <span className="sm:hidden">{t.appName} ·</span>
-        {t.heroEyebrow}
+    <section className="pt-2 sm:pt-4">
+      <motion.p {...enter(0)} className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-muted">
+        <span className="inline-flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1 font-mono text-[12px] text-text">
+          <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-up" aria-hidden="true" />
+          {t.heroEyebrow}
+        </span>
+        {/* On phones the header only shows the mark, so the name goes here. */}
+        <span className="font-display text-[15px] font-semibold text-text sm:hidden">{t.appName}</span>
       </motion.p>
-      <motion.h1 {...enter(1)} className="t-display t-display-hero t-display-grad">{t.tagline}</motion.h1>
-      <motion.div {...enter(2)} className="mt-4">
-        <PulseLine />
-      </motion.div>
-      <motion.p {...enter(3)} className="mt-3 max-w-[54ch] text-base leading-relaxed text-muted">
+      <motion.h1 {...enter(1)} className="t-display t-display-hero max-w-[16ch]">
+        {lead}
+        {rest && (
+          <>
+            {" "}
+            <em className="font-medium italic text-muted">{rest}</em>
+          </>
+        )}
+      </motion.h1>
+      <motion.p {...enter(2)} className="mt-5 max-w-[58ch] text-[16px] leading-relaxed text-muted sm:text-[17px]">
         {t.whatIsThisBody}
       </motion.p>
+      <motion.div {...enter(3)} className="mt-6 text-text/70">
+        <PulseLine />
+      </motion.div>
     </section>
   );
 }
@@ -90,22 +102,31 @@ function Hero() {
  * behaves like market data, and it should read like it rather than like more
  * cards.
  */
-function LiveWindows({ markets }: { markets: Market[] }) {
+function LiveWindows({ markets, stacked = false }: { markets: Market[]; stacked?: boolean }) {
   const { t, locale } = useLocale();
   if (markets.length === 0) return null;
 
   const maxVolume = Math.max(...markets.map((m) => m.volume), 0);
 
   return (
-    <section className="mt-10">
-      <h2 className="t-label flex items-center gap-2">
-        <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-gold" />
-        {t.liveNow}
+    <section className={stacked ? "" : "mt-12"}>
+      <h2 className="t-label t-rule">
+        <span className="inline-flex items-center gap-2">
+          <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-up" />
+          {t.liveNow}
+        </span>
       </h2>
 
-      {/* Bleeds to the screen edge so the row reads as scrollable rather than clipped. */}
-      <div className="-mx-4 mt-3 flex gap-2.5 overflow-x-auto px-4 pb-2">
-        {markets.slice(0, 10).map((m) => {
+      {/* In the side column the windows stack; on phones the row bleeds to the
+          screen edge so it reads as scrollable rather than clipped. */}
+      <div
+        className={
+          stacked
+            ? "mt-4 flex flex-col gap-2.5"
+            : "-mx-4 mt-4 flex gap-2.5 overflow-x-auto px-4 pb-3 sm:-mx-6 sm:px-6"
+        }
+      >
+        {markets.slice(0, stacked ? 6 : 10).map((m) => {
           const rising = m.spark.length > 1 && m.spark[m.spark.length - 1] >= m.spark[0];
           const traded = m.spark.length > 1;
           // Volume relative to the busiest window on screen: an absolute bar
@@ -116,7 +137,7 @@ function LiveWindows({ markets }: { markets: Market[] }) {
             <NavLink
               key={m.marketId}
               href={`/m/${m.marketId}`}
-              className={`lift block w-[186px] shrink-0 rounded-xl border bg-surface px-3.5 py-3 ${
+              className={`lift block shrink-0 rounded-lg border bg-surface px-3.5 py-3 ${stacked ? "w-full" : "w-[196px]"} ${
                 traded
                   ? rising
                     ? "border-up/30 tint-up breathe-up"
@@ -202,18 +223,18 @@ function AssetFilter({ markets, asset }: { markets: Market[]; asset: string | nu
             key={o.key}
             href={o.href}
             aria-current={active ? "page" : undefined}
-            className="relative inline-flex min-h-11 items-center rounded-lg px-3 text-[12px] font-medium"
+            className="relative inline-flex min-h-11 items-center rounded-md px-3.5 text-[13px] font-medium"
           >
             {active && !reduce && (
               <motion.span
                 layoutId="asset-pill"
-                className="absolute inset-0 rounded-lg bg-surface-3"
+                className="absolute inset-0 rounded-md bg-text"
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             )}
-            {active && reduce && <span className="absolute inset-0 rounded-lg bg-surface-3" />}
+            {active && reduce && <span className="absolute inset-0 rounded-md bg-text" />}
             <span
-              className={`relative z-10 ${active ? "text-text" : "text-faint hover:text-muted"}`}
+              className={`relative z-10 ${active ? "text-bg" : "text-muted hover:text-text"}`}
             >
               {o.label}
             </span>
@@ -254,61 +275,75 @@ export function FeedView({
   return (
     <ClockProvider now={serverNow}>
       <ComposerFab />
-      <Hero />
-      <Onboarding />
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-end lg:gap-12">
+        <Hero />
+        <Onboarding />
+      </div>
 
-      <div className="mt-7">
+      <div className="mt-10">
         <Ticker markets={markets} />
       </div>
 
-      <ClaimBanner />
+      <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-12">
+        <div className="min-w-0">
+          <ClaimBanner />
 
-      <div id="composer" className="mt-8 scroll-mt-20">
-        <CallComposer markets={markets} />
-      </div>
+          <div id="composer" className="scroll-mt-20">
+            <CallComposer markets={markets} />
+          </div>
 
-      <Positions />
-      <LiveWindows markets={markets} />
+          <Positions />
+          <div className="lg:hidden">
+            <LiveWindows markets={markets} />
+          </div>
 
-      <section className="mt-10">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="t-label">{t.feedTitle}</h2>
-          <AssetFilter markets={markets} asset={asset} />
+          <section className="mt-12">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-3">
+              <h2 className="font-display text-[24px] font-semibold tracking-[-0.015em]">{t.feedTitle}</h2>
+              <AssetFilter markets={markets} asset={asset} />
+            </div>
+
+            {scored.length === 0 ? (
+              <div className="mt-5">
+                <Empty title={t.feedEmpty} body={t.feedEmptyWhy} tone="gold" />
+              </div>
+            ) : (
+              <motion.div
+                className="mt-5 flex flex-col gap-4"
+                variants={reduce ? undefined : container}
+                initial={reduce ? undefined : "hidden"}
+                animate={reduce ? undefined : "show"}
+              >
+                {scored.map(({ call, outcome }, i) => (
+                  <motion.div
+                    key={call.id}
+                    variants={reduce || i >= MAX_STAGGERED ? undefined : item}
+                  >
+                    <CallCard call={call} outcome={outcome} />
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+
+            {hasMore && (
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => void loadMore()}
+                className="mt-5 min-h-11 w-full rounded-md border border-border-bright bg-surface py-2.5 text-[13px] font-medium text-text transition-colors hover:bg-surface-2 disabled:opacity-50"
+              >
+                {loading ? t.loadingMore : t.loadMore}
+              </button>
+            )}
+          </section>
         </div>
 
-        {scored.length === 0 ? (
-          <div className="mt-4">
-            <Empty title={t.feedEmpty} body={t.feedEmptyWhy} tone="gold" />
+        <aside className="hidden lg:block">
+          <div className="sticky top-24">
+            <LiveWindows markets={markets} stacked />
           </div>
-        ) : (
-          <motion.div
-            className="mt-4 flex flex-col gap-3"
-            variants={reduce ? undefined : container}
-            initial={reduce ? undefined : "hidden"}
-            animate={reduce ? undefined : "show"}
-          >
-            {scored.map(({ call, outcome }, i) => (
-              <motion.div
-                key={call.id}
-                variants={reduce || i >= MAX_STAGGERED ? undefined : item}
-              >
-                <CallCard call={call} outcome={outcome} />
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
-
-        {hasMore && (
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => void loadMore()}
-            className="mt-4 min-h-11 w-full rounded-xl border border-border bg-surface py-2.5 text-[12px] font-medium text-muted transition-colors hover:border-border-bright hover:text-text disabled:opacity-50"
-          >
-            {loading ? t.loadingMore : t.loadMore}
-          </button>
-        )}
-      </section>
+        </aside>
+      </div>
     </ClockProvider>
   );
 }
