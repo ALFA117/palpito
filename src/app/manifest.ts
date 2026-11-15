@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Predicciones con recibo verificable sobre contratos de evento de DreamDEX en Somnia testnet.",
     start_url: "/",
     display: "standalone",
-    background_color: "#0a0810",
-    theme_color: "#0a0810",
+    background_color: "#f6f7f8",
+    theme_color: "#0f1115",
     icons: [
       { src: "/icon.svg", sizes: "any", type: "image/svg+xml" },
       { src: "/apple-icon.png", sizes: "180x180", type: "image/png" },

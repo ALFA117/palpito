@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Source_Serif_4, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Inter_Tight, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import "./globals.css";
 import { DEFAULT_LOCALE, isLocale, localeFromHeader } from "@/lib/i18n";
@@ -9,14 +9,13 @@ import { isTheme, THEME_COOKIE, type Theme } from "@/lib/theme";
 import { Chrome } from "@/components/Chrome";
 import { Web3Provider } from "@/components/Web3Provider";
 
-// "Ledger": Source Serif 4 for headlines (editorial, serious), IBM Plex Sans
-// for everything read, IBM Plex Mono for every number — prices, countdowns,
-// addresses, hashes.
-const display = Source_Serif_4({
-  variable: "--font-serif-display",
+// "Instrument": Inter Tight for headlines (a tight, upright grotesque), IBM Plex
+// Sans for everything read, IBM Plex Mono for every number — prices,
+// countdowns, addresses, hashes.
+const display = Inter_Tight({
+  variable: "--font-display-sans",
   subsets: ["latin"],
-  weight: ["500", "600"],
-  style: ["normal", "italic"],
+  weight: ["600", "700"],
   display: "swap",
 });
 const body = IBM_Plex_Sans({

@@ -1,37 +1,39 @@
 @import "tailwindcss";
 
 /*
- * "Ledger" — Palpito's formal system (Nov 2026 redesign).
+ * "Instrument" — Palpito's formal system (Nov 2026 redesign).
  *
- * Paper and ink, one brand accent (ochre, the old gold) and the two semantic
+ * Cool neutrals, near-black ink, one brand accent (ink blue) and the two semantic
  * colours that the product is about: up and down. Nothing decorative is
  * coloured; colour always means direction, money-at-stake or the one primary
  * action. Two palettes, authored separately (light default, dark by system or
  * by explicit choice), each clearing 4.5:1 for small text on its grounds.
  */
+/* "Instrument": cool neutral ground, near-black ink, one ink-blue accent. */
 :root {
-  --bg: #f4f2ec;
-  --bg-deep: #ebe8df;
+  --bg: #f6f7f8;
+  --bg-deep: #eef0f2;
   --surface: #ffffff;
-  --surface-2: #f6f4ef;
-  --surface-3: #e9e5da;
-  --border: #d6d0c2;
-  --border-bright: #a39c89;
+  --surface-2: #f8f9fa;
+  --surface-3: #eceef1;
+  --border: #e3e5e8;
+  --border-bright: #c5c9d0;
 
-  --text: #16150f;
-  --muted: #4b473d;
-  --faint: #635e51;
+  --text: #0f1115;
+  --muted: #474c55;
+  --faint: #5f6570;
 
-  --up: #0a6a47;
-  --up-dim: #dcefe4;
-  --up-glow: #0a6a4740;
-  --down: #a92a1f;
-  --down-dim: #f6e0dc;
-  --down-glow: #a92a1f40;
+  --up: #08704a;
+  --up-dim: #e3f3ea;
+  --up-glow: #08704a33;
+  --down: #b3261e;
+  --down-dim: #fbe7e5;
+  --down-glow: #b3261e33;
 
-  --gold: #85570a;
-  --gold-dim: #f3e6c8;
-  --gold-glow: #85570a40;
+  /* "gold" is the historical token name for the brand accent; it is ink blue now. */
+  --gold: #1f3a93;
+  --gold-dim: #e6ebf8;
+  --gold-glow: #1f3a9333;
 
   --cyan: #1f5f8b;
   --cyan-dim: #dde9f2;
@@ -42,34 +44,34 @@
   --tint-gold: none;
 
   --on-gold: #ffffff;
-  --hard: #16150f26;
+  --hard: #0f11151f;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0f0f0d;
-    --bg-deep: #0a0a09;
-    --surface: #171714;
-    --surface-2: #1d1d19;
-    --surface-3: #272620;
-    --border: #33312a;
-    --border-bright: #5c5749;
+    --bg: #0b0d10;
+    --bg-deep: #08090b;
+    --surface: #12151a;
+    --surface-2: #161a20;
+    --surface-3: #1e232b;
+    --border: #262c35;
+    --border-bright: #3d4552;
 
-    --text: #eeebe2;
-    --muted: #b6b0a2;
-    --faint: #9a9483;
+    --text: #e8eaed;
+    --muted: #aab0ba;
+    --faint: #8d94a0;
 
-    --up: #45c98f;
-    --up-dim: #12301f;
-    --up-glow: #45c98f55;
-    --down: #ef6a5c;
-    --down-dim: #3a1612;
-    --down-glow: #ef6a5c55;
+    --up: #3fc48a;
+    --up-dim: #0f2a1e;
+    --up-glow: #3fc48a40;
+    --down: #f0705f;
+    --down-dim: #34140f;
+    --down-glow: #f0705f40;
 
-    --gold: #e0ad4e;
-    --gold-dim: #352710;
-    --gold-glow: #e0ad4e55;
+    --gold: #8ea6f0;
+    --gold-dim: #18213d;
+    --gold-glow: #8ea6f040;
 
     --cyan: #6fb3dd;
     --cyan-dim: #12293a;
@@ -79,35 +81,35 @@
     --tint-down: none;
     --tint-gold: none;
 
-    --on-gold: #17120a;
-    --hard: #00000080;
+    --on-gold: #0b0d10;
+    --hard: #00000099;
     color-scheme: dark;
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #0f0f0d;
-  --bg-deep: #0a0a09;
-  --surface: #171714;
-  --surface-2: #1d1d19;
-  --surface-3: #272620;
-  --border: #33312a;
-  --border-bright: #5c5749;
+  --bg: #0b0d10;
+  --bg-deep: #08090b;
+  --surface: #12151a;
+  --surface-2: #161a20;
+  --surface-3: #1e232b;
+  --border: #262c35;
+  --border-bright: #3d4552;
 
-  --text: #eeebe2;
-  --muted: #b6b0a2;
-  --faint: #9a9483;
+  --text: #e8eaed;
+  --muted: #aab0ba;
+  --faint: #8d94a0;
 
-  --up: #45c98f;
-  --up-dim: #12301f;
-  --up-glow: #45c98f55;
-  --down: #ef6a5c;
-  --down-dim: #3a1612;
-  --down-glow: #ef6a5c55;
+  --up: #3fc48a;
+  --up-dim: #0f2a1e;
+  --up-glow: #3fc48a40;
+  --down: #f0705f;
+  --down-dim: #34140f;
+  --down-glow: #f0705f40;
 
-  --gold: #e0ad4e;
-  --gold-dim: #352710;
-  --gold-glow: #e0ad4e55;
+  --gold: #8ea6f0;
+  --gold-dim: #18213d;
+  --gold-glow: #8ea6f040;
 
   --cyan: #6fb3dd;
   --cyan-dim: #12293a;
@@ -117,33 +119,33 @@
   --tint-down: none;
   --tint-gold: none;
 
-  --on-gold: #17120a;
-  --hard: #00000080;
+  --on-gold: #0b0d10;
+  --hard: #00000099;
   color-scheme: dark;
 }
 
 @media (prefers-contrast: more) {
   :root:not([data-theme="dark"]) {
-    --border: #9d9682;
-    --border-bright: #6f6956;
-    --muted: #2f2c25;
-    --faint: #3a362d;
+    --border: #9aa0a9;
+    --border-bright: #6b717b;
+    --muted: #2b2f36;
+    --faint: #383d45;
   }
 }
 @media (prefers-color-scheme: dark) and (prefers-contrast: more) {
   :root:not([data-theme="light"]) {
-    --border: #57534a;
-    --border-bright: #7b7563;
-    --muted: #d8d3c6;
-    --faint: #cbc5b6;
+    --border: #4a525e;
+    --border-bright: #6d7684;
+    --muted: #d3d7dd;
+    --faint: #c3c8cf;
   }
 }
 @media (prefers-contrast: more) {
   :root[data-theme="dark"] {
-    --border: #57534a;
-    --border-bright: #7b7563;
-    --muted: #d8d3c6;
-    --faint: #cbc5b6;
+    --border: #4a525e;
+    --border-bright: #6d7684;
+    --muted: #d3d7dd;
+    --faint: #c3c8cf;
   }
 }
 
@@ -169,7 +171,7 @@
   --color-violet: var(--violet);
   --color-on-gold: var(--on-gold);
 
-  --font-display: var(--font-serif-display);
+  --font-display: var(--font-display-sans);
   --font-sans: var(--font-plex-sans);
   --font-mono: var(--font-plex-mono);
 }
@@ -195,9 +197,9 @@ body {
 
 /* ── Type ─────────────────────────────────────────────────────────────────── */
 
-/* Serif display: the editorial voice. Used for headlines and nothing else. */
+/* Display grotesque: tight, upright, no italics. Headlines and nothing else. */
 .t-display {
-  font-family: var(--font-serif-display), Georgia, serif;
+  font-family: var(--font-display-sans), system-ui, sans-serif;
   font-weight: 600;
   font-size: clamp(1.9rem, 5vw, 2.75rem);
   line-height: 1.04;
