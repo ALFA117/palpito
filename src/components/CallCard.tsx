@@ -66,7 +66,7 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
 
   return (
     <article
-      className={`lit-edge lift relative overflow-hidden rounded-2xl border bg-surface ${
+      className={`lift relative overflow-hidden rounded-lg border bg-surface ${
         live
           ? up
             ? "border-up/30 tint-up breathe-up"
@@ -99,7 +99,7 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
 
         <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2 text-[15px] leading-snug">
           <span className="text-muted">{t.called}</span>
-          <span className="t-title text-[17px]">{m.asset}</span>
+          <span className="font-mono text-[16px] font-semibold">{m.asset}</span>
           <DirectionMark direction={call.direction} />
           <NavLink
             href={`/m/${m.marketId}`}
@@ -119,13 +119,13 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
             scans, and the old build rendered them at caption size. */}
         <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-3">
           <span>
-            <span className="t-figure block text-[19px] text-text">
+            <span className="t-figure block text-[20px] text-text">
               {money(call.stake, locale)}
             </span>
             <span className="t-label mt-0.5 block">{t.lblStake} · tUSDC</span>
           </span>
           <span>
-            <span className={`t-figure block text-[19px] ${up ? "text-up" : "text-down"}`}>
+            <span className={`t-figure block text-[20px] ${up ? "text-up" : "text-down"}`}>
               {asPercent(call.price)}
             </span>
             <span className="t-label mt-0.5 block">{t.lblPrice}</span>
@@ -157,7 +157,7 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
               className="inline-flex min-h-11 items-center gap-1.5 rounded-md border border-gold/25 bg-gold-dim/40 px-3 text-[12px] font-medium text-gold transition-colors hover:bg-gold-dim"
             >
-              <span aria-hidden="true">◇</span>
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M6 1l5 5-5 5-5-5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /></svg>
               {t.madeLiquidity}
             </motion.button>
 
@@ -186,7 +186,7 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
           </div>
         )}
 
-        <footer className="mt-2 flex flex-wrap items-center gap-x-4 text-[12px]">
+        <footer className="mt-4 flex flex-wrap items-center gap-x-4 border-t border-border pt-1 text-[12px]">
           {/* The receipt lives on the market page: the line, the oracle's
               closing price and the settlement tx on the testnet explorer. */}
           {(outcome === "won" || outcome === "lost" || outcome === "void") && (

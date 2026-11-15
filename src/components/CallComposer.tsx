@@ -64,20 +64,20 @@ function Segmented<T extends string | number>({
             onClick={() => onChange(opt)}
             whileTap={reduce ? undefined : { scale: 0.96 }}
             transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="relative min-h-11 rounded-xl px-3.5 py-2 text-[13px] font-medium"
+            className="relative min-h-11 rounded-md border border-border px-3.5 py-2 text-[13px] font-medium"
           >
             {active && !reduce && (
               <motion.span
                 layoutId={`seg-${group}`}
-                className="absolute inset-0 rounded-xl bg-surface-3 ring-1 ring-border-bright"
+                className="absolute -inset-px rounded-md bg-text"
                 transition={{ type: "spring", stiffness: 400, damping: 32 }}
               />
             )}
             {active && reduce && (
-              <span className="absolute inset-0 rounded-xl bg-surface-3 ring-1 ring-border-bright" />
+              <span className="absolute -inset-px rounded-md bg-text" />
             )}
             <span
-              className={`relative z-10 ${active ? "text-text" : "text-faint hover:text-muted"}`}
+              className={`relative z-10 ${active ? "text-bg [&_*]:!text-bg/75" : "text-muted hover:text-text"}`}
             >
               {render(opt)}
             </span>
@@ -219,8 +219,8 @@ export function CallComposer({ markets }: { markets: Market[] }) {
   }
 
   return (
-    <section className="lit-edge rounded-2xl border border-border-bright bg-surface p-5 sm:p-6">
-      <h2 className="t-title text-[19px]">{t.composerTitle}</h2>
+    <section className="lit-edge rounded-lg border border-text/80 bg-surface p-5 sm:p-7">
+      <h2 className="font-display text-[26px] font-semibold tracking-[-0.015em]">{t.composerTitle}</h2>
 
       <div className="mt-4 space-y-3.5">
         <HunchInput windows={allWindows} onResolved={applyHunch} />
@@ -228,7 +228,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
         <div className="h-px bg-border" />
 
         <div>
-          <label className="mb-1.5 block text-[12px] uppercase tracking-wide text-faint">
+          <label className="t-label mb-2 block">
             {t.asset}
           </label>
           <Segmented
@@ -241,7 +241,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[12px] uppercase tracking-wide text-faint">
+          <label className="t-label mb-2 block">
             {t.pickWindow}
           </label>
           <Segmented
@@ -269,7 +269,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[12px] uppercase tracking-wide text-faint">
+          <label className="t-label mb-2 block">
             {t.pickSide}
           </label>
           <div role="radiogroup" aria-label={t.pickSide} className="flex gap-2">
@@ -285,7 +285,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
                   onClick={() => setDirection(d)}
                   whileTap={reduce ? undefined : { scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 400, damping: 22 }}
-                  className={`flex-1 rounded-2xl border px-4 py-4 text-left transition-colors ${
+                  className={`flex-1 rounded-md border px-4 py-4 text-left transition-colors ${
                     on
                       ? d === "UP"
                         ? "border-up/60 bg-up-dim tint-up breathe-up"
@@ -320,15 +320,13 @@ export function CallComposer({ markets }: { markets: Market[] }) {
             })}
           </div>
           <p className="mt-2 flex items-start gap-1.5 text-[12px] leading-relaxed text-faint">
-            <span aria-hidden="true" className="text-gold">
-              ◇
-            </span>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="mt-1 shrink-0 text-gold"><path d="M6 1l5 5-5 5-5-5z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" /></svg>
             {t.pairWhy}
           </p>
         </div>
 
         <div>
-          <label className="mb-1.5 block text-[12px] uppercase tracking-wide text-faint">
+          <label className="t-label mb-2 block">
             {t.amount}
           </label>
           <Segmented
@@ -340,7 +338,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
           />
         </div>
 
-        <dl className="tint-gold flex items-start gap-8 rounded-2xl border border-gold/20 bg-surface-2 px-4 py-4">
+        <dl className="flex items-start gap-8 rounded-md border border-border bg-surface-2 px-4 py-4">
           <div>
             <dt className="t-label">{t.youRisk}</dt>
             <dd className="t-figure mt-1.5 text-[22px] text-text">{money(stake, locale)}</dd>
@@ -412,7 +410,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               onClick={submit}
               whileTap={reduce || !ready ? undefined : { scale: 0.985 }}
               transition={{ type: "spring", stiffness: 400, damping: 22 }}
-              className={`w-full rounded-xl px-4 py-4 text-[15px] font-semibold text-on-gold transition-colors disabled:opacity-40 ${
+              className={`w-full rounded-md border border-text px-4 py-4 text-[15px] font-semibold text-on-gold transition-colors disabled:opacity-40 ${
                 ready ? "cta-live glow-gold bg-gold hover:bg-gold/90" : "bg-gold"
               }`}
             >
