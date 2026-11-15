@@ -51,7 +51,7 @@ export function ThemeToggle() {
         onClick={() => setTheme(next)}
         aria-label={`${t.theme}: ${label[theme]}`}
         title={`${t.theme}: ${label[theme]}`}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-border bg-surface text-muted sm:hidden"
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-border bg-surface text-muted sm:hidden"
       >
         {reduce ? (
           ICONS[theme]
@@ -74,7 +74,7 @@ export function ThemeToggle() {
       <div
         role="radiogroup"
         aria-label={t.theme}
-        className="hidden items-center rounded-full border border-border bg-surface p-0.5 sm:flex"
+        className="hidden items-center rounded-md border border-border bg-surface p-0.5 sm:flex"
       >
         {ORDER.map((v) => {
           const active = v === theme;
@@ -87,16 +87,16 @@ export function ThemeToggle() {
               aria-label={label[v]}
               title={label[v]}
               onClick={() => setTheme(v)}
-              className="relative flex h-11 w-11 items-center justify-center rounded-full"
+              className="relative flex h-11 w-11 items-center justify-center rounded-md"
             >
               {active && !reduce && (
                 <motion.span
                   layoutId="theme-pill"
-                  className="absolute inset-0 rounded-full bg-surface-3"
+                  className="absolute inset-0 rounded-md bg-surface-3"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              {active && reduce && <span className="absolute inset-0 rounded-full bg-surface-3" />}
+              {active && reduce && <span className="absolute inset-0 rounded-md bg-surface-3" />}
               <span className={`relative z-10 ${active ? "text-text" : "text-faint"}`}>
                 {ICONS[v]}
               </span>
