@@ -103,12 +103,12 @@ export function HunchInput({
     <div>
       <label
         htmlFor="hunch"
-        className="mb-1.5 block text-[12px] uppercase tracking-wide text-faint"
+        className="t-label mb-2 block"
       >
         {t.sayIt}
       </label>
       <form
-        className="flex gap-2"
+        className="flex flex-col gap-2 min-[480px]:flex-row"
         onSubmit={(e) => {
           e.preventDefault();
           void read();
@@ -123,12 +123,12 @@ export function HunchInput({
           }}
           placeholder={t.sayItPlaceholder}
           maxLength={MAX_CHARS}
-          className="min-h-11 min-w-0 flex-1 rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-[14px] text-text outline-none placeholder:text-faint focus:border-gold/50"
+          className="min-h-12 min-w-0 flex-1 rounded-md border border-border-bright bg-surface px-3.5 py-2.5 text-[16px] text-text outline-none placeholder:text-faint focus:border-gold focus:ring-2 focus:ring-gold/15"
         />
         <button
           type="submit"
           disabled={!text.trim() || state.k === "reading"}
-          className="min-h-11 shrink-0 rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-on-gold transition-colors hover:bg-gold/90 disabled:opacity-50"
+          className="min-h-12 shrink-0 rounded-md border border-gold bg-gold px-5 py-2.5 text-[14px] font-semibold text-on-gold transition-colors hover:bg-gold/90 disabled:border-border disabled:bg-surface-3 disabled:text-faint disabled:hover:bg-surface-3"
         >
           {state.k === "reading" ? t.reading : t.readIt}
         </button>

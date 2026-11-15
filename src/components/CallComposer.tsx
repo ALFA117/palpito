@@ -219,8 +219,8 @@ export function CallComposer({ markets }: { markets: Market[] }) {
   }
 
   return (
-    <section className="lit-edge rounded-lg border border-text/80 bg-surface p-5 sm:p-7">
-      <h2 className="font-display text-[26px] font-semibold tracking-[-0.015em]">{t.composerTitle}</h2>
+    <section className="lit-edge rounded-lg border border-border-bright bg-surface p-5 sm:p-7">
+      <h2 className="font-display text-[24px] font-semibold tracking-[-0.02em]">{t.composerTitle}</h2>
 
       <div className="mt-4 space-y-3.5">
         <HunchInput windows={allWindows} onResolved={applyHunch} />
@@ -381,7 +381,7 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               type="button"
               disabled={faucet.isPending}
               onClick={() => faucet.request()}
-              className="rounded-lg bg-gold px-4 py-2.5 text-[13px] font-semibold text-on-gold transition-colors hover:bg-gold/90 disabled:opacity-60"
+              className="min-h-11 rounded-md bg-gold px-4 py-2.5 text-[13px] font-semibold text-on-gold transition-colors hover:bg-gold/90 disabled:bg-surface-3 disabled:text-faint"
             >
               {faucet.isPending ? t.faucetPending : t.faucet}
             </button>
@@ -410,8 +410,10 @@ export function CallComposer({ markets }: { markets: Market[] }) {
               onClick={submit}
               whileTap={reduce || !ready ? undefined : { scale: 0.985 }}
               transition={{ type: "spring", stiffness: 400, damping: 22 }}
-              className={`w-full rounded-md border border-text px-4 py-4 text-[15px] font-semibold text-on-gold transition-colors disabled:opacity-40 ${
-                ready ? "cta-live glow-gold bg-gold hover:bg-gold/90" : "bg-gold"
+              className={`w-full rounded-md border px-4 py-4 text-[15px] font-semibold transition-colors ${
+                ready
+                  ? "cta-live border-gold bg-gold text-on-gold hover:bg-gold/90"
+                  : "cursor-not-allowed border-border bg-surface-3 text-faint"
               }`}
             >
               {phase.k === "placing" ? t.placing : t.placeCall}

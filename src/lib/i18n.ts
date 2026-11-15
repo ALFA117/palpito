@@ -150,7 +150,7 @@ const es = {
   closingSoon: "Esta ventana cierra en menos de un minuto: el resultado ya casi está decidido y el precio lo refleja. Si quieres margen, elige otra ventana.",
   // Natural-language composer
   sayIt: "Dilo con tus palabras",
-  sayItPlaceholder: "Ej: creo que el bitcoin cierra arriba en la próxima media hora",
+  sayItPlaceholder: "Ej: el bitcoin sube en la próxima hora",
   readIt: "Convertir",
   reading: "Leyendo...",
   readItHint: "Escríbelo normal. Nosotros buscamos la ventana abierta que le corresponde.",
@@ -385,7 +385,7 @@ const en: Dict = {
   noBookSide: "Nobody is offering that side right now. Try the other side, or another window.",
   closingSoon: "This window closes in under a minute: the outcome is nearly decided and the price already shows it. For some room, pick another window.",
   sayIt: "Say it in your own words",
-  sayItPlaceholder: "e.g. I think bitcoin closes up over the next half hour",
+  sayItPlaceholder: "e.g. bitcoin goes up over the next hour",
   readIt: "Convert",
   reading: "Reading...",
   readItHint: "Write it normally. We find the open window it belongs to.",

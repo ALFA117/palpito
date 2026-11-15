@@ -24,7 +24,7 @@ function DirectionMark({ direction }: { direction: Call["direction"] }) {
   const up = direction === "UP";
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[13px] font-semibold ${
+      className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[13px] font-semibold ${
         up ? "bg-up-dim text-up" : "bg-down-dim text-down"
       }`}
     >
@@ -97,45 +97,33 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
           </span>
         </header>
 
-        <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-2 text-[15px] leading-snug">
-          <span className="text-muted">{t.called}</span>
-          <span className="font-mono text-[16px] font-semibold">{m.asset}</span>
-          <DirectionMark direction={call.direction} />
-          <NavLink
-            href={`/m/${m.marketId}`}
-            className="group -my-2 inline-flex min-h-11 min-w-11 items-center justify-center"
-          >
-            <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[12px] text-muted transition-colors group-hover:border-border-bright group-hover:text-text">
-              {windowLabel(m.intervalSec)}
-            </span>
-          </NavLink>
-        </p>
+        {/* The call on the left, its state on the right — the verdict sits
+            level with the claim it settles instead of floating mid-card. */}
+        <div className="mt-2 flex items-start gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[15px] leading-snug">
+              <span className="text-muted">{t.called}</span>
+              <span className="font-mono text-[16px] font-semibold">{m.asset}</span>
+              <DirectionMark direction={call.direction} />
+              <NavLink
+                href={`/m/${m.marketId}`}
+                className="group -my-2 inline-flex min-h-11 min-w-11 items-center justify-center"
+              >
+                <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[12px] text-muted transition-colors group-hover:border-border-bright group-hover:text-text">
+                  {windowLabel(m.intervalSec)}
+                </span>
+              </NavLink>
+            </p>
+            <p className="text-[13px] text-faint">
+              {call.direction === "UP" ? t.upLong : t.downLong}
+            </p>
+          </div>
 
-        <p className="mt-1 text-[13px] text-faint">
-          {call.direction === "UP" ? t.upLong : t.downLong}
-        </p>
-
-        {/* Stake and odds get the figure treatment: they are the numbers someone
-            scans, and the old build rendered them at caption size. */}
-        <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-3">
-          <span>
-            <span className="t-figure block text-[20px] text-text">
-              {money(call.stake, locale)}
-            </span>
-            <span className="t-label mt-0.5 block">{t.lblStake} · tUSDC</span>
-          </span>
-          <span>
-            <span className={`t-figure block text-[20px] ${up ? "text-up" : "text-down"}`}>
-              {asPercent(call.price)}
-            </span>
-            <span className="t-label mt-0.5 block">{t.lblPrice}</span>
-          </span>
-
-          <span className="ml-auto flex items-center gap-2">
+          <div className="shrink-0 pt-2">
             {live ? (
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 rounded-md border border-border bg-surface-2 px-2.5 py-1">
                 <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-gold" />
-                <Countdown expiry={m.expiry} className="t-figure text-[17px] text-text" />
+                <Countdown expiry={m.expiry} className="t-figure text-[14px] text-text" />
               </span>
             ) : settling ? (
               <span className="rounded-md bg-surface-3 px-2 py-1 text-[12px] font-semibold text-muted">
@@ -144,8 +132,25 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
             ) : (
               <Verdict outcome={outcome} />
             )}
-          </span>
+          </div>
         </div>
+
+        {/* Stake and odds as a two-cell ledger line: same size, same weight,
+            and a zero stake is shown quietly rather than as a headline. */}
+        <dl className="mt-4 grid grid-cols-2 divide-x divide-border rounded-md border border-border bg-surface-2">
+          <div className="px-3 py-2">
+            <dt className="t-label">{t.lblStake} · tUSDC</dt>
+            <dd className={`t-figure mt-0.5 text-[16px] ${call.stake > 0 ? "text-text" : "text-faint"}`}>
+              {money(call.stake, locale)}
+            </dd>
+          </div>
+          <div className="px-3 py-2">
+            <dt className="t-label">{t.lblPrice}</dt>
+            <dd className={`t-figure mt-0.5 text-[16px] ${up ? "text-up" : "text-down"}`}>
+              {asPercent(call.price)}
+            </dd>
+          </div>
+        </dl>
 
         {call.mintedPair && (
           <div className="mt-3">
@@ -186,7 +191,7 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
           </div>
         )}
 
-        <footer className="mt-4 flex flex-wrap items-center gap-x-4 border-t border-border pt-1 text-[12px]">
+        <footer className="mt-3 flex items-center gap-x-4 text-[12px]">
           {/* The receipt lives on the market page: the line, the oracle's
               closing price and the settlement tx on the testnet explorer. */}
           {(outcome === "won" || outcome === "lost" || outcome === "void") && (
@@ -205,7 +210,7 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
               the venue documents four distinct crossing paths and this is the
               only one of them this app can name with confidence. */}
           {call.kind && !call.mintedPair && (
-            <span className="rounded border border-border px-1.5 py-0.5 font-mono text-[12px] uppercase tracking-wide text-faint">
+            <span className="hidden rounded border border-border px-1.5 py-0.5 font-mono text-[12px] uppercase tracking-wide text-faint sm:inline">
               {call.kind}
             </span>
           )}
@@ -213,13 +218,13 @@ export function CallCard({ call, outcome }: { call: Call; outcome: CallOutcome }
             href={explorerTxUrl(call.txHash)}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-11 items-center font-mono text-faint transition-colors hover:text-muted"
+            className="inline-flex min-h-11 items-center whitespace-nowrap font-mono text-faint transition-colors hover:text-muted"
           >
             tx {call.txHash.slice(0, 8)}
           </a>
           {/* A share card is a receipt of a verdict — only worth pointing at once there is one. */}
           {outcome !== "pending" && (
-            <span className="ml-auto">
+            <span className="ml-auto shrink-0">
               <ShareButton callId={call.id} />
             </span>
           )}
