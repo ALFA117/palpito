@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter, JetBrains_Mono } from "next/font/google";
+import { Source_Serif_4, IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import { cookies, headers } from "next/headers";
 import "./globals.css";
 import { DEFAULT_LOCALE, isLocale, localeFromHeader } from "@/lib/i18n";
@@ -8,24 +8,25 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { isTheme, THEME_COOKIE, type Theme } from "@/lib/theme";
 import { Chrome } from "@/components/Chrome";
 import { Web3Provider } from "@/components/Web3Provider";
-import { AmbientBackground } from "@/components/AmbientBackground";
 
-// Space Grotesk for anything that speaks, Inter for anything that is read, and
-// JetBrains Mono for every number — prices, countdowns, addresses, hashes. The
-// old build ran on one family, which is most of why it read as a template.
-const display = Space_Grotesk({
-  variable: "--font-space-grotesk",
+// "Ledger": Source Serif 4 for headlines (editorial, serious), IBM Plex Sans
+// for everything read, IBM Plex Mono for every number — prices, countdowns,
+// addresses, hashes.
+const display = Source_Serif_4({
+  variable: "--font-serif-display",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["500", "600"],
+  style: ["normal", "italic"],
   display: "swap",
 });
-const body = Inter({
-  variable: "--font-inter",
+const body = IBM_Plex_Sans({
+  variable: "--font-plex-sans",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
   display: "swap",
 });
-const mono = JetBrains_Mono({
-  variable: "--font-jetbrains",
+const mono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   display: "swap",
@@ -67,8 +68,6 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       className={`${display.variable} ${body.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-bg text-text">
-        {/* The globe behind every page — see components/AmbientBackground. */}
-        <AmbientBackground />
         <ThemeProvider theme={theme}>
           <Web3Provider>
             <LocaleProvider locale={locale}>
